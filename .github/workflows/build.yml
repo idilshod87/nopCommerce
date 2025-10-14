@@ -22,7 +22,7 @@ jobs:
 
     permissions:
       contents: read
-      packages: write  # доступ для публикации в GHCR
+      packages: write  # разрешение на публикацию в GHCR
 
     steps:
       - name: Checkout source
