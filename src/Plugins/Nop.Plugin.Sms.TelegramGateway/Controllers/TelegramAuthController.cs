@@ -1,6 +1,10 @@
 ﻿namespace Nop.Plugin.Sms.TelegramGateway.Controllers;
 
 using System.Net;
+using System.IO;
+using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Nop.Plugin.Sms.TelegramGateway.Configuration;
@@ -86,12 +90,31 @@ public class TelegramAuthController : BaseApiController
     }
 
     [HttpPost("webhook")]
-    public async Task<IActionResult> ReceiveWebhook(
-        [FromBody] TelegramUpdate update)
+    public async Task<IActionResult> ReceiveWebhook()
     {
         // Log all headers for debugging
         var allHeaders = string.Join(", ", Request.Headers.Select(h => $"{h.Key}={string.Join(";", h.Value.ToArray())}"));
         _logger.LogInformation("Webhook headers: {Headers}", allHeaders);
+
+        Request.EnableBuffering();
+        string rawBody;
+        using (var reader = new StreamReader(Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true))
+        {
+            rawBody = await reader.ReadToEndAsync();
+            Request.Body.Position = 0;
+        }
+        _logger.LogInformation("Webhook request (raw body): {Body}", rawBody);
+
+        TelegramUpdate update;
+        try
+        {
+            update = JsonSerializer.Deserialize<TelegramUpdate>(rawBody) ?? throw new JsonException("Deserialized update is null");
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to deserialize Telegram webhook payload");
+            return BadRequest(new { success = false, error = "Invalid Telegram payload" });
+        }
 
         // Try to get secret token from header (case-insensitive)
         var secretToken = Request.Headers["X-Telegram-Bot-Api-Secret-Token"].FirstOrDefault()
@@ -109,7 +132,7 @@ public class TelegramAuthController : BaseApiController
             return Unauthorized();
         }
 
-        if (update?.Message == null)
+        if (update.Message == null)
         {
             _logger.LogInformation("Webhook received but message is null");
             return Ok();
