@@ -94,17 +94,17 @@ public class TelegramAuthController : BaseApiController
         _logger.LogInformation("Webhook headers: {Headers}", allHeaders);
 
         // Try to get secret token from header (case-insensitive)
-        var secretToken = Request.Headers["X-Telegram-Bot-Api-Secret-Token"].FirstOrDefault() 
+        var secretToken = Request.Headers["X-Telegram-Bot-Api-Secret-Token"].FirstOrDefault()
                          ?? Request.Headers["x-telegram-bot-api-secret-token"].FirstOrDefault()
                          ?? Request.Headers["X-Telegram-Bot-Api-Secret-Token"].ToString()
                          ?? Request.Headers.FirstOrDefault(h => h.Key.Equals("X-Telegram-Bot-Api-Secret-Token", StringComparison.OrdinalIgnoreCase)).Value.FirstOrDefault();
 
-        _logger.LogInformation("Received webhook: UpdateId={UpdateId}, SecretTokenPresent={SecretTokenPresent}, SecretTokenLength={SecretTokenLength}", 
+        _logger.LogInformation("Received webhook: UpdateId={UpdateId}, SecretTokenPresent={SecretTokenPresent}, SecretTokenLength={SecretTokenLength}",
             update?.UpdateId, !string.IsNullOrEmpty(secretToken), secretToken?.Length ?? 0);
 
         if (!IsWebhookAuthorized(secretToken))
         {
-            _logger.LogWarning("Webhook unauthorized: SecretToken mismatch. Received={Received}, Configured={Configured}", 
+            _logger.LogWarning("Webhook unauthorized: SecretToken mismatch. Received={Received}, Configured={Configured}",
                 secretToken ?? "(null)", _config.WebhookSecretToken ?? "(null)");
             return Unauthorized();
         }
@@ -116,7 +116,7 @@ public class TelegramAuthController : BaseApiController
         }
 
         var message = update.Message;
-        _logger.LogInformation("Processing message: ChatId={ChatId}, Text={Text}, HasContact={HasContact}", 
+        _logger.LogInformation("Processing message: ChatId={ChatId}, Text={Text}, HasContact={HasContact}",
             message.Chat?.Id, message.Text, message.Contact != null);
 
         if (!string.IsNullOrWhiteSpace(message.Text) && message.Text.StartsWith("/start", StringComparison.OrdinalIgnoreCase))
@@ -180,6 +180,14 @@ public class TelegramAuthController : BaseApiController
         if (contact.UserId.HasValue && contact.UserId.Value != message.From.Id)
             return;
 
+        if (string.IsNullOrWhiteSpace(contact.PhoneNumber))
+        {
+            _logger.LogWarning("Contact message without phone number from ChatId={ChatId}", message.Chat.Id);
+            await _botMessenger.SendTextAsync(message.Chat.Id, "Не удалось получить номер телефона. Пожалуйста, используйте кнопку \"Поделиться номером\".");
+            await _botMessenger.SendContactRequestAsync(message.Chat.Id);
+            return;
+        }
+
         var session = await _authService.GetPendingSessionByChatIdAsync(message.Chat.Id);
         if (session == null)
             return;
@@ -191,7 +199,7 @@ public class TelegramAuthController : BaseApiController
     private bool IsWebhookAuthorized(string secretToken)
     {
         var configured = _config.WebhookSecretToken;
-        
+
         if (string.IsNullOrWhiteSpace(configured))
         {
             _logger.LogWarning("WebhookSecretToken is not configured in settings");
@@ -207,7 +215,7 @@ public class TelegramAuthController : BaseApiController
         var isAuthorized = string.Equals(configured, secretToken, StringComparison.Ordinal);
         if (!isAuthorized)
         {
-            _logger.LogWarning("Secret token mismatch. Expected length={ExpectedLength}, Received length={ReceivedLength}", 
+            _logger.LogWarning("Secret token mismatch. Expected length={ExpectedLength}, Received length={ReceivedLength}",
                 configured.Length, secretToken.Length);
         }
 
