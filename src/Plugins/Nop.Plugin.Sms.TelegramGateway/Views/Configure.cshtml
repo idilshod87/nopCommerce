@@ -1,0 +1,81 @@
+@using Nop.Plugin.Sms.TelegramGateway.Models
+@model ConfigurationModel
+
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+<form asp-controller="TelegramGateway" asp-action="Configure" method="post">
+    <nop-cards id="telegram-gateway">
+        <nop-card asp-name="telegram-gateway-config" asp-icon="fas fa-paper-plane" asp-title="Telegram Gateway Configuration" asp-hide-block-attribute-name="telegram-gateway-general" asp-hide="false" asp-advanced="false">
+            <div class="card-body">
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="BotToken" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="BotToken" />
+                        <span asp-validation-for="BotToken"></span>
+                        <small class="form-text text-muted">Telegram Bot Token from &#64;BotFather</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="BotUsername" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="BotUsername" />
+                        <span asp-validation-for="BotUsername"></span>
+                        <small class="form-text text-muted">Bot username without &#64; (e.g., MetrxAuthBot)</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="WebhookSecretToken" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="WebhookSecretToken" />
+                        <span asp-validation-for="WebhookSecretToken"></span>
+                        <small class="form-text text-muted">Secret token for webhook validation</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="SessionTtlMinutes" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="SessionTtlMinutes" />
+                        <span asp-validation-for="SessionTtlMinutes"></span>
+                        <small class="form-text text-muted">Session time-to-live in minutes</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="VerificationCodeLength" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="VerificationCodeLength" />
+                        <span asp-validation-for="VerificationCodeLength"></span>
+                        <small class="form-text text-muted">Length of verification code (typically 4)</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="VerificationCodeTtlMinutes" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="VerificationCodeTtlMinutes" />
+                        <span asp-validation-for="VerificationCodeTtlMinutes"></span>
+                        <small class="form-text text-muted">Verification code expiration time in minutes</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-9 offset-md-3">
+                        <button type="submit" name="save" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </nop-card>
+    </nop-cards>
+</form>
+

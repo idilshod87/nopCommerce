@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Version Condition=" '$(BUILD_BUILDNUMBER)' == '' ">0.0.1-local</Version>
+    <Version Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</Version>
+    <Description>This plugin allows you to access/create Nop resources outside of the system</Description>
+    <Copyright></Copyright>
+    <Authors>ismatov.dilshod@gmail.com</Authors>
+    <Company></Company>
+    <AssemblyName>Nop.Plugin.Sms.TelegramGateway</AssemblyName>
+    <RootNamespace>Nop.Plugin.Sms.TelegramGateway</RootNamespace>
+    <PluginDirectory>Nop.Plugin.Sms.TelegramGateway</PluginDirectory>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>$(SolutionDir)\Presentation\Nop.Web\Plugins\Sms.TelegramGateway</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>$(SolutionDir)\Presentation\Nop.Web\Plugins\Sms.TelegramGateway</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.22" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="9.0.6" />
+    <PackageReference Include="WTelegramClient" Version="4.3.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Libraries\Nop.Core\Nop.Core.csproj" />
+    <ProjectReference Include="..\..\Libraries\Nop.Data\Nop.Data.csproj" />
+    <ProjectReference Include="..\..\Libraries\Nop.Services\Nop.Services.csproj" />
+    <ProjectReference Include="..\..\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="plugin.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Content Include="Views\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+
+</Project>
