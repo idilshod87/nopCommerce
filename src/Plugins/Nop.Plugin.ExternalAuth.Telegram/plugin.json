@@ -1,0 +1,11 @@
+﻿{
+  "Group": "ExternalAuth methods",
+  "FriendlyName": "Telegram authentication",
+  "SystemName": "ExternalAuth.Telegram",
+  "Version": "4.90.3",
+  "SupportedVersions": [ "4.90" ],
+  "Author": "ismatov.dilshod@gmail.com",
+  "DisplayOrder": 5,
+  "FileName": "Nop.Plugin.ExternalAuth.Telegram.dll",
+  "Description": "This plugin enables Telegram-based external authentication."
+}
