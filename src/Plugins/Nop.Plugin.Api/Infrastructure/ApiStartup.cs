@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using Nop.Core.Configuration;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Api.Authorization.Policies;
@@ -98,9 +99,17 @@ namespace Nop.Plugin.Api.Infrastructure
             {
                 options.AllowSynchronousIO = true;
             });
+            // Configure Newtonsoft.Json globally for API and site
             services.Configure<MvcNewtonsoftJsonOptions>(options =>
             {
+                // keep enum as string
                 options.SerializerSettings.Converters.Add(new StringEnumConverter());
+            });
+
+            // Force camelCase for all JSON responses (admin API, public API, site)
+            services.PostConfigure<MvcNewtonsoftJsonOptions>(options =>
+            {
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
             services.AddSwaggerGen(options =>
             {
@@ -131,6 +140,11 @@ namespace Nop.Plugin.Api.Infrastructure
                 // custom type mappings >>
                 options.MapType<decimal>(() => new OpenApiSchema { Type = "number", Format = "decimal" }); // correct currency typings
                 options.SchemaFilter<DeltaSchemaFilter>();
+
+                // Use full type name as schema ID to avoid conflicts between types with the same short name
+                // e.g. Nop.Plugin.Api.DTOs.ShoppingCarts.ShoppingCartType vs Nop.Core.Domain.Orders.ShoppingCartType
+                options.CustomSchemaIds(type => type.FullName?.Replace("+", ".") ?? type.Name);
+
                 // TODO: options.UseAllOfToExtendReferenceSchemas(); // https://github.com/stepanbenes/api-for-nopcommerce/issues/16
             });
             services.AddSwaggerGenNewtonsoftSupport();
