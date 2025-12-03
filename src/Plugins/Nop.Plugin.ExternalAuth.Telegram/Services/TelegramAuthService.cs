@@ -18,8 +18,16 @@ public interface ITelegramAuthService
     Task<TelegramAuthSession?> GetPendingSessionByChatIdAsync(long chatId, CancellationToken cancellationToken = default);
     Task<TelegramAuthSession> HandleStartAsync(Guid sessionToken, long chatId, long userId, string? username, string? payload, CancellationToken cancellationToken = default);
     Task<TelegramAuthSession> HandleContactAsync(Guid sessionToken, long userId, string phoneNumber, string? firstName, string? lastName, CancellationToken cancellationToken = default);
-    Task<TokenResponse> VerifyCodeAsync(Guid sessionToken, string code, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Verifies the provided code for the given session and returns verification result.
+    /// </summary>
+    Task<TelegramVerificationResult> VerifyCodeAsync(Guid sessionToken, string code, CancellationToken cancellationToken = default);
 }
+
+/// <summary>
+/// Represents result of successful Telegram session verification.
+/// </summary>
+public record TelegramVerificationResult(Customer Customer, bool IsNewCustomer);
 
 public class TelegramAuthService : ITelegramAuthService
 {
@@ -126,7 +134,7 @@ public class TelegramAuthService : ITelegramAuthService
         return session;
     }
 
-    public async Task<TokenResponse> VerifyCodeAsync(Guid sessionToken, string code, CancellationToken cancellationToken = default)
+    public async Task<TelegramVerificationResult> VerifyCodeAsync(Guid sessionToken, string code, CancellationToken cancellationToken = default)
     {
         var session = await RequireSessionAsync(sessionToken, cancellationToken);
 
@@ -146,9 +154,18 @@ public class TelegramAuthService : ITelegramAuthService
         if (!string.Equals(session.VerificationCode, code, StringComparison.Ordinal))
             throw new InvalidOperationException("Verification code is invalid.");
 
-        var customer = session.CustomerId.HasValue
-            ? await _customerService.GetCustomerByIdAsync(session.CustomerId.Value)
-            : await CreateOrLinkCustomerAsync(session, cancellationToken);
+        Customer customer;
+        var isNew = false;
+
+        if (session.CustomerId.HasValue)
+        {
+            customer = await _customerService.GetCustomerByIdAsync(session.CustomerId.Value)
+                       ?? throw new InvalidOperationException($"Customer {session.CustomerId.Value} not found.");
+        }
+        else
+        {
+            (customer, isNew) = await CreateOrLinkCustomerAsync(session, cancellationToken);
+        }
 
         session.CustomerId = customer.Id;
         session.VerifiedOnUtc = DateTime.UtcNow;
@@ -157,26 +174,18 @@ public class TelegramAuthService : ITelegramAuthService
 
         await _sessionRepository.UpdateAsync(session, false);
 
-        var accessToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
-        var now = DateTime.UtcNow;
-        var response = new TokenResponse(accessToken, now, now.AddMinutes(_config.SessionTtlMinutes))
-        {
-            Username = customer.Username,
-            CustomerId = customer.Id,
-            CustomerGuid = customer.CustomerGuid
-        };
-
-        return response;
+        // Return verification result; token is generated later by shared JwtTokenService
+        return new TelegramVerificationResult(customer, isNew);
     }
 
-    private async Task<Customer> CreateOrLinkCustomerAsync(TelegramAuthSession session, CancellationToken cancellationToken)
+    private async Task<(Customer customer, bool isNew)> CreateOrLinkCustomerAsync(TelegramAuthSession session, CancellationToken cancellationToken)
     {
         var phone = session.PhoneNumber;
         if (!string.IsNullOrWhiteSpace(phone))
         {
             var existing = await _customerService.GetAllCustomersAsync(phone: phone, pageSize: 1);
             if (existing.Any())
-                return existing.First();
+                return (existing.First(), false);
         }
 
         var customer = await _customerService.InsertGuestCustomerAsync();
@@ -190,7 +199,7 @@ public class TelegramAuthService : ITelegramAuthService
         customer.LastActivityDateUtc = DateTime.UtcNow;
 
         await _customerService.UpdateCustomerAsync(customer);
-        return customer;
+        return (customer, true);
     }
 
     private static string NormalizePhoneNumber(string phoneNumber)

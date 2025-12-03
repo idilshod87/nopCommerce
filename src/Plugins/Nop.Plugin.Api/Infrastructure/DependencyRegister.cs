@@ -91,7 +91,7 @@ namespace Nop.Plugin.Api.Infrastructure
             services.AddScoped(typeof(ParametersModelBinder<>));
             services.AddScoped(typeof(JsonModelBinder<>));
 
-            services.AddScoped<IJwtTokenService, JwtTokenService>();
+            services.AddScoped<Nop.Services.Authentication.IJwtTokenService, JwtTokenService>();
             services.AddScoped<ICustomerLoginApiService, CustomerLoginApiService>();
         }
     }

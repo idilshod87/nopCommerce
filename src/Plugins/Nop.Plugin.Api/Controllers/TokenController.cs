@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Customers;
 using Nop.Plugin.Api.Infrastructure;
 using Nop.Plugin.Api.Models.Authentication;
-using Nop.Plugin.Api.Services;
 using Nop.Services.Authentication;
 using Nop.Services.Customers;
 using Nop.Services.Logging;
@@ -93,7 +92,15 @@ namespace Nop.Plugin.Api.Controllers
                 await _shoppingCartService.MigrateShoppingCartAsync(oldCustomer, newCustomer, true); // migrate shopping cart items to newly logged in customer
             }
 
-            var tokenResponse = _jwtTokenService.GenerateToken(newCustomer);
+            var jwt = _jwtTokenService.GenerateToken(newCustomer);
+
+            var tokenResponse = new TokenResponse(jwt.AccessToken, jwt.CreatedAtUtc, jwt.ExpiresAtUtc)
+            {
+                CustomerId = jwt.CustomerId,
+                CustomerGuid = jwt.CustomerGuid,
+                Username = jwt.Username,
+                TokenType = "Bearer"
+            };
 
             await _authenticationService.SignInAsync(newCustomer, model.RememberMe); // update cookie-based authentication - not needed for api, avoids automatic generation of guest customer with each request to api
 

@@ -11,6 +11,7 @@ using Nop.Plugin.ExternalAuth.Telegram.Configuration;
 using Nop.Plugin.ExternalAuth.Telegram.Models;
 using Nop.Plugin.ExternalAuth.Telegram.Services;
 using Nop.Plugin.ExternalAuth.Telegram.Domain.TelegramWebhook;
+using Nop.Services.Authentication;
 
 [Route("api/telegram-auth")]
 public class TelegramAuthController : BaseApiController
@@ -19,77 +20,112 @@ public class TelegramAuthController : BaseApiController
     private readonly ITelegramBotMessenger _botMessenger;
     private readonly TelegramGatewayConfiguration _config;
     private readonly ILogger<TelegramAuthController> _logger;
+    private readonly IJwtTokenService _jwtTokenService;
 
     public TelegramAuthController(
         ITelegramAuthService authService,
         ITelegramBotMessenger botMessenger,
         TelegramGatewayConfiguration config,
-        ILogger<TelegramAuthController> logger)
+        ILogger<TelegramAuthController> logger,
+        IJwtTokenService jwtTokenService)
     {
         _authService = authService;
         _botMessenger = botMessenger;
         _config = config;
         _logger = logger;
+        _jwtTokenService = jwtTokenService;
     }
 
     [HttpPost("session")]
+    [ProducesResponseType(typeof(StartTelegramSessionResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(TelegramErrorResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> StartSession([FromBody] StartTelegramSessionRequest request)
     {
         var session = await _authService.CreateSessionAsync(request?.ClientHint);
 
         if (string.IsNullOrWhiteSpace(_config.BotUsername))
-            return Problem("Bot username is not configured.", statusCode: (int)HttpStatusCode.InternalServerError);
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new TelegramErrorResponse(false, "Bot username is not configured."));
 
         var deepLink = $"https://t.me/{_config.BotUsername}?start={session.SessionToken:N}";
-        return Ok(new
-        {
-            success = true,
-            sessionToken = session.SessionToken,
-            botUrl = deepLink,
-            codeLength = _config.VerificationCodeLength,
-            codeTtlMinutes = _config.VerificationCodeTtlMinutes
-        });
+
+        var response = new StartTelegramSessionResponse(
+            Success: true,
+            SessionToken: session.SessionToken,
+            BotUrl: deepLink,
+            CodeLength: _config.VerificationCodeLength,
+            CodeTtlMinutes: _config.VerificationCodeTtlMinutes);
+
+        return Ok(response);
     }
 
     [HttpGet("session/{token:guid}")]
+    [ProducesResponseType(typeof(GetTelegramSessionResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(TelegramErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetSession(Guid token)
     {
         var session = await _authService.GetByTokenAsync(token);
         if (session == null)
-            return NotFound(new { success = false, error = "Session not found" });
+            return NotFound(new TelegramErrorResponse(false, "Session not found"));
 
-        return Ok(new
-        {
-            success = true,
-            status = session.Status.ToString(),
-            phoneNumber = session.PhoneNumber,
-            expiresAtUtc = session.CodeExpiresOnUtc,
-            verifiedAtUtc = session.VerifiedOnUtc
-        });
+        var response = new GetTelegramSessionResponse(
+            Success: true,
+            Status: session.Status.ToString(),
+            PhoneNumber: session.PhoneNumber,
+            ExpiresAtUtc: session.CodeExpiresOnUtc,
+            VerifiedAtUtc: session.VerifiedOnUtc);
+
+        return Ok(response);
     }
 
     [HttpPost("session/verify")]
+    [ProducesResponseType(typeof(VerifyTelegramSessionResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(TelegramErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(TelegramErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> VerifySession([FromBody] VerifyTelegramSessionRequest request)
     {
         if (!Guid.TryParse(request.SessionToken, out var token))
-            return BadRequest(new { success = false, error = "Invalid session token" });
+            return BadRequest(new TelegramErrorResponse(false, "Invalid session token"));
 
         try
         {
-            var tokenResponse = await _authService.VerifyCodeAsync(token, request.Code);
-            return Ok(new { success = true, token = tokenResponse });
+            // Verify code and get or create the corresponding customer
+            var verification = await _authService.VerifyCodeAsync(token, request.Code);
+            var customer = verification.Customer;
+
+            // Generate nopCommerce JWT access token for the verified customer
+            var jwt = _jwtTokenService.GenerateToken(customer);
+
+            var jwtPayload = new TelegramJwtTokenDto(
+                AccessToken: jwt.AccessToken,
+                TokenType: "Bearer",
+                CreatedAtUtc: jwt.CreatedAtUtc,
+                ExpiresAtUtc: jwt.ExpiresAtUtc,
+                Username: jwt.Username,
+                CustomerId: jwt.CustomerId,
+                CustomerGuid: jwt.CustomerGuid);
+
+            var response = new VerifyTelegramSessionResponse(
+                Success: true,
+                Token: jwtPayload,
+                IsNewCustomer: verification.IsNewCustomer);
+
+            return Ok(response);
         }
         catch (KeyNotFoundException)
         {
-            return NotFound(new { success = false, error = "Session not found" });
+            return NotFound(new TelegramErrorResponse(false, "Session not found"));
         }
         catch (InvalidOperationException ex)
         {
-            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
+            return BadRequest(new TelegramErrorResponse(false, ex.Message));
         }
     }
 
     [HttpPost("webhook")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(TelegramErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ReceiveWebhook()
     {
         // Log all headers for debugging
@@ -113,7 +149,7 @@ public class TelegramAuthController : BaseApiController
         catch (JsonException ex)
         {
             _logger.LogError(ex, "Failed to deserialize Telegram webhook payload");
-            return BadRequest(new { success = false, error = "Invalid Telegram payload" });
+            return BadRequest(new TelegramErrorResponse(false, "Invalid Telegram payload"));
         }
 
         // Try to get secret token from header (case-insensitive)
