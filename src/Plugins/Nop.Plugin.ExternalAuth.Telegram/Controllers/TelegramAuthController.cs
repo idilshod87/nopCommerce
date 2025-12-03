@@ -49,12 +49,14 @@ public class TelegramAuthController : BaseApiController
 
         var deepLink = $"https://t.me/{_config.BotUsername}?start={session.SessionToken:N}";
 
-        var response = new StartTelegramSessionResponse(
-            Success: true,
-            SessionToken: session.SessionToken,
-            BotUrl: deepLink,
-            CodeLength: _config.VerificationCodeLength,
-            CodeTtlMinutes: _config.VerificationCodeTtlMinutes);
+        var response = new StartTelegramSessionResponse
+        {
+            Success = true,
+            SessionToken = session.SessionToken,
+            BotUrl = deepLink,
+            CodeLength = _config.VerificationCodeLength,
+            CodeTtlMinutes = _config.VerificationCodeTtlMinutes
+        };
 
         return Ok(response);
     }
@@ -68,12 +70,14 @@ public class TelegramAuthController : BaseApiController
         if (session == null)
             return NotFound(new TelegramErrorResponse(false, "Session not found"));
 
-        var response = new GetTelegramSessionResponse(
-            Success: true,
-            Status: session.Status.ToString(),
-            PhoneNumber: session.PhoneNumber,
-            ExpiresAtUtc: session.CodeExpiresOnUtc,
-            VerifiedAtUtc: session.VerifiedOnUtc);
+        var response = new GetTelegramSessionResponse
+        {
+            Success = true,
+            Status = session.Status.ToString(),
+            PhoneNumber = session.PhoneNumber,
+            ExpiresAtUtc = session.CodeExpiresOnUtc,
+            VerifiedAtUtc = session.VerifiedOnUtc
+        };
 
         return Ok(response);
     }
@@ -96,19 +100,23 @@ public class TelegramAuthController : BaseApiController
             // Generate nopCommerce JWT access token for the verified customer
             var jwt = _jwtTokenService.GenerateToken(customer);
 
-            var jwtPayload = new TelegramJwtTokenDto(
-                AccessToken: jwt.AccessToken,
-                TokenType: "Bearer",
-                CreatedAtUtc: jwt.CreatedAtUtc,
-                ExpiresAtUtc: jwt.ExpiresAtUtc,
-                Username: jwt.Username,
-                CustomerId: jwt.CustomerId,
-                CustomerGuid: jwt.CustomerGuid);
+            var jwtPayload = new TelegramJwtTokenDto
+            {
+                AccessToken = jwt.AccessToken,
+                TokenType = "Bearer",
+                CreatedAtUtc = jwt.CreatedAtUtc,
+                ExpiresAtUtc = jwt.ExpiresAtUtc,
+                Username = jwt.Username,
+                CustomerId = jwt.CustomerId,
+                CustomerGuid = jwt.CustomerGuid
+            };
 
-            var response = new VerifyTelegramSessionResponse(
-                Success: true,
-                Token: jwtPayload,
-                IsNewCustomer: verification.IsNewCustomer);
+            var response = new VerifyTelegramSessionResponse
+            {
+                Success = true,
+                Token = jwtPayload,
+                IsNewCustomer = verification.IsNewCustomer
+            };
 
             return Ok(response);
         }
