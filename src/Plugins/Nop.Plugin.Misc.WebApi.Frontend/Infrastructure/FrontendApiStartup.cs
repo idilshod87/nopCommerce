@@ -1,17 +1,23 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Nop.Core.Infrastructure;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -91,6 +97,23 @@ public class FileUploadOperationFilter : IOperationFilter
 }
 
 /// <summary>
+/// Custom JSON output formatter that applies camelCase only for /public-api routes
+/// </summary>
+public class PublicApiCamelCaseJsonFormatter : NewtonsoftJsonOutputFormatter
+{
+    public PublicApiCamelCaseJsonFormatter(JsonSerializerSettings serializerSettings, ArrayPool<char> charPool, MvcOptions mvcOptions)
+        : base(serializerSettings, charPool, mvcOptions)
+    {
+    }
+
+    public override bool CanWriteResult(OutputFormatterCanWriteContext context)
+    {
+        var path = context.HttpContext.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
+        return path.StartsWith("/public-api/") || path.Equals("/public-api");
+    }
+}
+
+/// <summary>
 /// API startup for public frontend Web API.
 /// Configures endpoint routing for all frontend API controllers and Swagger UI.
 /// </summary>
@@ -98,12 +121,24 @@ public class FrontendApiStartup : INopStartup
 {
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        // Force camelCase JSON for API responses (better for mobile clients and Postman/OpenAPI tooling)
-        services.AddControllers()
-            .AddNewtonsoftJson(options =>
+        // Add custom camelCase formatter for /public-api routes only
+        // Use PostConfigure to add formatter after all other MVC configurations
+        services.PostConfigure<MvcOptions>(options =>
+        {
+            // Insert our custom formatter at the beginning
+            // It will only apply to /public-api routes based on CanWriteResult check
+            var camelCaseSettings = new JsonSerializerSettings
             {
-                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            });
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                NullValueHandling = NullValueHandling.Ignore,
+                DateFormatHandling = DateFormatHandling.IsoDateFormat
+            };
+            
+            options.OutputFormatters.Insert(0, new PublicApiCamelCaseJsonFormatter(
+                camelCaseSettings,
+                ArrayPool<char>.Shared,
+                options));
+        });
 
         // Configure Swagger for frontend API
         services.AddSwaggerGen(options =>

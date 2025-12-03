@@ -107,10 +107,10 @@ namespace Nop.Plugin.Api.Infrastructure
             });
 
             // Force camelCase for all JSON responses (admin API, public API, site)
-            services.PostConfigure<MvcNewtonsoftJsonOptions>(options =>
-            {
-                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            });
+            // services.PostConfigure<MvcNewtonsoftJsonOptions>(options =>
+            // {
+            //     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            // });
             services.AddSwaggerGen(options =>
             {
                 // api description >>
