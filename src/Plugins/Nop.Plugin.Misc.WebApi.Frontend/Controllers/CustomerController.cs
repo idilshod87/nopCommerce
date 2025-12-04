@@ -13,6 +13,7 @@ using Nop.Web.Factories;
 using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Models.Customer;
 using Nop.Web.Models.Common;
+using System.Text.RegularExpressions;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
 
@@ -35,6 +36,7 @@ public class CustomerController : ControllerBase
     private readonly IDownloadService _downloadService;
     private readonly IGenericAttributeService _genericAttributeService;
     private readonly MediaSettings _mediaSettings;
+    private readonly ICustomerRegistrationService _customerRegistrationService;
 
     public CustomerController(
         IWorkContext workContext,
@@ -46,7 +48,8 @@ public class CustomerController : ControllerBase
         IPictureService pictureService,
         IDownloadService downloadService,
         IGenericAttributeService genericAttributeService,
-        MediaSettings mediaSettings)
+        MediaSettings mediaSettings,
+        ICustomerRegistrationService customerRegistrationService)
     {
         _workContext = workContext;
         _customerService = customerService;
@@ -58,6 +61,7 @@ public class CustomerController : ControllerBase
         _downloadService = downloadService;
         _genericAttributeService = genericAttributeService;
         _mediaSettings = mediaSettings;
+        _customerRegistrationService = customerRegistrationService;
     }
 
     private async Task<Customer?> GetCurrentRegisteredCustomerAsync()
@@ -140,6 +144,94 @@ public class CustomerController : ControllerBase
 
         var updated = await _customerModelFactory.PrepareCustomerInfoModelAsync(new CustomerInfoModel(), customer, false);
         return Ok(new ApiResponse<CustomerInfoModel> { Data = updated });
+    }
+
+    #endregion
+
+    #region Complete Profile
+
+    /// <summary>
+    /// POST /customer/completeprofile
+    /// Completes initial profile setup for retailers: updates username and store information (company name and VAT number/INN).
+    /// Store information is stored in Customer.Company and Customer.VatNumber fields.
+    /// </summary>
+    [HttpPost("completeprofile")]
+    [ProducesResponseType(typeof(ApiResponse<OperationResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> CompleteProfile([FromBody] CompleteProfileRequestDto model)
+    {
+        var customer = await GetCurrentRegisteredCustomerAsync();
+        if (customer == null)
+            return Unauthorized();
+
+        // Check if customer has Retailers role
+        if (!await _customerService.IsInCustomerRoleAsync(customer, "Retailers"))
+            return StatusCode(StatusCodes.Status403Forbidden, new { Message = "This endpoint is only available for customers with Retailers role" });
+
+        if (model == null)
+            return BadRequest(new { Message = "Model is required" });
+
+        // Validate model
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage));
+            return BadRequest(new { Message = string.Join("; ", errors) });
+        }
+
+        // Additional validation
+        if (string.IsNullOrWhiteSpace(model.Username))
+            return BadRequest(new { Message = "Username is required" });
+
+        if (model.Username.Length > 256)
+            return BadRequest(new { Message = "Username must not exceed 256 characters" });
+
+        if (string.IsNullOrWhiteSpace(model.Company))
+            return BadRequest(new { Message = "Company name is required" });
+
+        if (string.IsNullOrWhiteSpace(model.VatNumber))
+            return BadRequest(new { Message = "VAT Number (INN) is required" });
+
+        // Validate INN format (14 digits)
+        if (!Regex.IsMatch(model.VatNumber, @"^\d{14}$"))
+            return BadRequest(new { Message = "VAT Number (INN) must be 14 digits" });
+
+        try
+        {
+            // Update username
+            if (_customerSettings.UsernamesEnabled && _customerSettings.AllowUsersToChangeUsernames)
+            {
+                try
+                {
+                    await _customerRegistrationService.SetUsernameAsync(customer, model.Username);
+                }
+                catch (NopException ex)
+                {
+                    return BadRequest(new { Message = ex.Message });
+                }
+            }
+            else if (_customerSettings.UsernamesEnabled)
+            {
+                // If usernames are enabled but users can't change them, just update directly
+                customer.Username = model.Username;
+                await _customerService.UpdateCustomerAsync(customer);
+            }
+
+            // Update store information using standard Customer fields
+            customer.Company = model.Company;
+            customer.VatNumber = model.VatNumber;
+            await _customerService.UpdateCustomerAsync(customer);
+
+            return Ok(new ApiResponse<OperationResultDto>
+            {
+                Data = new OperationResultDto { Success = true, Message = "Profile completed successfully" }
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Message = $"An error occurred while completing the profile: {ex.Message}" });
+        }
     }
 
     #endregion
