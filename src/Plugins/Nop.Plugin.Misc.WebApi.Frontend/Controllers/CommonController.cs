@@ -6,11 +6,13 @@ using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Tax;
+using Nop.Plugin.Misc.WebApi.Frontend.Configuration;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 using Nop.Services.Common;
 using Nop.Services.Directory;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
+using Nop.Services.Configuration;
 using Nop.Services.Stores;
 using Nop.Web.Factories;
 using Nop.Web.Models.Directory;
@@ -40,6 +42,7 @@ public class CommonController : ControllerBase
     private readonly OrderSettings _orderSettings;
     private readonly IStoreService _storeService;
     private readonly ICountryModelFactory _countryModelFactory;
+    private readonly ISettingService _settingService;
 
     public CommonController(
         ILocalizationService localizationService,
@@ -54,7 +57,8 @@ public class CommonController : ControllerBase
         ShoppingCartSettings shoppingCartSettings,
         OrderSettings orderSettings,
         IStoreService storeService,
-        ICountryModelFactory countryModelFactory)
+        ICountryModelFactory countryModelFactory,
+        ISettingService settingService)
     {
         _localizationService = localizationService;
         _languageService = languageService;
@@ -69,6 +73,7 @@ public class CommonController : ControllerBase
         _orderSettings = orderSettings;
         _storeService = storeService;
         _countryModelFactory = countryModelFactory;
+        _settingService = settingService;
     }
 
     /// <summary>
@@ -95,6 +100,7 @@ public class CommonController : ControllerBase
     /// <summary>
     /// GET /home/applandingsetting
     /// Simplified app landing settings for mobile app.
+    /// Uses mobile app specific settings instead of website settings.
     /// </summary>
     [HttpGet("~/public-api/home/applandingsetting")]
     [ProducesResponseType(typeof(ApiResponse<AppLandingSettingsDto>), StatusCodes.Status200OK)]
@@ -106,13 +112,17 @@ public class CommonController : ControllerBase
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
         var wishlist = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.Wishlist, store.Id);
 
+        // Load mobile app specific settings
+        var mobileAppSettings = await _settingService.LoadSettingAsync<MobileAppSettings>();
+
         var data = new AppLandingSettingsDto
         {
             ShowHomepageSlider = false,
-            ShowFeaturedProducts = true,
-            ShowBestsellersOnHomepage = _catalogSettings.ShowBestsellersOnHomepage,
-            ShowHomepageCategoryProducts = true,
-            ShowManufacturers = true,
+            // Use mobile app specific settings instead of website settings
+            ShowFeaturedProducts = mobileAppSettings.ShowFeaturedProducts,
+            ShowBestsellersOnHomepage = mobileAppSettings.ShowBestsellersOnHomepage,
+            ShowHomepageCategoryProducts = mobileAppSettings.ShowHomepageCategoryProducts,
+            ShowManufacturers = mobileAppSettings.ShowManufacturers,
             Rtl = (await _workContext.GetWorkingLanguageAsync()).Rtl,
             AndroidVersion = string.Empty,
             AndriodForceUpdate = false,

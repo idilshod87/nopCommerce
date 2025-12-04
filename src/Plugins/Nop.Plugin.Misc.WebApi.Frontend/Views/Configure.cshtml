@@ -1,27 +1,79 @@
-﻿@using Nop.Plugin.Misc.WebApi.Frontend
+﻿@model MobileAppSettingsModel
+@using Nop.Plugin.Misc.WebApi.Frontend
+@using Nop.Plugin.Misc.WebApi.Frontend.Models
 @{
     Layout = "_ConfigurePlugin";
     NopHtml.SetActiveMenuItemSystemName(WebApiFrontendDefaults.SystemName);
 }
 
+<form asp-controller="WebApiFrontend" asp-action="Configure" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Plugins.Misc.WebApi.Frontend.Configuration")
+        </h1>
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </div>
+    </div>
 
-<h1>Web API (official plugin)</h1>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal">
+                <div class="cards-group">
+                    <div class="card card-default">
+                        <div class="card-header">
+                            <h3 class="card-title">@T("Plugins.Misc.WebApi.Frontend.MobileApp.Settings")</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>@T("Plugins.Misc.WebApi.Frontend.MobileApp.Settings.Description")</p>
+                            
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="ShowFeaturedProducts" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="ShowFeaturedProducts" />
+                                    <span asp-validation-for="ShowFeaturedProducts"></span>
+                                </div>
+                            </div>
 
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="ShowBestsellersOnHomepage" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="ShowBestsellersOnHomepage" />
+                                    <span asp-validation-for="ShowBestsellersOnHomepage"></span>
+                                </div>
+                            </div>
 
-<p>The Web API plugin from nopCommerce allows you to develop any integration with third-party services much faster and cheaper.</p>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="ShowHomepageCategoryProducts" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="ShowHomepageCategoryProducts" />
+                                    <span asp-validation-for="ShowHomepageCategoryProducts"></span>
+                                </div>
+                            </div>
 
-<p>Such features of Web API plugin as:</p>
-<ul>
-    <li>Open source code.</li>
-    <li>The plugin covers all methods of nopCommerce. There are more than 1.100 methods available.</li>
-    <li>JSON Web Tokens (JWT) authentication.</li>
-</ul>
-<p>allow to reduce the time to develop integrations by up to 80%, which means fewer expenditures and more opportunities for enhancing your store capacities.</p>
-
-<p>The open-source code and the coverage of more than 1.100 nopCommerce methods provide you with unlimited capabilities for developing the integrations with any ERP, PIM, CRM, CMS, WMS systems. </p>
-
-<p>Also, it enables you to develop a mobile application or organize an outstanding headless commerce.</p>
-
-
-<a href="https://www.nopcommerce.com/web-api?utm_source=admin-panel&utm_medium=menu&utm_campaign=WebAPI&utm_content=configuration" target="_blank" class="btn btn-primary">Download plugin</a>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="ShowManufacturers" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="ShowManufacturers" />
+                                    <span asp-validation-for="ShowManufacturers"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
 
