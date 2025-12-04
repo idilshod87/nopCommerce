@@ -114,6 +114,94 @@ public class PublicApiCamelCaseJsonFormatter : NewtonsoftJsonOutputFormatter
 }
 
 /// <summary>
+/// Swagger schema filter that converts property names to camelCase
+/// </summary>
+public class CamelCaseSchemaFilter : ISchemaFilter
+{
+    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    {
+        if (schema.Properties == null || schema.Properties.Count == 0)
+            return;
+
+        // Convert all property names to camelCase
+        var newProperties = new Dictionary<string, OpenApiSchema>();
+        foreach (var property in schema.Properties)
+        {
+            var camelCaseName = ToCamelCase(property.Key);
+            newProperties[camelCaseName] = property.Value;
+        }
+        schema.Properties = newProperties;
+
+        // Also update Required list if it exists
+        if (schema.Required != null && schema.Required.Count > 0)
+        {
+            schema.Required = schema.Required.Select(ToCamelCase).ToHashSet();
+        }
+    }
+
+    private static string ToCamelCase(string name)
+    {
+        if (string.IsNullOrEmpty(name) || char.IsLower(name[0]))
+            return name;
+
+        return char.ToLowerInvariant(name[0]) + name.Substring(1);
+    }
+}
+
+/// <summary>
+/// Swagger operation filter that converts parameter names to camelCase
+/// </summary>
+public class CamelCaseParameterFilter : IOperationFilter
+{
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    {
+        if (operation.Parameters == null || operation.Parameters.Count == 0)
+            return;
+
+        // Convert all parameter names to camelCase
+        foreach (var parameter in operation.Parameters)
+        {
+            if (!string.IsNullOrEmpty(parameter.Name))
+            {
+                parameter.Name = ToCamelCase(parameter.Name);
+            }
+        }
+
+        // Also handle request body schema properties if present
+        if (operation.RequestBody?.Content != null)
+        {
+            foreach (var content in operation.RequestBody.Content.Values)
+            {
+                if (content.Schema?.Properties != null)
+                {
+                    var newProperties = new Dictionary<string, OpenApiSchema>();
+                    foreach (var property in content.Schema.Properties)
+                    {
+                        var camelCaseName = ToCamelCase(property.Key);
+                        newProperties[camelCaseName] = property.Value;
+                    }
+                    content.Schema.Properties = newProperties;
+
+                    // Update Required list if it exists
+                    if (content.Schema.Required != null && content.Schema.Required.Count > 0)
+                    {
+                        content.Schema.Required = content.Schema.Required.Select(ToCamelCase).ToHashSet();
+                    }
+                }
+            }
+        }
+    }
+
+    private static string ToCamelCase(string name)
+    {
+        if (string.IsNullOrEmpty(name) || char.IsLower(name[0]))
+            return name;
+
+        return char.ToLowerInvariant(name[0]) + name.Substring(1);
+    }
+}
+
+/// <summary>
 /// API startup for public frontend Web API.
 /// Configures endpoint routing for all frontend API controllers and Swagger UI.
 /// </summary>
@@ -199,6 +287,12 @@ public class FrontendApiStartup : INopStartup
 
             // Configure to handle [FromForm] parameters correctly
             options.OperationFilter<FileUploadOperationFilter>();
+            
+            // Apply camelCase to all parameter names (query, path, header parameters)
+            options.OperationFilter<CamelCaseParameterFilter>();
+            
+            // Apply camelCase to all schema property names
+            options.SchemaFilter<CamelCaseSchemaFilter>();
             
             // Map IFormFile to binary format
             options.MapType<IFormFile>(() => new OpenApiSchema
