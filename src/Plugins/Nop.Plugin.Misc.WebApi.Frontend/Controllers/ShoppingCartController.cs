@@ -53,6 +53,7 @@ public class ShoppingCartController : ControllerBase
 
     private readonly IProductService _productService;
     private readonly IProductAttributeParser _productAttributeParser;
+    private readonly IProductAttributeService _productAttributeService;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly IStoreContext _storeContext;
     private readonly IWorkContext _workContext;
@@ -73,6 +74,7 @@ public class ShoppingCartController : ControllerBase
     public ShoppingCartController(
         IProductService productService,
         IProductAttributeParser productAttributeParser,
+        IProductAttributeService productAttributeService,
         IShoppingCartService shoppingCartService,
         IStoreContext storeContext,
         IWorkContext workContext,
@@ -89,6 +91,7 @@ public class ShoppingCartController : ControllerBase
     {
         _productService = productService;
         _productAttributeParser = productAttributeParser;
+        _productAttributeService = productAttributeService;
         _shoppingCartService = shoppingCartService;
         _storeContext = storeContext;
         _workContext = workContext;
@@ -173,6 +176,97 @@ public class ShoppingCartController : ControllerBase
         };
 
         return Ok(new ApiResponse<AddToCartResultDto> { Data = result });
+    }
+
+    /// <summary>
+    /// POST /shoppingcart/add
+    /// Simplified endpoint for adding product to shopping cart for mobile app.
+    /// Full route: POST /public-api/shoppingCart/add
+    /// Body: { "productId": 123, "quantity": 2 }
+    /// </summary>
+    [HttpPost("add")]
+    [Consumes("application/json")]
+    [ProducesResponseType(typeof(ApiResponse<AddToCartResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> AddToCart([FromBody] AddToCartRequestDto request)
+    {
+        if (request == null)
+            return BadRequest(new { Message = "Request body is required" });
+
+        if (request.ProductId <= 0)
+            return BadRequest(new { Message = "ProductId is required and must be greater than 0" });
+
+        var product = await _productService.GetProductByIdAsync(request.ProductId);
+        if (product == null || product.Deleted || !product.Published)
+            return NotFound(new { Message = "Product not found" });
+
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        if (customer == null || !await _customerService.IsRegisteredAsync(customer))
+            return Unauthorized(new { Message = "Unauthorized" });
+
+        var store = await _storeContext.GetCurrentStoreAsync();
+
+        // Determine quantity (default 1)
+        var quantity = request.Quantity ?? 1;
+        if (quantity <= 0)
+            quantity = product.OrderMinimumQuantity > 0 ? product.OrderMinimumQuantity : 1;
+
+        // Build form collection for quantity in standard nopCommerce format
+        var formValues = new List<FormValueDto>
+        {
+            new()
+            {
+                Key = $"addtocart_{request.ProductId}.EnteredQuantity",
+                Value = quantity.ToString()
+            }
+        };
+
+        // Build form collection and parse attributes (empty attributes for now)
+        var form = BuildFormCollection(new FormValuesRequest { FormValues = formValues });
+
+        var addToCartWarnings = new List<string>();
+        var attributesXml = await _productAttributeParser.ParseProductAttributesAsync(product, form, addToCartWarnings);
+
+        // Add to cart
+        addToCartWarnings.AddRange(await _shoppingCartService.AddToCartAsync(
+            customer,
+            product,
+            ShoppingCartType.ShoppingCart,
+            store.Id,
+            attributesXml,
+            quantity: quantity));
+
+        var success = !addToCartWarnings.Any();
+
+        // Build cart summary
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+        var cartModel = new ShoppingCartModel();
+        cartModel = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(cartModel, cart);
+
+        var cartSummary = new CartSummaryDto
+        {
+            ItemsCount = cartModel.Items.Count,
+            TotalQuantity = cartModel.Items.Sum(i => i.Quantity),
+            // Subtotal information is not directly available on ShoppingCartModel used here,
+            // so we only return quantities and leave monetary fields empty/default.
+            Subtotal = string.Empty,
+            SubtotalValue = 0,
+            CurrencyCode = string.Empty
+        };
+
+        var response = new AddToCartResponseDto
+        {
+            Success = success,
+            Message = success
+                ? "Product added to cart successfully"
+                : "Product added to cart with warnings",
+            CartSummary = cartSummary,
+            Warnings = addToCartWarnings
+        };
+
+        return Ok(new ApiResponse<AddToCartResponseDto> { Data = response });
     }
 
     /// <summary>
