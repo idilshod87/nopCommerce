@@ -5,7 +5,7 @@
 
 ## Endpoint
 ```
-POST /public-api/shoppingCart/add
+POST /public-api/shoppingCart/addcart
 ```
 
 ## Аутентификация
@@ -45,7 +45,7 @@ Authorization: Bearer {token}
 Добавление товара в корзину без указания количества. В корзину будет добавлена **1 штука** товара по умолчанию.
 
 ```bash
-curl -X POST "https://api.example.com/public-api/shoppingCart/add" \
+curl -X POST "https://api.example.com/public-api/shoppingCart/addcart" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -d '{
@@ -77,7 +77,7 @@ curl -X POST "https://api.example.com/public-api/shoppingCart/add" \
 Добавление товара с заранее выбранным количеством. Пользователь в UI выбирает количество (например, 3 штуки), затем нажимает "Добавить в корзину".
 
 ```bash
-curl -X POST "https://api.example.com/public-api/shoppingCart/add" \
+curl -X POST "https://api.example.com/public-api/shoppingCart/addcart" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -d '{
@@ -111,7 +111,7 @@ curl -X POST "https://api.example.com/public-api/shoppingCart/add" \
 
 #### Ошибка: ProductId не указан
 ```bash
-curl -X POST "https://api.example.com/public-api/shoppingCart/add" \
+curl -X POST "https://api.example.com/public-api/shoppingCart/addcart" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -d '{}'
@@ -126,7 +126,7 @@ curl -X POST "https://api.example.com/public-api/shoppingCart/add" \
 
 #### Ошибка: Некорректное количество
 ```bash
-curl -X POST "https://api.example.com/public-api/shoppingCart/add" \
+curl -X POST "https://api.example.com/public-api/shoppingCart/addcart" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -d '{
@@ -144,7 +144,7 @@ curl -X POST "https://api.example.com/public-api/shoppingCart/add" \
 
 #### Ошибка: Товар недоступен
 ```bash
-curl -X POST "https://api.example.com/public-api/shoppingCart/add" \
+curl -X POST "https://api.example.com/public-api/shoppingCart/addcart" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -d '{
@@ -164,7 +164,7 @@ curl -X POST "https://api.example.com/public-api/shoppingCart/add" \
 Пользователь не авторизован или сессия истекла.
 
 ```bash
-curl -X POST "https://api.example.com/public-api/shoppingCart/add" \
+curl -X POST "https://api.example.com/public-api/shoppingCart/addcart" \
   -H "Content-Type: application/json" \
   -d '{
     "productId": 123
@@ -221,5 +221,5 @@ curl -X POST "https://api.example.com/public-api/shoppingCart/add" \
 
 - После успешного добавления товара в корзину, данные сохраняются в `ShoppingCart` для текущего авторизованного пользователя
 - Если товар с такими же параметрами уже есть в корзине, количество может быть увеличено (зависит от бизнес-логики)
-- Для получения актуального состояния корзины после добавления товара, рекомендуется использовать эндпоинт `GET /public-api/cart`
+- Для получения актуального состояния корзины после добавления товара, рекомендуется использовать эндпоинт `GET /public-api/shoppingCart/cart`
 

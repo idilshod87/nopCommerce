@@ -179,12 +179,12 @@ public class ShoppingCartController : ControllerBase
     }
 
     /// <summary>
-    /// POST /shoppingcart/add
+    /// POST /shoppingcart/addcart
     /// Simplified endpoint for adding product to shopping cart for mobile app.
-    /// Full route: POST /public-api/shoppingCart/add
+    /// Full route: POST /public-api/shoppingCart/addcart
     /// Body: { "productId": 123, "quantity": 2 }
     /// </summary>
-    [HttpPost("add")]
+    [HttpPost("addcart")]
     [Consumes("application/json")]
     [ProducesResponseType(typeof(ApiResponse<AddToCartResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
