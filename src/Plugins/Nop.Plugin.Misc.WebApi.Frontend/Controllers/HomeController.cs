@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#nullable enable
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
@@ -11,6 +12,9 @@ using Nop.Services.Configuration;
 using Nop.Services.Orders;
 using Nop.Services.Seo;
 using Nop.Services.Stores;
+using Nop.Web.Factories;
+using Nop.Web.Models.Catalog;
+using Nop.Web.Models.Media;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
 
@@ -30,6 +34,7 @@ public class HomeController : ControllerBase
     private readonly IWorkContext _workContext;
     private readonly IStoreContext _storeContext;
     private readonly IShoppingCartService _shoppingCartService;
+    private readonly IProductModelFactory _productModelFactory;
     private readonly CustomerSettings _customerSettings;
     private readonly CatalogSettings _catalogSettings;
     private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -44,6 +49,7 @@ public class HomeController : ControllerBase
         IWorkContext workContext,
         IStoreContext storeContext,
         IShoppingCartService shoppingCartService,
+        IProductModelFactory productModelFactory,
         CustomerSettings customerSettings,
         CatalogSettings catalogSettings,
         ShoppingCartSettings shoppingCartSettings,
@@ -57,6 +63,7 @@ public class HomeController : ControllerBase
         _workContext = workContext;
         _storeContext = storeContext;
         _shoppingCartService = shoppingCartService;
+        _productModelFactory = productModelFactory;
         _customerSettings = customerSettings;
         _catalogSettings = catalogSettings;
         _shoppingCartSettings = shoppingCartSettings;
@@ -92,18 +99,29 @@ public class HomeController : ControllerBase
                 productType: null,
                 visibleIndividuallyOnly: true);
 
-            var productDtos = new List<ProductSummaryDto>();
-            foreach (var product in products)
-            {
-                var productSeName = await _urlRecordService.GetSeNameAsync(product, 0, true, false);
+            // Use ProductModelFactory to prepare all product data
+            var productOverviewModels = await _productModelFactory.PrepareProductOverviewModelsAsync(
+                products, 
+                preparePriceModel: true, 
+                preparePictureModel: true, 
+                productThumbPictureSize: null, 
+                prepareSpecificationAttributes: false);
 
-                productDtos.Add(new ProductSummaryDto
+            var productList = productOverviewModels.ToList();
+
+            // Get subcategories
+            var subCategories = await _categoryService.GetAllCategoriesByParentCategoryIdAsync(category.Id, false);
+            var subCategoryDtos = new List<HomeCategoryWithProductsDto>();
+            foreach (var subCategory in subCategories)
+            {
+                var subCategorySeName = await _urlRecordService.GetSeNameAsync(subCategory, 0, true, false);
+                subCategoryDtos.Add(new HomeCategoryWithProductsDto
                 {
-                    Id = product.Id,
-                    Name = product.Name,
-                    SeName = productSeName,
-                    ShortDescription = product.ShortDescription,
-                    Sku = product.Sku
+                    Id = subCategory.Id,
+                    Name = subCategory.Name,
+                    SeName = subCategorySeName,
+                    SubCategories = new List<HomeCategoryWithProductsDto>(),
+                    Products = new List<ProductOverviewModel>()
                 });
             }
 
@@ -112,7 +130,8 @@ public class HomeController : ControllerBase
                 Id = category.Id,
                 Name = category.Name,
                 SeName = seName,
-                Products = productDtos
+                SubCategories = subCategoryDtos,
+                Products = productList
             });
         }
 
@@ -151,26 +170,22 @@ public class HomeController : ControllerBase
     /// Returns products marked as displayed on home page (simplified featured products).
     /// </summary>
     [HttpGet("featureproducts")]
-    [ProducesResponseType(typeof(ApiResponse<IList<ProductSummaryDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IList<ProductOverviewModel>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetHomepageFeaturedProducts()
     {
         var products = await _productService.GetAllProductsDisplayedOnHomepageAsync();
 
-        var data = new List<ProductSummaryDto>();
-        foreach (var product in products)
-        {
-            var seName = await _urlRecordService.GetSeNameAsync(product, 0, true, false);
-            data.Add(new ProductSummaryDto
-            {
-                Id = product.Id,
-                Name = product.Name,
-                SeName = seName,
-                ShortDescription = product.ShortDescription,
-                Sku = product.Sku
-            });
-        }
+        // Use ProductModelFactory to prepare all product data
+        var productOverviewModels = await _productModelFactory.PrepareProductOverviewModelsAsync(
+            products, 
+            preparePriceModel: true, 
+            preparePictureModel: true, 
+            productThumbPictureSize: null, 
+            prepareSpecificationAttributes: false);
 
-        return Ok(new ApiResponse<IList<ProductSummaryDto>> { Data = data });
+        var data = productOverviewModels.ToList();
+
+        return Ok(new ApiResponse<IList<ProductOverviewModel>> { Data = data });
     }
 
     /// <summary>
@@ -178,26 +193,22 @@ public class HomeController : ControllerBase
     /// Simplified: for now, reuse products displayed on home page.
     /// </summary>
     [HttpGet("bestsellerproducts")]
-    [ProducesResponseType(typeof(ApiResponse<IList<ProductSummaryDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IList<ProductOverviewModel>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetHomepageBestSellerProducts()
     {
         var products = await _productService.GetAllProductsDisplayedOnHomepageAsync();
 
-        var data = new List<ProductSummaryDto>();
-        foreach (var product in products)
-        {
-            var seName = await _urlRecordService.GetSeNameAsync(product, 0, true, false);
-            data.Add(new ProductSummaryDto
-            {
-                Id = product.Id,
-                Name = product.Name,
-                SeName = seName,
-                ShortDescription = product.ShortDescription,
-                Sku = product.Sku
-            });
-        }
+        // Use ProductModelFactory to prepare all product data
+        var productOverviewModels = await _productModelFactory.PrepareProductOverviewModelsAsync(
+            products, 
+            preparePriceModel: true, 
+            preparePictureModel: true, 
+            productThumbPictureSize: null, 
+            prepareSpecificationAttributes: false);
 
-        return Ok(new ApiResponse<IList<ProductSummaryDto>> { Data = data });
+        var data = productOverviewModels.ToList();
+
+        return Ok(new ApiResponse<IList<ProductOverviewModel>> { Data = data });
     }
 
     /// <summary>
