@@ -1,27 +1,17 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
-using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Localization;
-using Nop.Core.Domain.Orders;
-using Nop.Core.Domain.Tax;
-using Nop.Plugin.Misc.WebApi.Frontend.Configuration;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
-using Nop.Services.Common;
 using Nop.Services.Directory;
 using Nop.Services.Localization;
-using Nop.Services.Orders;
-using Nop.Services.Configuration;
-using Nop.Services.Stores;
 using Nop.Web.Factories;
 using Nop.Web.Models.Directory;
-using Nop.Web.Framework.Mvc.Filters;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
 
 /// <summary>
-/// Public API for common/settings endpoints (strings, app landing, language, currency).
+/// Public API for common endpoints (strings, language, currency, country).
 /// </summary>
 [ApiController]
 [IgnoreAntiforgeryToken]
@@ -33,47 +23,20 @@ public class CommonController : ControllerBase
     private readonly ILanguageService _languageService;
     private readonly IWorkContext _workContext;
     private readonly ICurrencyService _currencyService;
-    private readonly IStoreContext _storeContext;
-    private readonly IGenericAttributeService _genericAttributeService;
-    private readonly IShoppingCartService _shoppingCartService;
-    private readonly CustomerSettings _customerSettings;
-    private readonly CatalogSettings _catalogSettings;
-    private readonly ShoppingCartSettings _shoppingCartSettings;
-    private readonly OrderSettings _orderSettings;
-    private readonly IStoreService _storeService;
     private readonly ICountryModelFactory _countryModelFactory;
-    private readonly ISettingService _settingService;
 
     public CommonController(
         ILocalizationService localizationService,
         ILanguageService languageService,
         IWorkContext workContext,
         ICurrencyService currencyService,
-        IStoreContext storeContext,
-        IGenericAttributeService genericAttributeService,
-        IShoppingCartService shoppingCartService,
-        CustomerSettings customerSettings,
-        CatalogSettings catalogSettings,
-        ShoppingCartSettings shoppingCartSettings,
-        OrderSettings orderSettings,
-        IStoreService storeService,
-        ICountryModelFactory countryModelFactory,
-        ISettingService settingService)
+        ICountryModelFactory countryModelFactory)
     {
         _localizationService = localizationService;
         _languageService = languageService;
         _workContext = workContext;
         _currencyService = currencyService;
-        _storeContext = storeContext;
-        _genericAttributeService = genericAttributeService;
-        _shoppingCartService = shoppingCartService;
-        _customerSettings = customerSettings;
-        _catalogSettings = catalogSettings;
-        _shoppingCartSettings = shoppingCartSettings;
-        _orderSettings = orderSettings;
-        _storeService = storeService;
         _countryModelFactory = countryModelFactory;
-        _settingService = settingService;
     }
 
     /// <summary>
@@ -97,51 +60,6 @@ public class CommonController : ControllerBase
         return Ok(new ApiResponse<IList<StringResourceItemDto>> { Data = data });
     }
 
-    /// <summary>
-    /// GET /home/applandingsetting
-    /// Simplified app landing settings for mobile app.
-    /// Uses mobile app specific settings instead of website settings.
-    /// </summary>
-    [HttpGet("~/public-api/home/applandingsetting")]
-    [ProducesResponseType(typeof(ApiResponse<AppLandingSettingsDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAppLandingSetting()
-    {
-        var customer = await _workContext.GetCurrentCustomerAsync();
-        var store = await _storeContext.GetCurrentStoreAsync();
-
-        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-        var wishlist = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.Wishlist, store.Id);
-
-        // Load mobile app specific settings
-        var mobileAppSettings = await _settingService.LoadSettingAsync<MobileAppSettings>();
-
-        var data = new AppLandingSettingsDto
-        {
-            ShowHomepageSlider = false,
-            // Use mobile app specific settings instead of website settings
-            ShowFeaturedProducts = mobileAppSettings.ShowFeaturedProducts,
-            ShowBestsellersOnHomepage = mobileAppSettings.ShowBestsellersOnHomepage,
-            ShowHomepageCategoryProducts = mobileAppSettings.ShowHomepageCategoryProducts,
-            ShowManufacturers = mobileAppSettings.ShowManufacturers,
-            Rtl = (await _workContext.GetWorkingLanguageAsync()).Rtl,
-            AndroidVersion = string.Empty,
-            AndriodForceUpdate = false,
-            PlayStoreUrl = string.Empty,
-            IOSVersion = string.Empty,
-            IOSForceUpdate = false,
-            AppStoreUrl = string.Empty,
-            LogoUrl = string.Empty,
-            TotalShoppingCartProducts = cart.Sum(i => i.Quantity),
-            TotalWishListProducts = wishlist.Sum(i => i.Quantity),
-            NewProductsEnabled = _catalogSettings.NewProductsEnabled,
-            RecentlyViewedProductsEnabled = _catalogSettings.RecentlyViewedProductsEnabled,
-            CompareProductsEnabled = _catalogSettings.CompareProductsEnabled,
-            AllowCustomersToUploadAvatars = _customerSettings.AllowCustomersToUploadAvatars,
-            AnonymousCheckoutAllowed = _orderSettings.AnonymousCheckoutAllowed
-        };
-
-        return Ok(new ApiResponse<AppLandingSettingsDto> { Data = data });
-    }
 
     /// <summary>
     /// POST /appstart

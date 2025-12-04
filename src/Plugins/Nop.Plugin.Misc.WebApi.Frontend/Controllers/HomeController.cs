@@ -1,9 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Nop.Core;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.Orders;
+using Nop.Plugin.Misc.WebApi.Frontend.Configuration;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 using Nop.Services.Catalog;
+using Nop.Services.Configuration;
+using Nop.Services.Orders;
 using Nop.Services.Seo;
+using Nop.Services.Stores;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
 
@@ -20,17 +27,41 @@ public class HomeController : ControllerBase
     private readonly IProductService _productService;
     private readonly IManufacturerService _manufacturerService;
     private readonly IUrlRecordService _urlRecordService;
+    private readonly IWorkContext _workContext;
+    private readonly IStoreContext _storeContext;
+    private readonly IShoppingCartService _shoppingCartService;
+    private readonly CustomerSettings _customerSettings;
+    private readonly CatalogSettings _catalogSettings;
+    private readonly ShoppingCartSettings _shoppingCartSettings;
+    private readonly OrderSettings _orderSettings;
+    private readonly ISettingService _settingService;
 
     public HomeController(
         ICategoryService categoryService,
         IProductService productService,
         IManufacturerService manufacturerService,
-        IUrlRecordService urlRecordService)
+        IUrlRecordService urlRecordService,
+        IWorkContext workContext,
+        IStoreContext storeContext,
+        IShoppingCartService shoppingCartService,
+        CustomerSettings customerSettings,
+        CatalogSettings catalogSettings,
+        ShoppingCartSettings shoppingCartSettings,
+        OrderSettings orderSettings,
+        ISettingService settingService)
     {
         _categoryService = categoryService;
         _productService = productService;
         _manufacturerService = manufacturerService;
         _urlRecordService = urlRecordService;
+        _workContext = workContext;
+        _storeContext = storeContext;
+        _shoppingCartService = shoppingCartService;
+        _customerSettings = customerSettings;
+        _catalogSettings = catalogSettings;
+        _shoppingCartSettings = shoppingCartSettings;
+        _orderSettings = orderSettings;
+        _settingService = settingService;
     }
 
     /// <summary>
@@ -205,6 +236,52 @@ public class HomeController : ControllerBase
         var tree = await Task.WhenAll(rootCategories.Select(BuildNodeAsync));
 
         return Ok(new ApiResponse<IList<CategoryTreeNodeDto>> { Data = tree.ToList() });
+    }
+
+    /// <summary>
+    /// GET /home/applandingsetting
+    /// Returns app landing settings for mobile app homepage.
+    /// Uses mobile app specific settings instead of website settings.
+    /// </summary>
+    [HttpGet("applandingsetting")]
+    [ProducesResponseType(typeof(ApiResponse<AppLandingSettingsDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAppLandingSetting()
+    {
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+        var wishlist = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.Wishlist, store.Id);
+
+        // Load mobile app specific settings
+        var mobileAppSettings = await _settingService.LoadSettingAsync<MobileAppSettings>();
+
+        var data = new AppLandingSettingsDto
+        {
+            ShowHomepageSlider = false,
+            // Use mobile app specific settings instead of website settings
+            ShowFeaturedProducts = mobileAppSettings.ShowFeaturedProducts,
+            ShowBestsellersOnHomepage = mobileAppSettings.ShowBestsellersOnHomepage,
+            ShowHomepageCategoryProducts = mobileAppSettings.ShowHomepageCategoryProducts,
+            ShowManufacturers = mobileAppSettings.ShowManufacturers,
+            Rtl = (await _workContext.GetWorkingLanguageAsync()).Rtl,
+            AndroidVersion = string.Empty,
+            AndriodForceUpdate = false,
+            PlayStoreUrl = string.Empty,
+            IOSVersion = string.Empty,
+            IOSForceUpdate = false,
+            AppStoreUrl = string.Empty,
+            LogoUrl = string.Empty,
+            TotalShoppingCartProducts = cart.Sum(i => i.Quantity),
+            TotalWishListProducts = wishlist.Sum(i => i.Quantity),
+            NewProductsEnabled = _catalogSettings.NewProductsEnabled,
+            RecentlyViewedProductsEnabled = _catalogSettings.RecentlyViewedProductsEnabled,
+            CompareProductsEnabled = _catalogSettings.CompareProductsEnabled,
+            AllowCustomersToUploadAvatars = _customerSettings.AllowCustomersToUploadAvatars,
+            AnonymousCheckoutAllowed = _orderSettings.AnonymousCheckoutAllowed
+        };
+
+        return Ok(new ApiResponse<AppLandingSettingsDto> { Data = data });
     }
 }
 
