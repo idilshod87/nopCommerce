@@ -1,11 +1,14 @@
-using System;
+﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -16,10 +19,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Nop.Core;
+using Nop.Core.Configuration;
+using Nop.Core.Domain.Customers;
 using Nop.Core.Infrastructure;
+using Nop.Services.Authentication;
+using Nop.Services.Customers;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Infrastructure;
@@ -202,6 +212,41 @@ public class CamelCaseParameterFilter : IOperationFilter
 }
 
 /// <summary>
+/// Middleware to set customer in work context from JWT Bearer token
+/// </summary>
+public class JwtCustomerWorkContextMiddleware
+{
+    private readonly RequestDelegate _next;
+
+    public JwtCustomerWorkContextMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
+
+    public async Task InvokeAsync(HttpContext context, IWorkContext workContext, ICustomerService customerService)
+    {
+        // Check if JWT Bearer authentication succeeded
+        var authenticateResult = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+        if (authenticateResult?.Succeeded == true && authenticateResult.Principal != null)
+        {
+            // Try to get CustomerId from JWT claims
+            var customerIdClaim = authenticateResult.Principal.FindFirst("CustomerId");
+            if (customerIdClaim != null && int.TryParse(customerIdClaim.Value, out var customerId))
+            {
+                var customer = await customerService.GetCustomerByIdAsync(customerId);
+                if (customer != null && !customer.Deleted && customer.Active && !customer.RequireReLogin)
+                {
+                    // Set customer in work context
+                    await workContext.SetCurrentCustomerAsync(customer);
+                }
+            }
+        }
+
+        await _next(context);
+    }
+}
+
+/// <summary>
 /// API startup for public frontend Web API.
 /// Configures endpoint routing for all frontend API controllers and Swagger UI.
 /// </summary>
@@ -209,6 +254,10 @@ public class FrontendApiStartup : INopStartup
 {
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
+        // JWT Bearer authentication is configured via JwtBearerAuthenticationRegistrar
+        // which implements IExternalAuthenticationRegistrar and is called automatically
+        // by AddNopAuthentication() in AuthenticationStartup (Order 500)
+        // This avoids conflicts with Autofac by not calling AddAuthentication() twice
         // Add custom camelCase formatter for /public-api routes only
         // Use PostConfigure to add formatter after all other MVC configurations
         services.PostConfigure<MvcOptions>(options =>
@@ -300,6 +349,39 @@ public class FrontendApiStartup : INopStartup
                 Type = "string",
                 Format = "binary"
             });
+
+            // Add Bearer token authentication to Swagger
+            // Only add if not already added by another plugin (e.g., Nop.Plugin.Api)
+            try
+            {
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please enter into field the word 'Bearer' following by space and JWT token",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+            }
+            catch (ArgumentException)
+            {
+                // Bearer scheme already exists (e.g., added by Nop.Plugin.Api), skip
+            }
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
         });
 
         services.AddSwaggerGenNewtonsoftSupport();
@@ -321,6 +403,24 @@ public class FrontendApiStartup : INopStartup
                 branch.UseDeveloperExceptionPage();
 
             branch.UseRouting();
+            
+            // Authenticate using JWT Bearer scheme for API routes
+            branch.Use(async (context, next) =>
+            {
+                // Try to authenticate with JWT Bearer scheme
+                var result = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+                if (result?.Succeeded == true)
+                {
+                    context.User = result.Principal;
+                }
+                await next();
+            });
+            
+            // Set customer in work context from JWT token
+            branch.UseMiddleware<JwtCustomerWorkContextMiddleware>();
+            
+            branch.UseAuthorization();
+            
             branch.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -357,6 +457,7 @@ public class FrontendApiStartup : INopStartup
     }
 
     // Run after core startup, order should be higher than default but before other plugins
+    // JWT Bearer is registered via IExternalAuthenticationRegistrar (JwtBearerAuthenticationRegistrar)
     public int Order => 500;
 }
 

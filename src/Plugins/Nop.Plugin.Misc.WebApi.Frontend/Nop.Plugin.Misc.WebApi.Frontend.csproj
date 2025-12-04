@@ -15,11 +15,13 @@
     <!--Set this parameter to true to get the dlls copied from the NuGet cache to the output of your project.
     You need to set this parameter to true if your plugin has a nuget package 
     to ensure that the dlls copied from the NuGet cache to the output of your project-->
-    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Use the same version as Nop.Plugin.Api to avoid version conflicts -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.22" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="9.0.6" />
   </ItemGroup>
@@ -54,10 +56,20 @@
     <ClearPluginAssemblies Include="$(SolutionDir)\Build\ClearPluginAssemblies.proj" />
   </ItemGroup>
 
+  <!-- Filter to exclude JWT Bearer DLL from being removed by ClearPluginAssemblies -->
+  <!-- We need to keep it because it may not be in main bin folder -->
+  <Target Name="FilterCopyLocalItems" AfterTargets="ResolveLockFileCopyLocalProjectDeps">
+    <ItemGroup>
+      <!-- Keep JWT Bearer and related DLLs, remove everything else -->
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' != 'Microsoft.AspNetCore.Authentication.JwtBearer' AND '%(Filename)' != 'System.IdentityModel.Tokens.Jwt' AND '%(Filename)' != 'Microsoft.IdentityModel.JsonWebTokens' AND '%(Filename)' != 'Microsoft.IdentityModel.Logging' AND '%(Filename)' != 'Microsoft.IdentityModel.Tokens' AND '%(Filename)' != 'Microsoft.IdentityModel.Abstractions'" />
+    </ItemGroup>
+  </Target>
+
   <!-- This target execute after "Build" target -->
   <Target Name="NopTarget" AfterTargets="Build">
     <!-- Delete unnecessary libraries from plugins path -->
     <MSBuild Projects="@(ClearPluginAssemblies)" Properties="PluginPath=$(OutDir)" Targets="NopClear" />
+    <!-- Explicitly keep JWT Bearer DLL if it exists (ClearPluginAssemblies won't delete it if it's not in main bin) -->
   </Target>
 
 </Project>
