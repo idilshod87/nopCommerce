@@ -188,17 +188,44 @@ public class TelegramAuthService : ITelegramAuthService
                 return (existing.First(), false);
         }
 
-        var customer = await _customerService.InsertGuestCustomerAsync();
+        // Create customer directly with Registered and Retailers roles (not as guest)
+        var customer = new Customer
+        {
+            CustomerGuid = Guid.NewGuid(),
+            Phone = phone,
+            Username = session.TelegramUsername ?? $"tg_{session.TelegramUserId ?? 0}",
+            Email = BuildSyntheticEmail(session),
+            FirstName = session.FirstName,
+            LastName = session.LastName,
+            Active = true,
+            CreatedOnUtc = DateTime.UtcNow,
+            LastActivityDateUtc = DateTime.UtcNow
+        };
 
-        customer.Phone = phone;
-        customer.Username = session.TelegramUsername ?? $"tg_{session.TelegramUserId ?? 0}";
-        customer.Email = BuildSyntheticEmail(session);
-        customer.FirstName = session.FirstName;
-        customer.LastName = session.LastName;
-        customer.Active = true;
-        customer.LastActivityDateUtc = DateTime.UtcNow;
+        await _customerService.InsertCustomerAsync(customer);
 
-        await _customerService.UpdateCustomerAsync(customer);
+        // Add 'Registered' role
+        var registeredRole = await _customerService.GetCustomerRoleBySystemNameAsync(NopCustomerDefaults.RegisteredRoleName);
+        if (registeredRole != null)
+        {
+            await _customerService.AddCustomerRoleMappingAsync(new CustomerCustomerRoleMapping 
+            { 
+                CustomerId = customer.Id, 
+                CustomerRoleId = registeredRole.Id 
+            });
+        }
+
+        // Add 'Retailers' role
+        var retailersRole = await _customerService.GetCustomerRoleBySystemNameAsync("Retailers");
+        if (retailersRole != null)
+        {
+            await _customerService.AddCustomerRoleMappingAsync(new CustomerCustomerRoleMapping 
+            { 
+                CustomerId = customer.Id, 
+                CustomerRoleId = retailersRole.Id 
+            });
+        }
+
         return (customer, true);
     }
 
