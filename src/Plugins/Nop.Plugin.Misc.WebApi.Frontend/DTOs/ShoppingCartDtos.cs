@@ -55,4 +55,25 @@ public class CartSummaryDto
     public string CurrencyCode { get; set; } = string.Empty;
 }
 
+/// <summary>
+/// Simplified request DTO for removing items from cart
+/// </summary>
+public class RemoveFromCartRequestDto
+{
+    /// <summary>
+    /// Shopping cart item IDs to remove (required)
+    /// </summary>
+    public IList<int> ItemIds { get; set; } = new List<int>();
+}
+
+/// <summary>
+/// Simplified response DTO for removing items from cart
+/// </summary>
+public class RemoveFromCartResponseDto
+{
+    public bool Success { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public CartSummaryDto? CartSummary { get; set; }
+}
+
 

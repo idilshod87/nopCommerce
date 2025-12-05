@@ -270,6 +270,85 @@ public class ShoppingCartController : ControllerBase
     }
 
     /// <summary>
+    /// POST /shoppingcart/removecart
+    /// Simplified endpoint for removing items from shopping cart for mobile app.
+    /// Full route: POST /public-api/shoppingCart/removecart
+    /// Body: { "itemIds": [123, 456] }
+    /// </summary>
+    [HttpPost("removecart")]
+    [Consumes("application/json")]
+    [ProducesResponseType(typeof(ApiResponse<RemoveFromCartResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> RemoveFromCart([FromBody] RemoveFromCartRequestDto request)
+    {
+        if (request == null)
+            return BadRequest(new { Message = "Request body is required" });
+
+        if (request.ItemIds == null || !request.ItemIds.Any())
+            return BadRequest(new { Message = "ItemIds is required and must contain at least one item ID" });
+
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        if (customer == null || !await _customerService.IsRegisteredAsync(customer))
+            return Unauthorized(new { Message = "Unauthorized" });
+
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+        // Get distinct item IDs to remove
+        var itemIdsToRemove = request.ItemIds.Distinct().ToList();
+        var removedCount = 0;
+        var notFoundIds = new List<int>();
+
+        // Remove items from cart
+        foreach (var itemId in itemIdsToRemove)
+        {
+            var cartItem = cart.FirstOrDefault(item => item.Id == itemId);
+            if (cartItem != null)
+            {
+                await _shoppingCartService.DeleteShoppingCartItemAsync(cartItem);
+                removedCount++;
+            }
+            else
+            {
+                notFoundIds.Add(itemId);
+            }
+        }
+
+        // Get updated cart
+        cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+        var cartModel = new ShoppingCartModel();
+        cartModel = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(cartModel, cart);
+
+        var cartSummary = new CartSummaryDto
+        {
+            ItemsCount = cartModel.Items.Count,
+            TotalQuantity = cartModel.Items.Sum(i => i.Quantity),
+            Subtotal = string.Empty,
+            SubtotalValue = 0,
+            CurrencyCode = string.Empty
+        };
+
+        var message = removedCount > 0
+            ? $"Successfully removed {removedCount} item(s) from cart"
+            : "No items were removed from cart";
+
+        if (notFoundIds.Any())
+        {
+            message += $". Item IDs not found: {string.Join(", ", notFoundIds)}";
+        }
+
+        var response = new RemoveFromCartResponseDto
+        {
+            Success = removedCount > 0,
+            Message = message,
+            CartSummary = cartSummary
+        };
+
+        return Ok(new ApiResponse<RemoveFromCartResponseDto> { Data = response });
+    }
+
+    /// <summary>
     /// POST /shoppingcart/productattributechange/{productId}
     /// Body: { "FormValues": [ { "Key": "product_attribute_{id}", "Value": "{valueId}" }, ... ] }
     /// Returns updated price and stock message for selected attributes.
