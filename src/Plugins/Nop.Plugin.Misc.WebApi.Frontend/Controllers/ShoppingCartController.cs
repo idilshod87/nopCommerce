@@ -13,6 +13,7 @@ using Nop.Services.Attributes;
 using Nop.Services.Catalog;
 using Nop.Services.Common;
 using Nop.Services.Customers;
+using Nop.Services.Directory;
 using Nop.Services.Discounts;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
@@ -66,6 +67,7 @@ public class ShoppingCartController : ControllerBase
     private readonly ICustomerService _customerService;
     private readonly ILocalizationService _localizationService;
     private readonly IShippingService _shippingService;
+    private readonly ICurrencyService _currencyService;
     private readonly ShippingSettings _shippingSettings;
     private static readonly char[] _separator = [','];
 
@@ -87,6 +89,7 @@ public class ShoppingCartController : ControllerBase
         ICustomerService customerService,
         ILocalizationService localizationService,
         IShippingService shippingService,
+        ICurrencyService currencyService,
         ShippingSettings shippingSettings)
     {
         _productService = productService;
@@ -104,6 +107,7 @@ public class ShoppingCartController : ControllerBase
         _customerService = customerService;
         _localizationService = localizationService;
         _shippingService = shippingService;
+        _currencyService = currencyService;
         _shippingSettings = shippingSettings;
     }
 
@@ -223,19 +227,37 @@ public class ShoppingCartController : ControllerBase
             }
         };
 
+        // If product requires customer-entered price, automatically use minimum price to avoid warnings
+        decimal customerEnteredPrice = 0;
+        if (product.CustomerEntersPrice)
+        {
+            var currentCurrency = await _workContext.GetWorkingCurrencyAsync();
+            var minimumPrice = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(product.MinimumCustomerEnteredPrice, currentCurrency);
+            customerEnteredPrice = minimumPrice;
+            formValues.Add(new FormValueDto
+            {
+                Key = $"addtocart_{request.ProductId}.CustomerEnteredPrice",
+                Value = minimumPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            });
+        }
+
         // Build form collection and parse attributes (empty attributes for now)
         var form = BuildFormCollection(new FormValuesRequest { FormValues = formValues });
 
         var addToCartWarnings = new List<string>();
         var attributesXml = await _productAttributeParser.ParseProductAttributesAsync(product, form, addToCartWarnings);
 
-        // Add to cart
+        // Parse customer entered price (will be minimum price if product requires it, otherwise 0)
+        var customerEnteredPriceConverted = await _productAttributeParser.ParseCustomerEnteredPriceAsync(product, form);
+
+        // Add to cart (price will be calculated automatically from product catalog, or use customer entered price if required)
         addToCartWarnings.AddRange(await _shoppingCartService.AddToCartAsync(
             customer,
             product,
             ShoppingCartType.ShoppingCart,
             store.Id,
             attributesXml,
+            customerEnteredPrice: customerEnteredPriceConverted,
             quantity: quantity));
 
         var success = !addToCartWarnings.Any();
