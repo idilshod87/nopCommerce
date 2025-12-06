@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
@@ -151,9 +151,19 @@ public class CatalogController : ControllerBase
     /// </summary>
     [HttpGet("search")]
     [ProducesResponseType(typeof(ApiResponse<SearchModel>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Search([FromQuery] string q, [FromQuery] CatalogProductsCommand command)
+    public async Task<IActionResult> Search([FromQuery] string q, [FromQuery] int[] vid = null, [FromQuery] CatalogProductsCommand command = null)
     {
-        var searchModel = new SearchModel { q = q };
+        command ??= new CatalogProductsCommand();
+        // Use first vendor ID if multiple are provided
+        // Note: The underlying search currently supports only one vendor ID at a time
+        var vendorId = vid != null && vid.Length > 0 ? vid[0] : 0;
+        var searchModel = new SearchModel 
+        { 
+            q = q, 
+            vid = vendorId,
+            advs = vendorId > 0, // Enable advanced search when vendor ID is specified
+            asv = true // Enable vendor search
+        };
         var model = await _catalogModelFactory.PrepareSearchModelAsync(searchModel, command);
 
         return Ok(new ApiResponse<SearchModel> { Data = model });
