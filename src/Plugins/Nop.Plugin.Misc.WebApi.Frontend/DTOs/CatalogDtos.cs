@@ -1,4 +1,6 @@
 #nullable enable
+using Nop.Web.Framework.UI.Paging;
+
 namespace Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 
 /// <summary>
@@ -10,5 +12,13 @@ public class SearchTermAutoCompleteDto
     public int ProductId { get; set; }
     public string? ProductPictureUrl { get; set; }
     public bool ShowLinkToResultSearch { get; set; }
+}
+
+/// <summary>
+/// DTO for paginated vendors response
+/// </summary>
+public record PaginatedVendorsDto : BasePageableModel
+{
+    public IList<Nop.Web.Models.Catalog.VendorModel> Vendors { get; set; } = new List<Nop.Web.Models.Catalog.VendorModel>();
 }
 

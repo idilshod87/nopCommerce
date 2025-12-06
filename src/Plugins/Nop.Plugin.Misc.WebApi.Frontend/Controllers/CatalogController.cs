@@ -3,11 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Media;
-using Nop.Core.Domain.Vendors;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 using Nop.Services.Catalog;
-using Nop.Services.Seo;
-using Nop.Services.Vendors;
 using Nop.Web.Factories;
 using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Models.Catalog;
@@ -15,7 +12,7 @@ using Nop.Web.Models.Catalog;
 namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
 
 /// <summary>
-/// Public API for catalog browsing (categories, manufacturers, vendors, product tags, search), aligned with NopStation Cart API routes.
+/// Public API for catalog browsing (categories, manufacturers, product tags, search), aligned with NopStation Cart API routes.
 /// </summary>
 [ApiController]
 [IgnoreAntiforgeryToken]
@@ -26,11 +23,9 @@ public class CatalogController : ControllerBase
     private readonly ICatalogModelFactory _catalogModelFactory;
     private readonly ICategoryService _categoryService;
     private readonly IManufacturerService _manufacturerService;
-    private readonly IVendorService _vendorService;
     private readonly IProductTagService _productTagService;
     private readonly IProductService _productService;
     private readonly IProductModelFactory _productModelFactory;
-    private readonly IUrlRecordService _urlRecordService;
     private readonly IStoreContext _storeContext;
     private readonly IWorkContext _workContext;
     private readonly CatalogSettings _catalogSettings;
@@ -40,11 +35,9 @@ public class CatalogController : ControllerBase
         ICatalogModelFactory catalogModelFactory,
         ICategoryService categoryService,
         IManufacturerService manufacturerService,
-        IVendorService vendorService,
         IProductTagService productTagService,
         IProductService productService,
         IProductModelFactory productModelFactory,
-        IUrlRecordService urlRecordService,
         IStoreContext storeContext,
         IWorkContext workContext,
         CatalogSettings catalogSettings,
@@ -53,11 +46,9 @@ public class CatalogController : ControllerBase
         _catalogModelFactory = catalogModelFactory;
         _categoryService = categoryService;
         _manufacturerService = manufacturerService;
-        _vendorService = vendorService;
         _productTagService = productTagService;
         _productService = productService;
         _productModelFactory = productModelFactory;
-        _urlRecordService = urlRecordService;
         _storeContext = storeContext;
         _workContext = workContext;
         _catalogSettings = catalogSettings;
@@ -110,36 +101,6 @@ public class CatalogController : ControllerBase
     {
         var models = await _catalogModelFactory.PrepareManufacturerAllModelsAsync();
         return Ok(new ApiResponse<IList<ManufacturerModel>> { Data = models });
-    }
-
-    /// <summary>
-    /// GET /catalog/vendor/{id}
-    /// Get products by vendor.
-    /// </summary>
-    [HttpGet("vendor/{id:int}")]
-    [ProducesResponseType(typeof(ApiResponse<VendorModel>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetVendor(int id, [FromQuery] CatalogProductsCommand command)
-    {
-        var vendor = await _vendorService.GetVendorByIdAsync(id);
-        if (vendor == null || !vendor.Active)
-            return NotFound(new { Message = "Vendor not found" });
-
-        var model = await _catalogModelFactory.PrepareVendorModelAsync(vendor, command);
-
-        return Ok(new ApiResponse<VendorModel> { Data = model });
-    }
-
-    /// <summary>
-    /// GET /catalog/vendor/all
-    /// Get all vendors.
-    /// </summary>
-    [HttpGet("vendor/all")]
-    [ProducesResponseType(typeof(ApiResponse<IList<VendorModel>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllVendors()
-    {
-        var models = await _catalogModelFactory.PrepareVendorAllModelsAsync();
-        return Ok(new ApiResponse<IList<VendorModel>> { Data = models });
     }
 
     /// <summary>
