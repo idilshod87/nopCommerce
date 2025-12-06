@@ -1624,6 +1624,30 @@ public partial class CatalogModelFactory : ICatalogModelFactory
 
         model.CatalogProductsModel = await PrepareSearchProductsModelAsync(model, command);
 
+        // Collect unique vendors from found products
+        if (model.CatalogProductsModel?.Products != null && model.CatalogProductsModel.Products.Any())
+        {
+            var vendorIds = model.CatalogProductsModel.Products
+                .Where(p => p.VendorId > 0)
+                .Select(p => p.VendorId)
+                .Distinct()
+                .ToList();
+
+            foreach (var vendorId in vendorIds)
+            {
+                var vendor = await _vendorService.GetVendorByIdAsync(vendorId);
+                if (vendor != null && !vendor.Deleted && vendor.Active)
+                {
+                    model.FoundVendors.Add(new VendorBriefInfoModel
+                    {
+                        Id = vendor.Id,
+                        Name = await _localizationService.GetLocalizedAsync(vendor, x => x.Name),
+                        SeName = await _urlRecordService.GetSeNameAsync(vendor),
+                    });
+                }
+            }
+        }
+
         return model;
     }
 

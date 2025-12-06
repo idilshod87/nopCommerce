@@ -11,6 +11,7 @@ public partial record SearchModel : BaseNopModel
         AvailableCategories = new List<SelectListItem>();
         AvailableManufacturers = new List<SelectListItem>();
         AvailableVendors = new List<SelectListItem>();
+        FoundVendors = new List<VendorBriefInfoModel>();
         CatalogProductsModel = new CatalogProductsModel();
     }
 
@@ -69,6 +70,11 @@ public partial record SearchModel : BaseNopModel
     public IList<SelectListItem> AvailableCategories { get; set; }
     public IList<SelectListItem> AvailableManufacturers { get; set; }
     public IList<SelectListItem> AvailableVendors { get; set; }
+
+    /// <summary>
+    /// List of vendors found in search results
+    /// </summary>
+    public IList<VendorBriefInfoModel> FoundVendors { get; set; }
 
     #region Nested classes
 

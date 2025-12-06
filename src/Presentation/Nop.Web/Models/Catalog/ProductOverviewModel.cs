@@ -37,4 +37,7 @@ public partial record ProductOverviewModel : BaseNopEntityModel
     public ProductReviewOverviewModel ReviewOverviewModel { get; set; }
 
     public ProductToWishlistModel ProductToWishlist { get; set; }
+
+    //vendor
+    public int VendorId { get; set; }
 }
