@@ -9,9 +9,11 @@ using Nop.Plugin.Misc.WebApi.Frontend.Configuration;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 using Nop.Services.Catalog;
 using Nop.Services.Configuration;
+using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Seo;
 using Nop.Services.Stores;
+using Nop.Services.Vendors;
 using Nop.Web.Factories;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Models.Media;
@@ -35,6 +37,8 @@ public class HomeController : ControllerBase
     private readonly IStoreContext _storeContext;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly IProductModelFactory _productModelFactory;
+    private readonly IVendorService _vendorService;
+    private readonly ILocalizationService _localizationService;
     private readonly CustomerSettings _customerSettings;
     private readonly CatalogSettings _catalogSettings;
     private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -50,6 +54,8 @@ public class HomeController : ControllerBase
         IStoreContext storeContext,
         IShoppingCartService shoppingCartService,
         IProductModelFactory productModelFactory,
+        IVendorService vendorService,
+        ILocalizationService localizationService,
         CustomerSettings customerSettings,
         CatalogSettings catalogSettings,
         ShoppingCartSettings shoppingCartSettings,
@@ -64,6 +70,8 @@ public class HomeController : ControllerBase
         _storeContext = storeContext;
         _shoppingCartService = shoppingCartService;
         _productModelFactory = productModelFactory;
+        _vendorService = vendorService;
+        _localizationService = localizationService;
         _customerSettings = customerSettings;
         _catalogSettings = catalogSettings;
         _shoppingCartSettings = shoppingCartSettings;
@@ -109,6 +117,31 @@ public class HomeController : ControllerBase
 
             var productList = productOverviewModels.ToList();
 
+            // Collect unique vendors from products
+            var foundVendors = new List<VendorBriefInfoModel>();
+            if (productList.Any())
+            {
+                var vendorIds = productList
+                    .Where(p => p.VendorId > 0)
+                    .Select(p => p.VendorId)
+                    .Distinct()
+                    .ToList();
+
+                foreach (var vendorId in vendorIds)
+                {
+                    var vendor = await _vendorService.GetVendorByIdAsync(vendorId);
+                    if (vendor != null && !vendor.Deleted && vendor.Active)
+                    {
+                        foundVendors.Add(new VendorBriefInfoModel
+                        {
+                            Id = vendor.Id,
+                            Name = await _localizationService.GetLocalizedAsync(vendor, x => x.Name),
+                            SeName = await _urlRecordService.GetSeNameAsync(vendor),
+                        });
+                    }
+                }
+            }
+
             // Get subcategories
             var subCategories = await _categoryService.GetAllCategoriesByParentCategoryIdAsync(category.Id, false);
             var subCategoryDtos = new List<HomeCategoryWithProductsDto>();
@@ -121,7 +154,8 @@ public class HomeController : ControllerBase
                     Name = subCategory.Name,
                     SeName = subCategorySeName,
                     SubCategories = new List<HomeCategoryWithProductsDto>(),
-                    Products = new List<ProductOverviewModel>()
+                    Products = new List<ProductOverviewModel>(),
+                    FoundVendors = new List<VendorBriefInfoModel>()
                 });
             }
 
@@ -131,7 +165,8 @@ public class HomeController : ControllerBase
                 Name = category.Name,
                 SeName = seName,
                 SubCategories = subCategoryDtos,
-                Products = productList
+                Products = productList,
+                FoundVendors = foundVendors
             });
         }
 

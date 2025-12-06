@@ -11,6 +11,7 @@ public class HomeCategoryWithProductsDto
     public string SeName { get; set; } = string.Empty;
     public IList<HomeCategoryWithProductsDto> SubCategories { get; set; } = new List<HomeCategoryWithProductsDto>();
     public IList<ProductOverviewModel> Products { get; set; } = new List<ProductOverviewModel>();
+    public IList<VendorBriefInfoModel> FoundVendors { get; set; } = new List<VendorBriefInfoModel>();
     public Dictionary<string, object> CustomProperties { get; set; } = new Dictionary<string, object>();
 }
 
