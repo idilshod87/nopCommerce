@@ -85,7 +85,7 @@ public class VendorController : ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedVendorsDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetVendors([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetVendors([FromQuery] string name = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
         // Validate pagination parameters
         if (pageNumber < 1)
@@ -97,6 +97,7 @@ public class VendorController : ControllerBase
 
         // Get paginated vendors (only active, not deleted)
         var vendors = await _vendorService.GetAllVendorsAsync(
+            name: name ?? string.Empty,
             pageIndex: pageNumber - 1,
             pageSize: pageSize,
             showHidden: false);
