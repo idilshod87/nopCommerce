@@ -371,6 +371,82 @@ public class ShoppingCartController : ControllerBase
     }
 
     /// <summary>
+    /// POST /shoppingcart/updatecartitem
+    /// Simplified endpoint for updating cart item quantity for mobile app.
+    /// Full route: POST /public-api/shoppingCart/updatecartitem
+    /// Body: { "itemId": 123, "quantity": 5 }
+    /// </summary>
+    [HttpPost("updatecartitem")]
+    [Consumes("application/json")]
+    [ProducesResponseType(typeof(ApiResponse<UpdateCartItemQuantityResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateCartItemQuantity([FromBody] UpdateCartItemQuantityRequestDto request)
+    {
+        if (request == null)
+            return BadRequest(new { Message = "Request body is required" });
+
+        if (request.ItemId <= 0)
+            return BadRequest(new { Message = "ItemId is required and must be greater than 0" });
+
+        if (request.Quantity <= 0)
+            return BadRequest(new { Message = "Quantity is required and must be greater than 0" });
+
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        if (customer == null || !await _customerService.IsRegisteredAsync(customer))
+            return Unauthorized(new { Message = "Unauthorized" });
+
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+        // Find the cart item
+        var cartItem = cart.FirstOrDefault(item => item.Id == request.ItemId);
+        if (cartItem == null)
+            return NotFound(new { Message = "Cart item not found" });
+
+        // Update quantity
+        var warnings = await _shoppingCartService.UpdateShoppingCartItemAsync(
+            customer,
+            cartItem.Id,
+            cartItem.AttributesXml,
+            cartItem.CustomerEnteredPrice,
+            cartItem.RentalStartDateUtc,
+            cartItem.RentalEndDateUtc,
+            request.Quantity,
+            true);
+
+        // Get updated cart
+        cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+        var cartModel = new ShoppingCartModel();
+        cartModel = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(cartModel, cart);
+
+        var cartSummary = new CartSummaryDto
+        {
+            ItemsCount = cartModel.Items.Count,
+            TotalQuantity = cartModel.Items.Sum(i => i.Quantity),
+            Subtotal = string.Empty,
+            SubtotalValue = 0,
+            CurrencyCode = string.Empty
+        };
+
+        var success = !warnings.Any();
+        var message = success
+            ? "Cart item quantity updated successfully"
+            : "Cart item quantity updated with warnings";
+
+        var response = new UpdateCartItemQuantityResponseDto
+        {
+            Success = success,
+            Message = message,
+            CartSummary = cartSummary,
+            Warnings = warnings
+        };
+
+        return Ok(new ApiResponse<UpdateCartItemQuantityResponseDto> { Data = response });
+    }
+
+    /// <summary>
     /// POST /shoppingcart/productattributechange/{productId}
     /// Body: { "FormValues": [ { "Key": "product_attribute_{id}", "Value": "{valueId}" }, ... ] }
     /// Returns updated price and stock message for selected attributes.

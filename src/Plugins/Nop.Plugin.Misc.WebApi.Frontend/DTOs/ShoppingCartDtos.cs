@@ -76,4 +76,31 @@ public class RemoveFromCartResponseDto
     public CartSummaryDto? CartSummary { get; set; }
 }
 
+/// <summary>
+/// Simplified request DTO for updating cart item quantity
+/// </summary>
+public class UpdateCartItemQuantityRequestDto
+{
+    /// <summary>
+    /// Shopping cart item ID (required)
+    /// </summary>
+    public int ItemId { get; set; }
+
+    /// <summary>
+    /// New quantity (required, must be greater than 0)
+    /// </summary>
+    public int Quantity { get; set; }
+}
+
+/// <summary>
+/// Simplified response DTO for updating cart item quantity
+/// </summary>
+public class UpdateCartItemQuantityResponseDto
+{
+    public bool Success { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public CartSummaryDto? CartSummary { get; set; }
+    public IList<string> Warnings { get; set; } = new List<string>();
+}
+
 
