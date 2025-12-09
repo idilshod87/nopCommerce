@@ -59,3 +59,11 @@ public class SavePaymentMethodRequest
     public bool UseRewardPoints { get; set; }
 }
 
+/// <summary>
+/// DTO for confirming order with selected cart items
+/// </summary>
+public class ConfirmSelectedOrderRequest
+{
+    public List<int> ItemIds { get; set; } = new();
+}
+

@@ -20,6 +20,7 @@ using Nop.Services.Customers;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Payments;
+using Nop.Services.Catalog;
 using Nop.Services.Shipping;
 using Nop.Services.Tax;
 using Nop.Web.Factories;
@@ -56,6 +57,7 @@ public class CheckoutController : ControllerBase
     private readonly IOrderService _orderService;
     private readonly ILocalizationService _localizationService;
     private readonly ITaxService _taxService;
+    private readonly IProductService _productService;
     private readonly ICountryService _countryService;
     private readonly AddressSettings _addressSettings;
     private readonly CustomerSettings _customerSettings;
@@ -87,6 +89,7 @@ public class CheckoutController : ControllerBase
         IOrderService orderService,
         ILocalizationService localizationService,
         ITaxService taxService,
+        IProductService productService,
         ICountryService countryService,
         AddressSettings addressSettings,
         CustomerSettings customerSettings,
@@ -112,6 +115,7 @@ public class CheckoutController : ControllerBase
         _orderService = orderService;
         _localizationService = localizationService;
         _taxService = taxService;
+        _productService = productService;
         _countryService = countryService;
         _addressSettings = addressSettings;
         _customerSettings = customerSettings;
@@ -559,6 +563,84 @@ public class CheckoutController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<CheckoutCompletedModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<CheckoutConfirmModel>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ConfirmOrder()
+    {
+        return await ConfirmOrderInternal();
+    }
+
+    /// <summary>
+    /// POST /checkout/confirmorder/selected
+    /// Confirm and place order using only selected cart items.
+    /// Body: { "itemIds": [1,2,3] }
+    /// </summary>
+    [HttpPost("confirmorder/selected")]
+    [Consumes("application/json")]
+    [ProducesResponseType(typeof(ApiResponse<CheckoutCompletedModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<CheckoutConfirmModel>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ConfirmSelectedOrder([FromBody] ConfirmSelectedOrderRequest request)
+    {
+        if (_orderSettings.CheckoutDisabled)
+            return BadRequest(new { Message = await _localizationService.GetResourceAsync("Checkout.Disabled") });
+
+        if (request?.ItemIds == null || !request.ItemIds.Any())
+            return BadRequest(new { Message = "ItemIds is required" });
+
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+        if (!cart.Any())
+            return BadRequest(new { Message = "Cart is empty" });
+
+        var selectedIds = request.ItemIds.Distinct().ToList();
+        var missingIds = selectedIds.Except(cart.Select(x => x.Id)).ToList();
+        if (missingIds.Any())
+            return BadRequest(new { Message = $"Items not found in cart: {string.Join(", ", missingIds)}" });
+
+        var itemsToKeep = cart.Where(x => selectedIds.Contains(x.Id)).ToList();
+        if (!itemsToKeep.Any())
+            return BadRequest(new { Message = "No matching items in cart" });
+
+        var itemsToRestore = cart.Where(x => !selectedIds.Contains(x.Id)).ToList();
+
+        // remove unselected items temporarily
+        foreach (var item in itemsToRestore)
+            await _shoppingCartService.DeleteShoppingCartItemAsync(item);
+
+        IActionResult result;
+        try
+        {
+            result = await ConfirmOrderInternal();
+        }
+        finally
+        {
+            // restore unselected items so the cart keeps them after checkout
+            if (itemsToRestore.Any())
+            {
+                foreach (var item in itemsToRestore)
+                {
+                    var product = await _productService.GetProductByIdAsync(item.ProductId);
+                    if (product == null || product.Deleted)
+                        continue;
+
+                    await _shoppingCartService.AddToCartAsync(
+                        customer,
+                        product,
+                        ShoppingCartType.ShoppingCart,
+                        store.Id,
+                        item.AttributesXml,
+                        item.CustomerEnteredPrice,
+                        item.RentalStartDateUtc,
+                        item.RentalEndDateUtc,
+                        item.Quantity,
+                        false);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private async Task<IActionResult> ConfirmOrderInternal()
     {
         if (_orderSettings.CheckoutDisabled)
             return BadRequest(new { Message = await _localizationService.GetResourceAsync("Checkout.Disabled") });

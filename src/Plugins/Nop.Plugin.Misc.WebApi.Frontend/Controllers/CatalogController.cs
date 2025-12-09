@@ -6,7 +6,6 @@ using Nop.Core.Domain.Media;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 using Nop.Services.Catalog;
 using Nop.Web.Factories;
-using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Models.Catalog;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
@@ -157,9 +156,9 @@ public class CatalogController : ControllerBase
         // Use first vendor ID if multiple are provided
         // Note: The underlying search currently supports only one vendor ID at a time
         var vendorId = vid != null && vid.Length > 0 ? vid[0] : 0;
-        var searchModel = new SearchModel 
-        { 
-            q = q, 
+        var searchModel = new SearchModel
+        {
+            q = q,
             vid = vendorId,
             advs = vendorId > 0, // Enable advanced search when vendor ID is specified
             asv = true // Enable vendor search
@@ -199,8 +198,8 @@ public class CatalogController : ControllerBase
 
         var showLinkToResultSearch = _catalogSettings.ShowLinkToAllResultInSearchAutoComplete && (products.TotalCount > productNumber);
 
-        var models = (await _productModelFactory.PrepareProductOverviewModelsAsync(products, false, 
-            _catalogSettings.ShowProductImagesInSearchAutoComplete, 
+        var models = (await _productModelFactory.PrepareProductOverviewModelsAsync(products, false,
+            _catalogSettings.ShowProductImagesInSearchAutoComplete,
             _mediaSettings.AutoCompleteSearchThumbPictureSize)).ToList();
 
         var result = models.Select(p => new SearchTermAutoCompleteDto
