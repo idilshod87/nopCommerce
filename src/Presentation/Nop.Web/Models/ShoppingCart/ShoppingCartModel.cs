@@ -59,6 +59,8 @@ public partial record ShoppingCartModel : BaseNopModel
 
         public string Sku { get; set; }
 
+        public int VendorId { get; set; }
+
         public string VendorName { get; set; }
 
         public PictureModel Picture { get; set; }

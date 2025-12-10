@@ -379,12 +379,16 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
         ArgumentNullException.ThrowIfNull(sci);
 
         var product = await _productService.GetProductByIdAsync(sci.ProductId);
+        var vendor = _vendorSettings.ShowVendorOnOrderDetailsPage
+            ? await _vendorService.GetVendorByProductIdAsync(product.Id)
+            : null;
 
         var cartItemModel = new ShoppingCartModel.ShoppingCartItemModel
         {
             Id = sci.Id,
             Sku = await _productService.FormatSkuAsync(product, sci.AttributesXml),
-            VendorName = _vendorSettings.ShowVendorOnOrderDetailsPage ? (await _vendorService.GetVendorByProductIdAsync(product.Id))?.Name : string.Empty,
+            VendorId = vendor?.Id ?? 0,
+            VendorName = vendor?.Name ?? string.Empty,
             ProductId = sci.ProductId,
             ProductName = await _localizationService.GetLocalizedAsync(product, x => x.Name),
             ProductSeName = await _urlRecordService.GetSeNameAsync(product),
