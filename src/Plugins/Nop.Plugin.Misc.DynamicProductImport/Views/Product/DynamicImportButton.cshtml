@@ -1,0 +1,296 @@
+@using Nop.Web.Areas.Admin.Models.Catalog
+@model ProductSearchModel
+
+@if (!Model.IsLoggedInAsVendor || Model.AllowVendorsToImportProducts)
+{
+    <button type="button" name="dynamicimport" class="btn bg-olive" data-toggle="modal" data-target="#dynamic-import-window">
+        <i class="fas fa-upload"></i>
+        @T("Admin.Catalog.Products.DynamicImport")
+    </button>
+}
+
+@*dynamic import products form with mapping*@
+<div id="dynamic-import-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dynamic-import-window-title">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="dynamic-import-window-title">@T("Admin.Catalog.Products.DynamicImport")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                @Html.AntiForgeryToken()
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <div class="label-wrapper">
+                            <label class="col-form-label">
+                                @T("Admin.Common.ExcelFile")
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="file" id="dynamic-import-file" name="dynamic-import-file" class="form-control" accept=".xlsx" />
+                        <small class="form-text text-muted">@T("Admin.Common.ImportFromExcel.ManyRecordsWarning")</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <div class="label-wrapper">
+                            <label class="col-form-label">
+                                @T("Admin.Vendors")
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <select id="dynamic-import-vendor" class="form-control"></select>
+                    </div>
+                </div>
+                <div class="table-responsive" id="dynamic-import-mapping-wrapper" style="display:none;">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>@T("Admin.Common.Field")</th>
+                                <th>@T("Admin.Common.ExcelColumn")</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dynamic-import-mapping-body"></tbody>
+                    </table>
+                </div>
+                <div class="alert alert-info" id="dynamic-import-tip" style="display:none;">
+                    @T("Admin.Common.ImportFromExcel.DynamicMappingTip")
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" id="dynamic-import-upload">
+                    @T("Admin.Common.Next")
+                </button>
+                <button type="button" class="btn btn-primary" id="dynamic-import-start" disabled>
+                    @T("Admin.Common.Import")
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var dynamicImportState = {
+            fileId: null,
+            columns: [],
+            requiredFields: [],
+            isVendorLocked: @Model.IsLoggedInAsVendor.ToString().ToLower()
+        };
+
+        function resetDynamicImport() {
+            dynamicImportState.fileId = null;
+            dynamicImportState.columns = [];
+            dynamicImportState.requiredFields = [];
+            $('#dynamic-import-file').val('');
+            $('#dynamic-import-mapping-body').empty();
+            $('#dynamic-import-mapping-wrapper').hide();
+            $('#dynamic-import-tip').hide();
+            $('#dynamic-import-start').prop('disabled', true);
+            if (!dynamicImportState.isVendorLocked) {
+                $('#dynamic-import-vendor').prop('disabled', false).empty();
+            }
+        }
+
+        function fillVendors(vendors) {
+            var select = $('#dynamic-import-vendor');
+            select.empty();
+            if (!dynamicImportState.isVendorLocked) {
+                select.append(new Option('@T("Admin.Common.Select")', ''));
+            }
+
+            $.each(vendors || [], function (_, vendor) {
+                select.append(new Option(vendor.name, vendor.id));
+            });
+
+            if (dynamicImportState.isVendorLocked && vendors && vendors.length) {
+                select.val(vendors[0].id);
+                select.prop('disabled', true);
+            }
+        }
+
+        function renderMapping() {
+            var body = $('#dynamic-import-mapping-body');
+            body.empty();
+
+            var fields = dynamicImportState.requiredFields;
+            var optionsHtml = '<option value="">@T("Admin.Common.Select")</option>';
+            $.each(dynamicImportState.columns, function (_, column) {
+                var label = column.name;
+                if (column.preview)
+                    label += ' (' + column.preview + ')';
+                optionsHtml += '<option value="' + column.index + '">' + label + '</option>';
+            });
+
+            $.each(fields, function (_, field) {
+                var row = '<tr class="dynamic-import-mapping-row" data-field="' + field + '">' +
+                    '<td>' + field + ' *</td>' +
+                    '<td><select class="form-control dynamic-import-column">' + optionsHtml + '</select></td>' +
+                    '</tr>';
+                body.append(row);
+            });
+
+            //auto preselect columns if names match
+            body.find('tr').each(function () {
+                var fieldName = $(this).data('field').toString().toLowerCase();
+                var match = dynamicImportState.columns.find(function (c) {
+                    return c.name && c.name.toString().toLowerCase() === fieldName;
+                });
+                if (match) {
+                    $(this).find('select').val(match.index);
+                }
+            });
+
+            $('#dynamic-import-mapping-wrapper').toggle(body.children().length > 0);
+            $('#dynamic-import-tip').toggle(body.children().length > 0);
+            validateDynamicImport();
+        }
+
+        function validateDynamicImport() {
+            var vendorId = $('#dynamic-import-vendor').val();
+            var usedColumns = {};
+            var allRequiredMapped = true;
+
+            $('#dynamic-import-mapping-body tr').each(function () {
+                var field = $(this).data('field').toString().toLowerCase();
+                var columnIndex = parseInt($(this).find('select').val() || 0);
+
+                if (dynamicImportState.requiredFields.some(function (f) { return f.toLowerCase() === field; })) {
+                    if (!columnIndex) {
+                        allRequiredMapped = false;
+                    }
+                }
+
+                if (columnIndex) {
+                    if (usedColumns[columnIndex]) {
+                        allRequiredMapped = false;
+                    }
+                    usedColumns[columnIndex] = true;
+                }
+            });
+
+            var canImport = !!dynamicImportState.fileId && !!vendorId && allRequiredMapped;
+            $('#dynamic-import-start').prop('disabled', !canImport);
+        }
+
+        $('#dynamic-import-mapping-body').on('change', 'select', validateDynamicImport);
+        $('#dynamic-import-vendor').on('change', validateDynamicImport);
+
+        $('#dynamic-import-upload').on('click', function () {
+            var fileInput = $('#dynamic-import-file')[0].files[0];
+            if (!fileInput) {
+                alert('@T("Admin.Common.UploadFile")');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('importexcelfile', fileInput);
+            var token = $('#dynamic-import-window input[name="__RequestVerificationToken"]').val();
+            if (token) {
+                formData.append('__RequestVerificationToken', token);
+            }
+
+            $.ajax({
+                url: '@Url.Action("ImportExcelMappingUpload", "DynamicProductImport")',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (resp) {
+                    if (!resp || resp.success !== true) {
+                        alert(resp && resp.message ? resp.message : '@T("Admin.Common.Error")');
+                        return;
+                    }
+
+                    dynamicImportState.fileId = resp.fileId;
+                    dynamicImportState.columns = resp.columns || [];
+                    dynamicImportState.requiredFields = resp.requiredFields && resp.requiredFields.length
+                        ? resp.requiredFields
+                        : ['SKU', 'Name', 'Price', 'StockQuantity'];
+
+                    fillVendors(resp.vendors || []);
+                    renderMapping();
+                },
+                error: function (xhr) {
+                    var message = (xhr.responseJSON && xhr.responseJSON.message) || '@T("Admin.Common.Error")';
+                    alert(message);
+                }
+            });
+        });
+
+        $('#dynamic-import-start').on('click', function () {
+            if (!dynamicImportState.fileId) {
+                alert('@T("Admin.Common.UploadFile")');
+                return;
+            }
+
+            var vendorIdVal = $('#dynamic-import-vendor').val();
+            var vendorId = vendorIdVal ? parseInt(vendorIdVal, 10) : null;
+            if (!vendorId || vendorId <= 0) {
+                alert('@T("Admin.Catalog.Products.DynamicImport.VendorNotAllowed")');
+                return;
+            }
+
+            var mappings = [];
+            $('#dynamic-import-mapping-body tr').each(function () {
+                var field = $(this).data('field');
+                var columnIndex = parseInt($(this).find('select').val() || 0, 10);
+                if (columnIndex > 0 && field) {
+                    mappings.push({ property: field, columnIndex: columnIndex });
+                }
+            });
+
+            var payload = {
+                fileId: dynamicImportState.fileId,
+                vendorId: vendorId,
+                mappings: mappings
+            };
+
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            $.ajax({
+                url: '@Url.Action("ImportExcelDynamic", "DynamicProductImport")',
+                type: 'POST',
+                data: JSON.stringify(payload),
+                contentType: 'application/json; charset=utf-8',
+                headers: token ? { 'RequestVerificationToken': token } : {},
+                success: function (resp) {
+                    if (resp && resp.success) {
+                        $('#dynamic-import-window').modal('hide');
+                        updateTable('#products-grid');
+                        return;
+                    }
+
+                    alert(resp && resp.message ? resp.message : '@T("Admin.Common.Error")');
+                },
+                error: function (xhr) {
+                    var message = '@T("Admin.Common.Error")';
+                    if (xhr.responseJSON) {
+                        if (xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        } else if (xhr.responseJSON.errors) {
+                            var errors = [];
+                            $.each(xhr.responseJSON.errors, function(key, val) {
+                                errors.push(val.join(', '));
+                            });
+                            message = errors.join('\n');
+                        }
+                    } else if (xhr.responseText) {
+                        try {
+                            var json = JSON.parse(xhr.responseText);
+                            message = json.message || message;
+                        } catch(e) {
+                            message = xhr.responseText.substring(0, 200);
+                        }
+                    }
+                    alert(message);
+                    console.error('Import error:', xhr);
+                }
+            });
+        });
+
+        $('#dynamic-import-window').on('hidden.bs.modal', resetDynamicImport);
+    })();
+</script>
+
