@@ -24,3 +24,4 @@ public class ProductImportDynamicRequestModel
     public string TemplateName { get; set; }
 }
 
+
