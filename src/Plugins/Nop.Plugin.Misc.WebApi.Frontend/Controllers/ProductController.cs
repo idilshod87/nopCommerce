@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
@@ -7,12 +7,8 @@ using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
 using Nop.Services.Localization;
-using Nop.Services.Media;
 using Nop.Services.Orders;
-using Nop.Services.Seo;
-using Nop.Services.Catalog;
 using Nop.Web.Factories;
-using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Models.ShoppingCart;
 
@@ -28,8 +24,6 @@ namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
 public class ProductController : ControllerBase
 {
     private readonly IProductService _productService;
-    private readonly IPictureService _pictureService;
-    private readonly IUrlRecordService _urlRecordService;
     private readonly IProductModelFactory _productModelFactory;
     private readonly IOrderReportService _orderReportService;
     private readonly IStoreContext _storeContext;
@@ -42,8 +36,6 @@ public class ProductController : ControllerBase
 
     public ProductController(
         IProductService productService,
-        IPictureService pictureService,
-        IUrlRecordService urlRecordService,
         IProductModelFactory productModelFactory,
         IOrderReportService orderReportService,
         IStoreContext storeContext,
@@ -55,8 +47,6 @@ public class ProductController : ControllerBase
         ILocalizationService localizationService)
     {
         _productService = productService;
-        _pictureService = pictureService;
-        _urlRecordService = urlRecordService;
         _productModelFactory = productModelFactory;
         _orderReportService = orderReportService;
         _storeContext = storeContext;
@@ -66,23 +56,6 @@ public class ProductController : ControllerBase
         _customerService = customerService;
         _catalogSettings = catalogSettings;
         _localizationService = localizationService;
-    }
-
-    public class EstimateShippingRequest
-    {
-        public int ProductId { get; set; }
-        public int? CountryId { get; set; }
-        public int? StateProvinceId { get; set; }
-        public string? ZipPostalCode { get; set; }
-        public string? City { get; set; }
-        public int Quantity { get; set; } = 1;
-    }
-
-    public class AddProductReviewRequest
-    {
-        public string? Title { get; set; }
-        public string? ReviewText { get; set; }
-        public int Rating { get; set; }
     }
 
     /// <summary>
