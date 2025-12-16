@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Nop.Core;
+using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Media;
 using Nop.Core.Domain.Vendors;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
+using Nop.Services.Common;
 using Nop.Services.Localization;
 using Nop.Services.Media;
 using Nop.Services.Seo;
@@ -30,6 +33,8 @@ public class VendorController : ControllerBase
     private readonly IPictureService _pictureService;
     private readonly VendorSettings _vendorSettings;
     private readonly MediaSettings _mediaSettings;
+    private readonly IAddressService _addressService;
+    private readonly IWorkContext _workContext;
 
     public VendorController(
         ICatalogModelFactory catalogModelFactory,
@@ -38,7 +43,9 @@ public class VendorController : ControllerBase
         ILocalizationService localizationService,
         IPictureService pictureService,
         VendorSettings vendorSettings,
-        MediaSettings mediaSettings)
+        MediaSettings mediaSettings,
+        IAddressService addressService,
+        IWorkContext workContext)
     {
         _catalogModelFactory = catalogModelFactory;
         _vendorService = vendorService;
@@ -47,6 +54,8 @@ public class VendorController : ControllerBase
         _pictureService = pictureService;
         _vendorSettings = vendorSettings;
         _mediaSettings = mediaSettings;
+        _addressService = addressService;
+        _workContext = workContext;
     }
 
     /// <summary>
@@ -63,6 +72,7 @@ public class VendorController : ControllerBase
             return NotFound(new { Message = "Vendor not found" });
 
         var model = await _catalogModelFactory.PrepareVendorModelAsync(vendor, command);
+        model.ContactInfo = await PrepareVendorContactInfoModelAsync(vendor);
 
         return Ok(new ApiResponse<VendorModel> { Data = model });
     }
@@ -76,6 +86,14 @@ public class VendorController : ControllerBase
     public async Task<IActionResult> GetAllVendors()
     {
         var models = await _catalogModelFactory.PrepareVendorAllModelsAsync();
+
+        foreach (var vendorModel in models)
+        {
+            var vendor = await _vendorService.GetVendorByIdAsync(vendorModel.Id);
+            if (vendor != null)
+                vendorModel.ContactInfo = await PrepareVendorContactInfoModelAsync(vendor);
+        }
+
         return Ok(new ApiResponse<IList<VendorModel>> { Data = models });
     }
 
@@ -116,7 +134,8 @@ public class VendorController : ControllerBase
                 MetaTitle = await _localizationService.GetLocalizedAsync(vendor, x => x.MetaTitle),
                 SeName = await _urlRecordService.GetSeNameAsync(vendor),
                 AllowCustomersToContactVendors = _vendorSettings.AllowCustomersToContactVendors,
-                PictureModel = await PrepareVendorPictureModelAsync(vendor)
+                PictureModel = await PrepareVendorPictureModelAsync(vendor),
+                ContactInfo = await PrepareVendorContactInfoModelAsync(vendor)
             };
 
             vendorModels.Add(vendorModel);
@@ -153,6 +172,65 @@ public class VendorController : ControllerBase
             Title = string.Format(await _localizationService.GetResourceAsync("Media.Vendor.ImageLinkTitleFormat"), localizedName),
             AlternateText = string.Format(await _localizationService.GetResourceAsync("Media.Vendor.ImageAlternateTextFormat"), localizedName)
         };
+    }
+
+    private async Task<VendorModel.VendorContactInfoModel> PrepareVendorContactInfoModelAsync(Vendor vendor)
+    {
+        var contactInfo = new VendorModel.VendorContactInfoModel
+        {
+            Email = vendor.Email
+        };
+
+        if (vendor.AddressId <= 0)
+            return contactInfo;
+
+        var address = await _addressService.GetAddressByIdAsync(vendor.AddressId);
+        if (address == null)
+            return contactInfo;
+
+        contactInfo.PhoneNumber = address.PhoneNumber;
+        contactInfo.FaxNumber = address.FaxNumber;
+        contactInfo.Address1 = address.Address1;
+        contactInfo.Address2 = address.Address2;
+        contactInfo.City = address.City;
+        contactInfo.County = address.County;
+        contactInfo.ZipPostalCode = address.ZipPostalCode;
+
+        var languageId = (await _workContext.GetWorkingLanguageAsync()).Id;
+        (contactInfo.AddressLine, var addressFields) = await _addressService.FormatAddressAsync(address, languageId);
+
+        foreach (var field in addressFields)
+        {
+            if (string.IsNullOrWhiteSpace(field.Value))
+                continue;
+
+            switch (field.Key)
+            {
+                case AddressField.Country:
+                    contactInfo.Country = field.Value;
+                    break;
+                case AddressField.StateProvince:
+                    contactInfo.StateProvince = field.Value;
+                    break;
+                case AddressField.City:
+                    contactInfo.City = contactInfo.City ?? field.Value;
+                    break;
+                case AddressField.County:
+                    contactInfo.County = contactInfo.County ?? field.Value;
+                    break;
+                case AddressField.Address1:
+                    contactInfo.Address1 = contactInfo.Address1 ?? field.Value;
+                    break;
+                case AddressField.Address2:
+                    contactInfo.Address2 = contactInfo.Address2 ?? field.Value;
+                    break;
+                case AddressField.ZipPostalCode:
+                    contactInfo.ZipPostalCode = contactInfo.ZipPostalCode ?? field.Value;
+                    break;
+            }
+        }
+
+        return contactInfo;
     }
 }
 
