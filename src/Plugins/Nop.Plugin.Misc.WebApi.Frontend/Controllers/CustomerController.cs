@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Common;
@@ -89,6 +89,7 @@ public class CustomerController : ControllerBase
 
         var model = new CustomerInfoModel();
         model = await _customerModelFactory.PrepareCustomerInfoModelAsync(model, customer, false);
+        RemoveTimeZoneOptions(model);
 
         return Ok(new ApiResponse<CustomerInfoModel> { Data = model });
     }
@@ -143,6 +144,7 @@ public class CustomerController : ControllerBase
         await _customerService.UpdateCustomerAsync(customer);
 
         var updated = await _customerModelFactory.PrepareCustomerInfoModelAsync(new CustomerInfoModel(), customer, false);
+        RemoveTimeZoneOptions(updated);
         return Ok(new ApiResponse<CustomerInfoModel> { Data = updated });
     }
 
@@ -484,6 +486,21 @@ public class CustomerController : ControllerBase
 
         var model = await _customerModelFactory.PrepareCustomerDownloadableProductsModelAsync();
         return Ok(new ApiResponse<CustomerDownloadableProductsModel> { Data = model });
+    }
+
+    #endregion
+
+    #region Utilities
+
+    private static void RemoveTimeZoneOptions(CustomerInfoModel model)
+    {
+        if (model == null)
+            return;
+
+        if (model.AvailableTimeZones?.Count > 0)
+            model.AvailableTimeZones.Clear();
+
+        model.AllowCustomersToSetTimeZone = false;
     }
 
     #endregion
