@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +7,7 @@ using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.Directory;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 using Nop.Services.Attributes;
@@ -227,18 +228,22 @@ public class ShoppingCartController : ControllerBase
             }
         };
 
-        // If product requires customer-entered price, automatically use minimum price to avoid warnings
-        decimal customerEnteredPrice = 0;
+        decimal customerEnteredPriceConverted = decimal.Zero;
         if (product.CustomerEntersPrice)
         {
-            var currentCurrency = await _workContext.GetWorkingCurrencyAsync();
-            var minimumPrice = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(product.MinimumCustomerEnteredPrice, currentCurrency);
-            customerEnteredPrice = minimumPrice;
-            formValues.Add(new FormValueDto
+            var workingCurrency = await _workContext.GetWorkingCurrencyAsync();
+            decimal priceInWorkingCurrency;
+
+            if (request.CustomerEnteredPrice.HasValue && request.CustomerEnteredPrice.Value > decimal.Zero)
             {
-                Key = $"addtocart_{request.ProductId}.CustomerEnteredPrice",
-                Value = minimumPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)
-            });
+                priceInWorkingCurrency = request.CustomerEnteredPrice.Value;
+            }
+            else
+            {
+                priceInWorkingCurrency = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(product.MinimumCustomerEnteredPrice, workingCurrency);
+            }
+
+            customerEnteredPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrencyAsync(priceInWorkingCurrency, workingCurrency);
         }
 
         // Build form collection and parse attributes (empty attributes for now)
@@ -246,9 +251,6 @@ public class ShoppingCartController : ControllerBase
 
         var addToCartWarnings = new List<string>();
         var attributesXml = await _productAttributeParser.ParseProductAttributesAsync(product, form, addToCartWarnings);
-
-        // Parse customer entered price (will be minimum price if product requires it, otherwise 0)
-        var customerEnteredPriceConverted = await _productAttributeParser.ParseCustomerEnteredPriceAsync(product, form);
 
         // Add to cart (price will be calculated automatically from product catalog, or use customer entered price if required)
         addToCartWarnings.AddRange(await _shoppingCartService.AddToCartAsync(

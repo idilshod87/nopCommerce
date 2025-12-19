@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System.Collections.Generic;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.DTOs;
@@ -30,6 +30,11 @@ public class AddToCartRequestDto
     /// Quantity (optional, defaults to 1)
     /// </summary>
     public int? Quantity { get; set; }
+
+    /// <summary>
+    /// Customer-entered price (optional, required only for products that demand it)
+    /// </summary>
+    public decimal? CustomerEnteredPrice { get; set; }
 }
 
 /// <summary>
