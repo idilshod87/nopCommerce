@@ -1,6 +1,7 @@
-#nullable enable
+﻿#nullable enable
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
@@ -67,6 +68,8 @@ public class CheckoutController : ControllerBase
     private readonly TaxSettings _taxSettings;
     private readonly RewardPointsSettings _rewardPointsSettings;
     private static readonly string[] _separator = ["___"];
+    private const string VendorPaymentMethodsAttribute = "WebApi.SelectedVendorPaymentMethods";
+    private const string VendorPaymentMethodsCustomValue = "WebApi.VendorPaymentMethods";
 
     #endregion
 
@@ -484,6 +487,29 @@ public class CheckoutController : ControllerBase
                 store.Id);
         }
 
+        var vendorsInCart = await GetCartVendorsAsync(cart);
+        var vendorPaymentSelections = request?.VendorPayments?.Where(vp => vp?.VendorId > 0).ToList() ?? new List<VendorPaymentSelectionDto>();
+        var vendorPaymentMap = new Dictionary<int, string>();
+
+        foreach (var selection in vendorPaymentSelections)
+        {
+            if (!vendorsInCart.ContainsKey(selection.VendorId))
+                return BadRequest(new { Message = $"Vendor {selection.VendorId} is not present in the current cart" });
+
+            if (string.IsNullOrWhiteSpace(selection.PaymentMethod))
+                return BadRequest(new { Message = $"Payment method is required for vendor {selection.VendorId}" });
+
+            if (!await _paymentPluginManager.IsPluginActiveAsync(selection.PaymentMethod, customer, store.Id))
+                return BadRequest(new { Message = $"Payment method '{selection.PaymentMethod}' is not active for vendor {selection.VendorId}" });
+
+            vendorPaymentMap[selection.VendorId] = selection.PaymentMethod;
+        }
+
+        if (vendorPaymentMap.Any())
+            await _genericAttributeService.SaveAttributeAsync(customer, VendorPaymentMethodsAttribute, vendorPaymentMap, store.Id);
+        else
+            await _genericAttributeService.SaveAttributeAsync<Dictionary<int, string>>(customer, VendorPaymentMethodsAttribute, null, store.Id);
+
         //Check whether payment workflow is required
         var isPaymentWorkflowRequired = await _orderProcessingService.IsPaymentWorkflowRequiredAsync(cart);
         if (!isPaymentWorkflowRequired)
@@ -494,19 +520,20 @@ public class CheckoutController : ControllerBase
             return Ok(new ApiResponse<CheckoutStepResponseDto> { Data = response });
         }
 
-        //payment method
-        if (string.IsNullOrEmpty(request?.PaymentMethod))
+        var selectedPaymentMethod = request?.PaymentMethod;
+        if (string.IsNullOrWhiteSpace(selectedPaymentMethod) && vendorPaymentMap.Any())
+            selectedPaymentMethod = vendorPaymentMap.First().Value;
+
+        if (string.IsNullOrWhiteSpace(selectedPaymentMethod))
             return BadRequest(new { Message = "Payment method is required" });
 
-        if (!await _paymentPluginManager.IsPluginActiveAsync(request.PaymentMethod, customer, store.Id))
+        if (!await _paymentPluginManager.IsPluginActiveAsync(selectedPaymentMethod, customer, store.Id))
             return BadRequest(new { Message = "Payment method is not active" });
 
-        //save
         await _genericAttributeService.SaveAttributeAsync(customer,
-            NopCustomerDefaults.SelectedPaymentMethodAttribute, request.PaymentMethod, store.Id);
+            NopCustomerDefaults.SelectedPaymentMethodAttribute, selectedPaymentMethod, store.Id);
 
-        //load payment info
-        var paymentMethod = await _paymentPluginManager.LoadPluginBySystemNameAsync(request.PaymentMethod, customer, store.Id);
+        var paymentMethod = await _paymentPluginManager.LoadPluginBySystemNameAsync(selectedPaymentMethod, customer, store.Id);
         if (paymentMethod != null)
         {
             if (paymentMethod.SkipPaymentInfo ||
@@ -672,23 +699,71 @@ public class CheckoutController : ControllerBase
                 }
             }
 
+            var isPaymentWorkflowRequired = await _orderProcessingService.IsPaymentWorkflowRequiredAsync(cart);
+            var vendorsInCart = await GetCartVendorsAsync(cart);
+            var vendorPaymentSelections = await _genericAttributeService.GetAttributeAsync<Dictionary<int, string>>(customer,
+                VendorPaymentMethodsAttribute, store.Id) ?? new Dictionary<int, string>();
+            var vendorValidationWarnings = new List<string>();
+
+            foreach (var vendor in vendorsInCart)
+            {
+                if (!vendorPaymentSelections.TryGetValue(vendor.Key, out var vendorMethod) || string.IsNullOrWhiteSpace(vendorMethod))
+                {
+                    var vendorLabel = string.IsNullOrWhiteSpace(vendor.Value) ? vendor.Key.ToString() : vendor.Value;
+                    vendorValidationWarnings.Add($"Payment method is required for vendor {vendorLabel}");
+                    continue;
+                }
+
+                if (isPaymentWorkflowRequired && !await _paymentPluginManager.IsPluginActiveAsync(vendorMethod, customer, store.Id))
+                {
+                    var vendorLabel = string.IsNullOrWhiteSpace(vendor.Value) ? vendor.Key.ToString() : vendor.Value;
+                    vendorValidationWarnings.Add($"Payment method '{vendorMethod}' for vendor {vendorLabel} is not available");
+                }
+            }
+
+            if (vendorValidationWarnings.Any())
+            {
+                foreach (var warning in vendorValidationWarnings)
+                    model.Warnings.Add(warning);
+                return BadRequest(new ApiResponse<CheckoutConfirmModel> { Data = model });
+            }
+
             //place order
             var processPaymentRequest = await _orderProcessingService.GetProcessPaymentRequestAsync();
             if (processPaymentRequest == null)
             {
-                if (await _orderProcessingService.IsPaymentWorkflowRequiredAsync(cart))
+                if (isPaymentWorkflowRequired)
                 {
-                    model.Warnings.Add("Payment workflow is required");
-                    return BadRequest(new ApiResponse<CheckoutConfirmModel> { Data = model });
-                }
+                    var selectedPaymentMethod = await _genericAttributeService.GetAttributeAsync<string>(customer,
+                        NopCustomerDefaults.SelectedPaymentMethodAttribute, store.Id);
 
-                processPaymentRequest = new ProcessPaymentRequest();
+                    if (string.IsNullOrWhiteSpace(selectedPaymentMethod))
+                    {
+                        model.Warnings.Add(await _localizationService.GetResourceAsync("Checkout.SelectPaymentMethod"));
+                        return BadRequest(new ApiResponse<CheckoutConfirmModel> { Data = model });
+                    }
+
+                    if (!await _paymentPluginManager.IsPluginActiveAsync(selectedPaymentMethod, customer, store.Id))
+                    {
+                        model.Warnings.Add(await _localizationService.GetResourceAsync("Checkout.NoPaymentMethods"));
+                        return BadRequest(new ApiResponse<CheckoutConfirmModel> { Data = model });
+                    }
+
+                    processPaymentRequest = new ProcessPaymentRequest
+                    {
+                        PaymentMethodSystemName = selectedPaymentMethod
+                    };
+                }
+                else
+                {
+                    processPaymentRequest = new ProcessPaymentRequest();
+                }
             }
 
             processPaymentRequest.StoreId = store.Id;
             processPaymentRequest.CustomerId = customer.Id;
-            processPaymentRequest.PaymentMethodSystemName = await _genericAttributeService.GetAttributeAsync<string>(customer,
-                NopCustomerDefaults.SelectedPaymentMethodAttribute, store.Id);
+            if (vendorPaymentSelections.Any())
+                processPaymentRequest.CustomValues[VendorPaymentMethodsCustomValue] = JsonSerializer.Serialize(vendorPaymentSelections);
             await _orderProcessingService.SetProcessPaymentRequestAsync(processPaymentRequest);
 
             var placeOrderResult = await _orderProcessingService.PlaceOrderAsync(processPaymentRequest);
@@ -701,6 +776,7 @@ public class CheckoutController : ControllerBase
                     Order = placeOrderResult.PlacedOrder
                 };
                 await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
+                await _genericAttributeService.SaveAttributeAsync<Dictionary<int, string>>(customer, VendorPaymentMethodsAttribute, null, store.Id);
 
                 var completedModel = await _checkoutModelFactory.PrepareCheckoutCompletedModelAsync(placeOrderResult.PlacedOrder!);
                 return Ok(new ApiResponse<CheckoutCompletedModel> { Data = completedModel });
@@ -730,7 +806,7 @@ public class CheckoutController : ControllerBase
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
 
-        Order order = null;
+        Order? order = null;
         if (orderId.HasValue)
         {
             order = await _orderService.GetOrderByIdAsync(orderId.Value);
@@ -750,7 +826,46 @@ public class CheckoutController : ControllerBase
         return Ok(new ApiResponse<CheckoutCompletedModel> { Data = model });
     }
 
+    /// <summary>
+    /// GET /checkout/paymentmethods
+    /// Получить список доступных методов оплаты.
+    /// </summary>
+    [HttpGet("paymentmethods")]
+    [ProducesResponseType(typeof(ApiResponse<CheckoutPaymentMethodModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetPaymentMethods([FromQuery] int? countryId = null)
+    {
+        if (_orderSettings.CheckoutDisabled)
+            return BadRequest(new { Message = await _localizationService.GetResourceAsync("Checkout.Disabled") });
+
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+        if (!cart.Any())
+            return BadRequest(new { Message = "Cart is empty" });
+
+        var shippingAddress = await _customerService.GetCustomerShippingAddressAsync(customer);
+        var billingAddress = await _customerService.GetCustomerBillingAddressAsync(customer);
+        var filterCountryId = countryId ?? shippingAddress?.CountryId ?? billingAddress?.CountryId ?? 0;
+
+        var model = await _checkoutModelFactory.PreparePaymentMethodModelAsync(cart, filterCountryId);
+
+        return Ok(new ApiResponse<CheckoutPaymentMethodModel> { Data = model });
+    }
+
     #region Private Methods
+
+    private async Task<Dictionary<int, string>> GetCartVendorsAsync(IList<ShoppingCartItem> cart)
+    {
+        var productIds = cart.Select(item => item.ProductId).Distinct().ToArray();
+        var products = await _productService.GetProductsByIdsAsync(productIds);
+
+        return products
+            .Where(product => product != null && product.VendorId > 0)
+            .GroupBy(product => product.VendorId)
+            .ToDictionary(group => group.Key, _ => string.Empty);
+    }
 
     private async Task SavePickupOptionAsync(PickupPoint pickupPoint, Customer customer, int storeId)
     {

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using Nop.Web.Models.Checkout;
 using Nop.Web.Models.Common;
 
@@ -57,6 +57,16 @@ public class SavePaymentMethodRequest
 {
     public string? PaymentMethod { get; set; }
     public bool UseRewardPoints { get; set; }
+    public List<VendorPaymentSelectionDto> VendorPayments { get; set; } = new();
+}
+
+/// <summary>
+/// DTO describing selected payment method for a specific vendor
+/// </summary>
+public class VendorPaymentSelectionDto
+{
+    public int VendorId { get; set; }
+    public string? PaymentMethod { get; set; }
 }
 
 /// <summary>
