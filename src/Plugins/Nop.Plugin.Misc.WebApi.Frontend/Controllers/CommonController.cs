@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
@@ -190,12 +192,12 @@ public class CommonController : ControllerBase
     }
 
     /// <summary>
-    /// GET /common/cities
-    /// Returns paged list of cities (state/provinces) optionally filtered by country.
+    /// GET /common/stateprovinces
+    /// Returns paged list of state/provinces optionally filtered by country.
     /// </summary>
-    [HttpGet("cities")]
-    [ProducesResponseType(typeof(PagedResultDto<CityListItemDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetCities([FromQuery] int? countryId = null, [FromQuery] string? search = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    [HttpGet("stateprovinces")]
+    [ProducesResponseType(typeof(PagedResultDto<StateProvinceListItemDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetStateProvinces([FromQuery] int? countryId = null, [FromQuery] string? search = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, 100);
@@ -219,11 +221,11 @@ public class CommonController : ControllerBase
 
         var pagedStates = states.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
-        var items = new List<CityListItemDto>();
+        var items = new List<StateProvinceListItemDto>();
         foreach (var s in pagedStates)
         {
             var localizedName = await _localizationService.GetLocalizedAsync(s, x => x.Name, languageId);
-            items.Add(new CityListItemDto
+            items.Add(new StateProvinceListItemDto
             {
                 Id = s.Id,
                 CountryId = s.CountryId,
@@ -234,7 +236,7 @@ public class CommonController : ControllerBase
             });
         }
 
-        var result = new PagedResultDto<List<CityListItemDto>>
+        var result = new PagedResultDto<List<StateProvinceListItemDto>>
         {
             Data = items,
             PageIndex = pageIndex,

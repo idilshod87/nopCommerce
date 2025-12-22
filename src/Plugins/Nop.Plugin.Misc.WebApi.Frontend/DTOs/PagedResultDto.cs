@@ -21,7 +21,7 @@ public record CountryListItemDto
     public bool SubjectToVat { get; init; }
 }
 
-public record CityListItemDto
+public record StateProvinceListItemDto
 {
     public int Id { get; init; }
     public int CountryId { get; init; }
