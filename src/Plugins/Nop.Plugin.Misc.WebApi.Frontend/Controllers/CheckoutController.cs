@@ -1,21 +1,15 @@
-﻿#nullable enable
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 using Nop.Core;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
-using Nop.Core.Domain.Directory;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Payments;
 using Nop.Core.Domain.Shipping;
 using Nop.Core.Domain.Tax;
 using Nop.Services.Directory;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
-using Nop.Plugin.Misc.WebApi.Frontend;
 using Nop.Services.Attributes;
 using Nop.Services.Common;
 using Nop.Services.Customers;
@@ -26,9 +20,7 @@ using Nop.Services.Catalog;
 using Nop.Services.Shipping;
 using Nop.Services.Tax;
 using Nop.Web.Factories;
-using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Models.Checkout;
-using Nop.Web.Models.Common;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
 

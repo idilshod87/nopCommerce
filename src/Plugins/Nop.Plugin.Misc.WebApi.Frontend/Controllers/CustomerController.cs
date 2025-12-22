@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
-using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Media;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
@@ -10,7 +9,6 @@ using Nop.Services.Customers;
 using Nop.Services.Localization;
 using Nop.Services.Media;
 using Nop.Web.Factories;
-using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Models.Customer;
 using Nop.Web.Models.Common;
 using System.Text.RegularExpressions;

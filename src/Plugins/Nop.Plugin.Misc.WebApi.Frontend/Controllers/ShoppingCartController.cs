@@ -1,14 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
-using Nop.Core.Domain.Directory;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 using Nop.Services.Attributes;
@@ -23,7 +19,6 @@ using Nop.Services.Shipping;
 using Nop.Services.Payments;
 using Nop.Core.Domain.Shipping;
 using Nop.Web.Factories;
-using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Models.ShoppingCart;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
