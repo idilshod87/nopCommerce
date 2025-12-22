@@ -9,9 +9,10 @@ Audience: developers and AI agents adding or modifying endpoints in this plugin.
 - Authentication: JWT Bearer where required; anonymous allowed where noted.
 
 ## Response envelope
-- Use the existing `ApiResponse<T>` wrapper: top-level property `data` only.
-- On success: `200/201/202/204` with `ApiResponse<T>` where `data` holds the payload (for 204 may return `data: null`).
-- On errors: return proper HTTP status code with a consistent body. Prefer a structured error:
+- Основной контракт плагина — обёртка `ApiResponse<T>` с единственным верхнеуровневым свойством `data`. Большинство эндпоинтов (например, `customer/*`) продолжают использовать её.
+- Пагинированные справочники стран/городов используют `PagedResultDto<T> : ApiResponse<T>` и возвращаются напрямую (без дополнительной обёртки). Фактический JSON выглядит так: `pageIndex`, `pageSize`, `totalCount`, `totalPages`, `hasPrevious`, `hasNext`, `data: [ ...items... ]` на одном уровне. При добавлении новых коллекций придерживайтесь этого формата, если хотите оставаться консистентными с `/common/countries` и `/common/cities`.
+- На успехе: `200/201/202/204`. Для непагинированных ответов предпочтительно `ApiResponse<T>` с `data`. Для пагинированных — `PagedResultDto<TItem>` c полями выше.
+- Ошибки: правильный HTTP-код и структурированное тело:
   ```json
   {
     "error": {
@@ -21,7 +22,7 @@ Audience: developers and AI agents adding or modifying endpoints in this plugin.
     }
   }
   ```
-  If you cannot use the envelope, at minimum return `{ "message": "..." }` as current controllers do.
+  Если по техническим причинам обёртка недоступна, минимум `{ "message": "..." }`.
 
 ## Resource naming and routing
 - Nouns, plural for collections: `/products`, `/vendors`, `/orders/{id}`.
@@ -36,48 +37,48 @@ Audience: developers and AI agents adding or modifying endpoints in this plugin.
 - DELETE: idempotent removal; return 204 or 200 with envelope.
 
 ## Pagination, filters, sorting
-- Prefer cursor pagination: `?limit=50&cursor=abc`. Response should include cursor metadata inside `data`:
+- Текущий стандарт для `/common/countries` и `/common/cities` — офсетная пагинация: `?page=1&pageSize=20` (страницы с 1). Ответ содержит метаданные на верхнем уровне и массив элементов в `data`:
   ```json
   {
-    "data": {
-      "items": [ /* ... */ ],
-      "pagination": {
-        "limit": 50,
-        "cursor": "abc",
-        "nextCursor": "def",
-        "hasNext": true,
-        "total": null
-      }
-    }
+    "pageIndex": 0,
+    "pageSize": 20,
+    "totalCount": 187,
+    "totalPages": 10,
+    "hasPrevious": false,
+    "hasNext": true,
+    "data": [ /* items */ ]
   }
   ```
-- Offset pagination if required: `?limit=50&offset=0`; include `total` when feasible.
-- Sorting: `?sort=name,-price`.
-- Filters: `?filter[field]=value` or simple query params when narrow in scope.
+- Если добавляете новые коллекции и хотите совместимость с существующими справочниками — используйте такой же формат. Если потребуется курсорная пагинация для больших выборок, добавьте новые поля `cursor/nextCursor` и опишите их в Swagger, не ломая текущую схему.
+- Поиск/фильтры: простые query-параметры (`search`, `countryId`, и т.п.).
+- Сортировка пока отсутствует; если вводите, используйте `?sort=field,-field2`.
 
 ## Including related data
 - Tight relations can be inlined (e.g., product paymentMethods).
 - Broader relations can go to an `included` object to avoid duplication across items.
   ```json
   {
-    "data": {
-      "items": [
-        {
-          "id": "prd_101",
-          "name": "Red Sneakers",
-          "vendorId": "vnd_55",
-          "paymentMethods": [
-            { "id": "pm_card", "name": "Card", "type": "card" }
-          ]
-        }
-      ],
-      "included": {
-        "vendors": [
-          { "id": "vnd_55", "name": "Sneaker Corp", "country": "US" }
+    "data": [
+      {
+        "id": "prd_101",
+        "name": "Red Sneakers",
+        "vendorId": "vnd_55",
+        "paymentMethods": [
+          { "id": "pm_card", "name": "Card", "type": "card" }
         ]
-      },
-      "pagination": { "limit": 50, "cursor": "abc", "nextCursor": "def", "hasNext": true }
-    }
+      }
+    ],
+    "included": {
+      "vendors": [
+        { "id": "vnd_55", "name": "Sneaker Corp", "country": "US" }
+      ]
+    },
+    "pageIndex": 0,
+    "pageSize": 20,
+    "totalCount": 187,
+    "totalPages": 10,
+    "hasPrevious": false,
+    "hasNext": true
   }
   ```
 

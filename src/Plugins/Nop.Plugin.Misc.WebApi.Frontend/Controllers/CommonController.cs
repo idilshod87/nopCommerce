@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
-using Nop.Core.Domain.Localization;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 using Nop.Services.Directory;
 using Nop.Services.Localization;
@@ -24,19 +23,25 @@ public class CommonController : ControllerBase
     private readonly IWorkContext _workContext;
     private readonly ICurrencyService _currencyService;
     private readonly ICountryModelFactory _countryModelFactory;
+    private readonly ICountryService _countryService;
+    private readonly IStateProvinceService _stateProvinceService;
 
     public CommonController(
         ILocalizationService localizationService,
         ILanguageService languageService,
         IWorkContext workContext,
         ICurrencyService currencyService,
-        ICountryModelFactory countryModelFactory)
+        ICountryModelFactory countryModelFactory,
+        ICountryService countryService,
+        IStateProvinceService stateProvinceService)
     {
         _localizationService = localizationService;
         _languageService = languageService;
         _workContext = workContext;
         _currencyService = currencyService;
         _countryModelFactory = countryModelFactory;
+        _countryService = countryService;
+        _stateProvinceService = stateProvinceService;
     }
 
     /// <summary>
@@ -123,6 +128,122 @@ public class CommonController : ControllerBase
     {
         var model = await _countryModelFactory.GetStatesByCountryIdAsync(countryId, false);
         return Ok(new ApiResponse<IList<StateProvinceModel>> { Data = model });
+    }
+
+    /// <summary>
+    /// GET /common/countries
+    /// Returns paged list of countries with optional search by name or ISO codes.
+    /// </summary>
+    [HttpGet("countries")]
+    [ProducesResponseType(typeof(PagedResultDto<CountryListItemDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCountries([FromQuery] string? search = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    {
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var languageId = (await _workContext.GetWorkingLanguageAsync()).Id;
+        var countries = await _countryService.GetAllCountriesAsync(languageId, false);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            countries = countries
+                .Where(c =>
+                    (!string.IsNullOrEmpty(c.Name) && c.Name.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(c.TwoLetterIsoCode) && c.TwoLetterIsoCode.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(c.ThreeLetterIsoCode) && c.ThreeLetterIsoCode.Contains(term, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+        }
+
+        var totalCount = countries.Count;
+        var pageIndex = page - 1;
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var pagedCountries = countries.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+        var items = new List<CountryListItemDto>();
+        foreach (var c in pagedCountries)
+        {
+            var localizedName = await _localizationService.GetLocalizedAsync(c, x => x.Name, languageId);
+            items.Add(new CountryListItemDto
+            {
+                Id = c.Id,
+                Name = localizedName,
+                TwoLetterIsoCode = c.TwoLetterIsoCode ?? string.Empty,
+                ThreeLetterIsoCode = c.ThreeLetterIsoCode ?? string.Empty,
+                AllowsBilling = c.AllowsBilling,
+                AllowsShipping = c.AllowsShipping,
+                SubjectToVat = c.SubjectToVat
+            });
+        }
+
+        var result = new PagedResultDto<List<CountryListItemDto>>
+        {
+            Data = items,
+            PageIndex = pageIndex,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            TotalPages = totalPages
+        };
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// GET /common/cities
+    /// Returns paged list of cities (state/provinces) optionally filtered by country.
+    /// </summary>
+    [HttpGet("cities")]
+    [ProducesResponseType(typeof(PagedResultDto<CityListItemDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCities([FromQuery] int? countryId = null, [FromQuery] string? search = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    {
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var languageId = (await _workContext.GetWorkingLanguageAsync()).Id;
+        var states = countryId.HasValue && countryId.Value > 0
+            ? await _stateProvinceService.GetStateProvincesByCountryIdAsync(countryId.Value, languageId, false)
+            : await _stateProvinceService.GetStateProvincesAsync(false);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            states = states
+                .Where(s => !string.IsNullOrEmpty(s.Name) && s.Name.Contains(term, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        var totalCount = states.Count;
+        var pageIndex = page - 1;
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var pagedStates = states.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+        var items = new List<CityListItemDto>();
+        foreach (var s in pagedStates)
+        {
+            var localizedName = await _localizationService.GetLocalizedAsync(s, x => x.Name, languageId);
+            items.Add(new CityListItemDto
+            {
+                Id = s.Id,
+                CountryId = s.CountryId,
+                Name = localizedName,
+                Abbreviation = s.Abbreviation ?? string.Empty,
+                Published = s.Published,
+                DisplayOrder = s.DisplayOrder
+            });
+        }
+
+        var result = new PagedResultDto<List<CityListItemDto>>
+        {
+            Data = items,
+            PageIndex = pageIndex,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            TotalPages = totalPages
+        };
+
+        return Ok(result);
     }
 }
 
