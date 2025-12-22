@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System.Collections.Generic;
+using Nop.Web.Models.ShoppingCart;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 
@@ -58,6 +59,39 @@ public class CartSummaryDto
     public string Subtotal { get; set; } = string.Empty;
     public decimal SubtotalValue { get; set; }
     public string CurrencyCode { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Extended cart response containing shopping cart data and vendor payment selections.
+/// </summary>
+public class ShoppingCartResponseDto
+{
+    public ShoppingCartModel Cart { get; set; } = new();
+    public IList<VendorPaymentInfoDto> Vendors { get; set; } = new List<VendorPaymentInfoDto>();
+}
+
+/// <summary>
+/// Vendor payment selection details currently stored for the cart.
+/// </summary>
+public class VendorPaymentInfoDto
+{
+    public int VendorId { get; set; }
+    public string VendorName { get; set; } = string.Empty;
+    public string PaymentMethodSystemName { get; set; } = string.Empty;
+    public string PaymentMethodName { get; set; } = string.Empty;
+    public IList<VendorPaymentMethodDto> AvailablePaymentMethods { get; set; } = new List<VendorPaymentMethodDto>();
+}
+
+/// <summary>
+/// Available payment method option for a vendor.
+/// </summary>
+public class VendorPaymentMethodDto
+{
+    public string SystemName { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string LogoUrl { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public bool Selected { get; set; }
 }
 
 /// <summary>

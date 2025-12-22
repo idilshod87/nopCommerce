@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
@@ -19,6 +20,7 @@ using Nop.Services.Discounts;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Shipping;
+using Nop.Services.Payments;
 using Nop.Core.Domain.Shipping;
 using Nop.Web.Factories;
 using Nop.Web.Framework.Mvc.Filters;
@@ -69,6 +71,7 @@ public class ShoppingCartController : ControllerBase
     private readonly ILocalizationService _localizationService;
     private readonly IShippingService _shippingService;
     private readonly ICurrencyService _currencyService;
+    private readonly IPaymentPluginManager _paymentPluginManager;
     private readonly ShippingSettings _shippingSettings;
     private static readonly char[] _separator = [','];
 
@@ -91,6 +94,7 @@ public class ShoppingCartController : ControllerBase
         ILocalizationService localizationService,
         IShippingService shippingService,
         ICurrencyService currencyService,
+        IPaymentPluginManager paymentPluginManager,
         ShippingSettings shippingSettings)
     {
         _productService = productService;
@@ -109,6 +113,7 @@ public class ShoppingCartController : ControllerBase
         _localizationService = localizationService;
         _shippingService = shippingService;
         _currencyService = currencyService;
+        _paymentPluginManager = paymentPluginManager;
         _shippingSettings = shippingSettings;
     }
 
@@ -486,7 +491,7 @@ public class ShoppingCartController : ControllerBase
     /// Get shopping cart.
     /// </summary>
     [HttpGet("cart")]
-    [ProducesResponseType(typeof(ApiResponse<ShoppingCartModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ShoppingCartResponseDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCart()
     {
         var customer = await _workContext.GetCurrentCustomerAsync();
@@ -496,7 +501,13 @@ public class ShoppingCartController : ControllerBase
         var model = new ShoppingCartModel();
         model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
 
-        return Ok(new ApiResponse<ShoppingCartModel> { Data = model });
+        var response = new ShoppingCartResponseDto
+        {
+            Cart = model,
+            Vendors = await PrepareVendorPaymentInfoAsync(model, cart)
+        };
+
+        return Ok(new ApiResponse<ShoppingCartResponseDto> { Data = response });
     }
 
     /// <summary>
@@ -896,6 +907,120 @@ public class ShoppingCartController : ControllerBase
     }
 
     #region Private Methods
+
+    private async Task<Dictionary<int, string>> GetVendorPaymentSelectionsAsync()
+    {
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+
+        try
+        {
+            return await _genericAttributeService.GetAttributeAsync<Dictionary<int, string>>(customer,
+                WebApiFrontendDefaults.VendorPaymentMethodsAttribute,
+                store.Id) ?? new();
+        }
+        catch (InvalidCastException)
+        {
+            // attribute may have been stored as raw string in earlier versions; try to deserialize
+            var raw = await _genericAttributeService.GetAttributeAsync<string>(customer,
+                WebApiFrontendDefaults.VendorPaymentMethodsAttribute,
+                store.Id);
+
+            if (!string.IsNullOrWhiteSpace(raw))
+            {
+                try
+                {
+                    var parsed = JsonSerializer.Deserialize<Dictionary<int, string>>(raw);
+                    if (parsed != null)
+                    {
+                        await _genericAttributeService.SaveAttributeAsync(customer,
+                            WebApiFrontendDefaults.VendorPaymentMethodsAttribute,
+                            parsed,
+                            store.Id);
+                        return parsed;
+                    }
+                }
+                catch
+                {
+                    // ignore malformed legacy value; will reset below
+                }
+            }
+
+            await _genericAttributeService.SaveAttributeAsync<Dictionary<int, string>>(customer,
+                WebApiFrontendDefaults.VendorPaymentMethodsAttribute,
+                null,
+                store.Id);
+            return new();
+        }
+    }
+
+    private async Task<IList<VendorPaymentInfoDto>> PrepareVendorPaymentInfoAsync(ShoppingCartModel model, IList<ShoppingCartItem> cart)
+    {
+        var vendorGroups = model.Items
+            .Where(item => item.VendorId > 0)
+            .GroupBy(item => item.VendorId)
+            .ToList();
+
+        if (!vendorGroups.Any())
+            return new List<VendorPaymentInfoDto>();
+
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var languageId = (await _workContext.GetWorkingLanguageAsync()).Id;
+        var vendorPaymentSelections = await GetVendorPaymentSelectionsAsync();
+
+        var result = new List<VendorPaymentInfoDto>();
+        var activePaymentMethods = await (await _paymentPluginManager.LoadActivePluginsAsync(customer, store.Id))
+            .Where(pm => pm.PaymentMethodType == PaymentMethodType.Standard || pm.PaymentMethodType == PaymentMethodType.Redirection)
+            .WhereAwait(async pm => !await pm.HidePaymentMethodAsync(cart))
+            .ToListAsync();
+
+        foreach (var group in vendorGroups)
+        {
+            var vendorId = group.Key;
+            vendorPaymentSelections.TryGetValue(vendorId, out var systemName);
+
+            string? paymentMethodName = null;
+            if (!string.IsNullOrWhiteSpace(systemName))
+            {
+                var plugin = await _paymentPluginManager.LoadPluginBySystemNameAsync(systemName, customer, store.Id);
+                if (plugin != null)
+                    paymentMethodName = await _localizationService.GetLocalizedFriendlyNameAsync(plugin, languageId);
+            }
+
+            var availableMethods = new List<VendorPaymentMethodDto>();
+            foreach (var pm in activePaymentMethods)
+            {
+                if (await _shoppingCartService.ShoppingCartIsRecurringAsync(cart) && pm.RecurringPaymentType == RecurringPaymentType.NotSupported)
+                    continue;
+
+                var pmSystemName = pm.PluginDescriptor.SystemName;
+                var name = await _localizationService.GetLocalizedFriendlyNameAsync(pm, languageId);
+                var logo = await _paymentPluginManager.GetPluginLogoUrlAsync(pm);
+                var description = string.Empty;
+
+                availableMethods.Add(new VendorPaymentMethodDto
+                {
+                    SystemName = pmSystemName,
+                    Name = name,
+                    LogoUrl = logo,
+                    Description = description,
+                    Selected = systemName != null && pmSystemName.Equals(systemName, StringComparison.InvariantCultureIgnoreCase)
+                });
+            }
+
+            result.Add(new VendorPaymentInfoDto
+            {
+                VendorId = vendorId,
+                VendorName = group.Select(item => item.VendorName).FirstOrDefault(name => !string.IsNullOrWhiteSpace(name)) ?? string.Empty,
+                PaymentMethodSystemName = systemName ?? string.Empty,
+                PaymentMethodName = paymentMethodName ?? string.Empty,
+                AvailablePaymentMethods = availableMethods
+            });
+        }
+
+        return result;
+    }
 
     private async Task ParseAndSaveCheckoutAttributesAsync(IList<ShoppingCartItem> cart, IFormCollection form)
     {

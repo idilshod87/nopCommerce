@@ -15,6 +15,7 @@ using Nop.Core.Domain.Shipping;
 using Nop.Core.Domain.Tax;
 using Nop.Services.Directory;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
+using Nop.Plugin.Misc.WebApi.Frontend;
 using Nop.Services.Attributes;
 using Nop.Services.Common;
 using Nop.Services.Customers;
@@ -68,8 +69,6 @@ public class CheckoutController : ControllerBase
     private readonly TaxSettings _taxSettings;
     private readonly RewardPointsSettings _rewardPointsSettings;
     private static readonly string[] _separator = ["___"];
-    private const string VendorPaymentMethodsAttribute = "WebApi.SelectedVendorPaymentMethods";
-    private const string VendorPaymentMethodsCustomValue = "WebApi.VendorPaymentMethods";
 
     #endregion
 
@@ -506,9 +505,9 @@ public class CheckoutController : ControllerBase
         }
 
         if (vendorPaymentMap.Any())
-            await _genericAttributeService.SaveAttributeAsync(customer, VendorPaymentMethodsAttribute, vendorPaymentMap, store.Id);
+            await _genericAttributeService.SaveAttributeAsync(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, vendorPaymentMap, store.Id);
         else
-            await _genericAttributeService.SaveAttributeAsync<Dictionary<int, string>>(customer, VendorPaymentMethodsAttribute, null, store.Id);
+            await _genericAttributeService.SaveAttributeAsync<Dictionary<int, string>>(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, null, store.Id);
 
         //Check whether payment workflow is required
         var isPaymentWorkflowRequired = await _orderProcessingService.IsPaymentWorkflowRequiredAsync(cart);
@@ -701,8 +700,9 @@ public class CheckoutController : ControllerBase
 
             var isPaymentWorkflowRequired = await _orderProcessingService.IsPaymentWorkflowRequiredAsync(cart);
             var vendorsInCart = await GetCartVendorsAsync(cart);
-            var vendorPaymentSelections = await _genericAttributeService.GetAttributeAsync<Dictionary<int, string>>(customer,
-                VendorPaymentMethodsAttribute, store.Id) ?? new Dictionary<int, string>();
+            var vendorPaymentSelections = await _genericAttributeService.GetAttributeAsync<Dictionary<int, string>>(
+                customer,
+                WebApiFrontendDefaults.VendorPaymentMethodsAttribute, store.Id) ?? new Dictionary<int, string>();
             var vendorValidationWarnings = new List<string>();
 
             foreach (var vendor in vendorsInCart)
@@ -763,7 +763,7 @@ public class CheckoutController : ControllerBase
             processPaymentRequest.StoreId = store.Id;
             processPaymentRequest.CustomerId = customer.Id;
             if (vendorPaymentSelections.Any())
-                processPaymentRequest.CustomValues[VendorPaymentMethodsCustomValue] = JsonSerializer.Serialize(vendorPaymentSelections);
+                processPaymentRequest.CustomValues[WebApiFrontendDefaults.VendorPaymentMethodsCustomValue] = JsonSerializer.Serialize(vendorPaymentSelections);
             await _orderProcessingService.SetProcessPaymentRequestAsync(processPaymentRequest);
 
             var placeOrderResult = await _orderProcessingService.PlaceOrderAsync(processPaymentRequest);
@@ -776,7 +776,7 @@ public class CheckoutController : ControllerBase
                     Order = placeOrderResult.PlacedOrder
                 };
                 await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
-                await _genericAttributeService.SaveAttributeAsync<Dictionary<int, string>>(customer, VendorPaymentMethodsAttribute, null, store.Id);
+                await _genericAttributeService.SaveAttributeAsync<Dictionary<int, string>>(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, null, store.Id);
 
                 var completedModel = await _checkoutModelFactory.PrepareCheckoutCompletedModelAsync(placeOrderResult.PlacedOrder!);
                 return Ok(new ApiResponse<CheckoutCompletedModel> { Data = completedModel });
