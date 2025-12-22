@@ -929,6 +929,9 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
             model.Items.Add(cartItemModel);
         }
 
+        if (model.Items.Count > 1)
+            model.Items = model.Items.OrderBy(item => item.Id).ToList();
+
         //payment methods
         //all payment methods (do not filter by country here as it could be not specified yet)
         var paymentMethods = await (await _paymentPluginManager
