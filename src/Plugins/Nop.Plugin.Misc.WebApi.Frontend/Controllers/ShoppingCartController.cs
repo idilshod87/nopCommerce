@@ -963,6 +963,8 @@ public class ShoppingCartController : ControllerBase
         var store = await _storeContext.GetCurrentStoreAsync();
         var languageId = (await _workContext.GetWorkingLanguageAsync()).Id;
         var vendorPaymentSelections = await GetVendorPaymentSelectionsAsync();
+        var defaultSelectedPaymentMethod = await _genericAttributeService.GetAttributeAsync<string>(customer,
+            NopCustomerDefaults.SelectedPaymentMethodAttribute, store.Id);
 
         var result = new List<VendorPaymentInfoDto>();
         var activePaymentMethods = await (await _paymentPluginManager.LoadActivePluginsAsync(customer, store.Id))
@@ -974,6 +976,9 @@ public class ShoppingCartController : ControllerBase
         {
             var vendorId = group.Key;
             vendorPaymentSelections.TryGetValue(vendorId, out var systemName);
+
+            if (string.IsNullOrWhiteSpace(systemName) && vendorGroups.Count == 1 && !string.IsNullOrWhiteSpace(defaultSelectedPaymentMethod))
+                systemName = defaultSelectedPaymentMethod;
 
             string? paymentMethodName = null;
             if (!string.IsNullOrWhiteSpace(systemName))
