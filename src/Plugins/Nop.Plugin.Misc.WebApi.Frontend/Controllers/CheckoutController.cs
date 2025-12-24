@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
@@ -496,11 +497,6 @@ public class CheckoutController : ControllerBase
             vendorPaymentMap[selection.VendorId] = selection.PaymentMethod;
         }
 
-        if (vendorPaymentMap.Any())
-            await _genericAttributeService.SaveAttributeAsync(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, vendorPaymentMap, store.Id);
-        else
-            await _genericAttributeService.SaveAttributeAsync<Dictionary<int, string>>(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, null, store.Id);
-
         //Check whether payment workflow is required
         var isPaymentWorkflowRequired = await _orderProcessingService.IsPaymentWorkflowRequiredAsync(cart);
         if (!isPaymentWorkflowRequired)
@@ -521,8 +517,13 @@ public class CheckoutController : ControllerBase
         if (!await _paymentPluginManager.IsPluginActiveAsync(selectedPaymentMethod, customer, store.Id))
             return BadRequest(new { Message = "Payment method is not active" });
 
+        if (!vendorPaymentMap.Any() && vendorsInCart.Any())
+            vendorPaymentMap = vendorsInCart.Keys.ToDictionary(id => id, _ => selectedPaymentMethod);
+
         await _genericAttributeService.SaveAttributeAsync(customer,
             NopCustomerDefaults.SelectedPaymentMethodAttribute, selectedPaymentMethod, store.Id);
+
+        await SaveVendorPaymentSelectionsAsync(customer, store.Id, vendorPaymentMap);
 
         var paymentMethod = await _paymentPluginManager.LoadPluginBySystemNameAsync(selectedPaymentMethod, customer, store.Id);
         if (paymentMethod != null)
@@ -692,9 +693,7 @@ public class CheckoutController : ControllerBase
 
             var isPaymentWorkflowRequired = await _orderProcessingService.IsPaymentWorkflowRequiredAsync(cart);
             var vendorsInCart = await GetCartVendorsAsync(cart);
-            var vendorPaymentSelections = await _genericAttributeService.GetAttributeAsync<Dictionary<int, string>>(
-                customer,
-                WebApiFrontendDefaults.VendorPaymentMethodsAttribute, store.Id) ?? new Dictionary<int, string>();
+            var vendorPaymentSelections = await LoadVendorPaymentSelectionsAsync(customer, store.Id);
             var vendorValidationWarnings = new List<string>();
 
             foreach (var vendor in vendorsInCart)
@@ -891,6 +890,34 @@ public class CheckoutController : ControllerBase
         }
 
         return string.Empty;
+    }
+
+    private async Task<Dictionary<int, string>> LoadVendorPaymentSelectionsAsync(Customer customer, int storeId)
+    {
+        var rawValue = await _genericAttributeService.GetAttributeAsync<string>(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, storeId);
+        if (string.IsNullOrWhiteSpace(rawValue))
+            return new Dictionary<int, string>();
+
+        try
+        {
+            return JsonSerializer.Deserialize<Dictionary<int, string>>(rawValue) ?? new Dictionary<int, string>();
+        }
+        catch
+        {
+            return new Dictionary<int, string>();
+        }
+    }
+
+    private async Task SaveVendorPaymentSelectionsAsync(Customer customer, int storeId, Dictionary<int, string>? vendorPayments)
+    {
+        if (vendorPayments == null || vendorPayments.Count == 0)
+        {
+            await _genericAttributeService.SaveAttributeAsync<string>(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, null, storeId);
+            return;
+        }
+
+        var serialized = JsonSerializer.Serialize(vendorPayments);
+        await _genericAttributeService.SaveAttributeAsync(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, serialized, storeId);
     }
 
     #endregion
