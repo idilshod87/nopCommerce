@@ -270,8 +270,8 @@ public class CheckoutController : ControllerBase
         if (!cart.Any())
             return BadRequest(new { Message = "Cart is empty" });
 
-        if (!await _shoppingCartService.ShoppingCartRequiresShippingAsync(cart))
-            return BadRequest(new { Message = "Shipping is not required" });
+        //if (!await _shoppingCartService.ShoppingCartRequiresShippingAsync(cart))
+        //    return BadRequest(new { Message = "Shipping is not required" });
 
         var response = new CheckoutStepResponseDto();
 
