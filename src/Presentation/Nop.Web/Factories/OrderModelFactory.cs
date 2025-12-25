@@ -590,6 +590,23 @@ public partial class OrderModelFactory : IOrderModelFactory
 
         var orderItems = await _orderService.GetOrderItemsAsync(order.Id);
 
+        // Получаем информацию о поставщике первого товара
+        string vendorName = string.Empty;
+        int vendorId = 0;
+        if (orderItems.Count > 0)
+        {
+            var firstProduct = await _productService.GetProductByIdAsync(orderItems[0].ProductId);
+            if (firstProduct != null)
+            {
+                vendorId = firstProduct.VendorId;
+                var vendor = await _vendorService.GetVendorByIdAsync(firstProduct.VendorId);
+                vendorName = vendor?.Name ?? string.Empty;
+            }
+        }
+        model.VendorName = vendorName;
+        model.VendorId = vendorId;
+        model.CurrencyCode = order.CustomerCurrencyCode;
+
         foreach (var orderItem in orderItems)
         {
             var product = await _productService.GetProductByIdAsync(orderItem.ProductId);

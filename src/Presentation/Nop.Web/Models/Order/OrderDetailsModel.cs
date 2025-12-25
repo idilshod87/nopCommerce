@@ -90,7 +90,10 @@ public partial record OrderDetailsModel : BaseNopEntityModel
     public bool ShowVendorName { get; set; }
     public bool ShowProductThumbnail { get; set; }
     public bool CanCancelOrder { get; set; }
-    
+    // Дополнительные поля для детальной информации о заказе
+    public string VendorName { get; set; } // Поставщик (первого товара заказа)
+    public int VendorId { get; set; } // ID поставщика (первого товара)
+    public string CurrencyCode { get; set; } // Код валюты заказа    
     #region Nested Classes
 
     public partial record OrderItemModel : BaseNopEntityModel
