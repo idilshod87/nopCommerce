@@ -5,6 +5,8 @@ using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Media;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 using Nop.Services.Catalog;
+using Nop.Services.Localization;
+using Nop.Services.Seo;
 using Nop.Web.Factories;
 using Nop.Web.Models.Catalog;
 
@@ -29,6 +31,8 @@ public class CatalogController : ControllerBase
     private readonly IWorkContext _workContext;
     private readonly CatalogSettings _catalogSettings;
     private readonly MediaSettings _mediaSettings;
+    private readonly ILocalizationService _localizationService;
+    private readonly IUrlRecordService _urlRecordService;
 
     public CatalogController(
         ICatalogModelFactory catalogModelFactory,
@@ -40,7 +44,9 @@ public class CatalogController : ControllerBase
         IStoreContext storeContext,
         IWorkContext workContext,
         CatalogSettings catalogSettings,
-        MediaSettings mediaSettings)
+        MediaSettings mediaSettings,
+        ILocalizationService localizationService,
+        IUrlRecordService urlRecordService)
     {
         _catalogModelFactory = catalogModelFactory;
         _categoryService = categoryService;
@@ -52,6 +58,52 @@ public class CatalogController : ControllerBase
         _workContext = workContext;
         _catalogSettings = catalogSettings;
         _mediaSettings = mediaSettings;
+        _localizationService = localizationService;
+        _urlRecordService = urlRecordService;
+        _mediaSettings = mediaSettings;
+    }
+
+    /// <summary>
+    /// GET /catalog/category/root
+    /// Get root categories with subcategories.
+    /// </summary>
+    [HttpGet("category/root")]
+    [ProducesResponseType(typeof(ApiResponse<IList<CategorySimpleModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCatalogRoot()
+    {
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var allCategories = await _categoryService.GetAllCategoriesAsync(storeId: store.Id);
+        var rootCategories = allCategories.Where(c => c.ParentCategoryId == 0).OrderBy(c => c.DisplayOrder).ToList();
+
+        var result = new List<CategorySimpleModel>();
+
+        foreach (var category in rootCategories)
+        {
+            var categoryModel = new CategorySimpleModel
+            {
+                Id = category.Id,
+                Name = await _localizationService.GetLocalizedAsync(category, x => x.Name),
+                SeName = await _urlRecordService.GetSeNameAsync(category)
+            };
+
+            // Load subcategories
+            var subCategories = allCategories.Where(c => c.ParentCategoryId == category.Id).OrderBy(c => c.DisplayOrder).ToList();
+            foreach (var subCategory in subCategories)
+            {
+                var subCategoryModel = new CategorySimpleModel
+                {
+                    Id = subCategory.Id,
+                    Name = await _localizationService.GetLocalizedAsync(subCategory, x => x.Name),
+                    SeName = await _urlRecordService.GetSeNameAsync(subCategory)
+                };
+
+                categoryModel.SubCategories.Add(subCategoryModel);
+            }
+
+            result.Add(categoryModel);
+        }
+
+        return Ok(new ApiResponse<IList<CategorySimpleModel>> { Data = result });
     }
 
     /// <summary>
