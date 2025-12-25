@@ -241,6 +241,22 @@ public partial class OrderModelFactory : IOrderModelFactory
 
         foreach (var order in orders)
         {
+            // Получаем все OrderItems для заказа
+            var orderItems = await _orderService.GetOrderItemsAsync(order.Id);
+            string vendorName = string.Empty;
+            int vendorId = 0;
+            if (orderItems.Count > 0)
+            {
+                var firstProduct = await _productService.GetProductByIdAsync(orderItems[0].ProductId);
+                if (firstProduct != null)
+                {
+                    vendorId = firstProduct.VendorId;
+                    var vendor = await _vendorService.GetVendorByIdAsync(firstProduct.VendorId);
+                    vendorName = vendor?.Name ?? string.Empty;
+                }
+            }
+
+            var orderTotalInCustomerCurrency = _currencyService.ConvertCurrency(order.OrderTotal, order.CurrencyRate);
             var orderModel = new CustomerOrderModel
             {
                 Id = order.Id,
@@ -250,9 +266,13 @@ public partial class OrderModelFactory : IOrderModelFactory
                 PaymentStatus = await _localizationService.GetLocalizedEnumAsync(order.PaymentStatus),
                 ShippingStatus = await _localizationService.GetLocalizedEnumAsync(order.ShippingStatus),
                 IsReturnRequestAllowed = await _orderProcessingService.IsReturnRequestAllowedAsync(order),
-                CustomOrderNumber = order.CustomOrderNumber
+                CustomOrderNumber = order.CustomOrderNumber,
+                VendorName = vendorName,
+                VendorId = vendorId,
+                ItemCount = orderItems.Count,
+                OrderTotalValue = orderTotalInCustomerCurrency,
+                CurrencyCode = order.CustomerCurrencyCode
             };
-            var orderTotalInCustomerCurrency = _currencyService.ConvertCurrency(order.OrderTotal, order.CurrencyRate);
             orderModel.OrderTotal = await _priceFormatter.FormatPriceAsync(orderTotalInCustomerCurrency, true, order.CustomerCurrencyCode, false, (await _workContext.GetWorkingLanguageAsync()).Id);
 
             model.Orders.Add(orderModel);
