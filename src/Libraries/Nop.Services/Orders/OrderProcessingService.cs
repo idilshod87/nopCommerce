@@ -526,6 +526,13 @@ public partial class OrderProcessingService : IOrderProcessingService
     /// <exception cref="NopException">Validation problems</exception>
     protected virtual async Task PrepareAndValidateBillingAddressAsync(PlaceOrderContainer details)
     {
+        //skip billing address validation if it's disabled in settings
+        if (_orderSettings.DisableBillingAddressCheckoutStep)
+        {
+            details.BillingAddress = null;
+            return;
+        }
+
         if (details.Customer.BillingAddressId is null)
             throw new NopException("Billing address is not provided");
 
@@ -764,8 +771,33 @@ public partial class OrderProcessingService : IOrderProcessingService
             CustomOrderNumber = string.Empty
         };
 
+        //if billing address is disabled, use shipping or default address
         if (details.BillingAddress is null)
-            throw new NopException("Billing address is not provided");
+        {
+            if (_orderSettings.DisableBillingAddressCheckoutStep)
+            {
+                //use shipping address if available, otherwise create a default address
+                if (details.ShippingAddress != null)
+                {
+                    details.BillingAddress = _addressService.CloneAddress(details.ShippingAddress);
+                }
+                else
+                {
+                    //create a minimal default address
+                    details.BillingAddress = new Address
+                    {
+                        FirstName = details.Customer.FirstName ?? "Guest",
+                        LastName = details.Customer.LastName ?? "Customer",
+                        Email = details.Customer.Email,
+                        CreatedOnUtc = DateTime.UtcNow
+                    };
+                }
+            }
+            else
+            {
+                throw new NopException("Billing address is not provided");
+            }
+        }
 
         await _addressService.InsertAddressAsync(details.BillingAddress);
         order.BillingAddressId = details.BillingAddress.Id;
