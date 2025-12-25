@@ -1047,6 +1047,10 @@ public partial class ProductController : BaseAdminController
             if (currentVendor != null)
                 model.VendorId = currentVendor.Id;
 
+            //vendors cannot enable shipping
+            if (currentVendor != null)
+                model.IsShipEnabled = false;
+
             //vendors cannot edit "Show on home page" property
             if (currentVendor != null && model.ShowOnHomepage)
                 model.ShowOnHomepage = false;
@@ -1184,6 +1188,10 @@ public partial class ProductController : BaseAdminController
             //vendors cannot edit "Show on home page" property
             if (currentVendor != null && model.ShowOnHomepage != product.ShowOnHomepage)
                 model.ShowOnHomepage = product.ShowOnHomepage;
+
+            //vendors cannot enable shipping
+            if (currentVendor != null)
+                model.IsShipEnabled = false;
 
             //some previously used values
             var prevTotalStockQuantity = await _productService.GetTotalStockQuantityAsync(product);

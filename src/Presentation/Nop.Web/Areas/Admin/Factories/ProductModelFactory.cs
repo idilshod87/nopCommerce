@@ -929,6 +929,10 @@ public partial class ProductModelFactory : IProductModelFactory
         var currentVendor = await _workContext.GetCurrentVendorAsync();
         model.IsLoggedInAsVendor = currentVendor != null;
 
+        //vendors cannot enable shipping; force default off in the editor
+        if (currentVendor != null)
+            model.IsShipEnabled = false;
+
         //prepare localized models
         if (!excludeProperties)
             model.Locales = await _localizedModelFactory.PrepareLocalizedModelsAsync(localizedModelConfiguration);

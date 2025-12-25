@@ -673,6 +673,31 @@ public class CheckoutController : ControllerBase
 
         var model = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
 
+        //ensure shipping option is selected before placing the order to avoid shipping total calculation failure
+        if (await _shoppingCartService.ShoppingCartRequiresShippingAsync(cart))
+        {
+            var selectedShippingOption = await _genericAttributeService.GetAttributeAsync<ShippingOption>(customer,
+                NopCustomerDefaults.SelectedShippingOptionAttribute, store.Id);
+
+            if (selectedShippingOption == null)
+            {
+                var offeredOptions = await _genericAttributeService
+                    .GetAttributeAsync<List<ShippingOption>>(customer, NopCustomerDefaults.OfferedShippingOptionsAttribute, store.Id)
+                    ?? new List<ShippingOption>();
+
+                if (offeredOptions.Count == 1)
+                {
+                    selectedShippingOption = offeredOptions[0];
+                    await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.SelectedShippingOptionAttribute, selectedShippingOption, store.Id);
+                }
+                else
+                {
+                    model.Warnings.Add(await _localizationService.GetResourceAsync("Checkout.SelectShippingMethod"));
+                    return BadRequest(new ApiResponse<CheckoutConfirmModel> { Data = model });
+                }
+            }
+        }
+
         try
         {
             //prevent 2 orders being placed within an X seconds time frame
