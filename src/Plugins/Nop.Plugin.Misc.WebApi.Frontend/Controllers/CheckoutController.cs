@@ -671,9 +671,12 @@ public class CheckoutController : ControllerBase
         if (!cart.Any())
             return BadRequest(new { Message = "Cart is empty" });
 
-        //ensure billing address is set (only if not disabled in settings)
-        if (!_orderSettings.DisableBillingAddressCheckoutStep && customer.BillingAddressId == null)
-            return BadRequest(new { Message = "Billing address is not provided. Please select billing address." });
+        //ensure billing address is set (only if billing address step is enabled)
+        if (!_orderSettings.DisableBillingAddressCheckoutStep)
+        {
+            if (customer.BillingAddressId == null)
+                return BadRequest(new { Message = "Billing address is not provided. Please select billing address." });
+        }
 
         var model = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
 
