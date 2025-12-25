@@ -1381,8 +1381,10 @@ public partial class ProductModelFactory : IProductModelFactory
             //custom wishlist items
             model.ProductToWishlist = await PrepareProductToWishlistModelAsync(product);
 
-            //vendor id
+            //vendor id and name
             model.VendorId = product.VendorId;
+            var vendor = await _vendorService.GetVendorByIdAsync(product.VendorId);
+            model.VendorName = vendor?.Name ?? string.Empty;
 
             models.Add(model);
         }
