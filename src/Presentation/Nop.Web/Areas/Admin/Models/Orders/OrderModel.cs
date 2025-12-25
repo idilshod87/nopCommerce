@@ -227,6 +227,9 @@ public partial record OrderModel : BaseNopEntityModel
 
     //workflow info
     public bool CanCancelOrder { get; set; }
+    public bool CanVendorConfirmOrder { get; set; }
+    public bool CanVendorCompleteOrder { get; set; }
+    public bool CanVendorMarkAsPaid { get; set; }
     public bool CanCapture { get; set; }
     public bool CanMarkOrderAsPaid { get; set; }
     public bool CanRefund { get; set; }

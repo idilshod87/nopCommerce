@@ -13847,6 +13847,24 @@
   <LocaleResource Name="Admin.Orders.Fields.OrderStatus.Change.ForAdvancedUsers">
     <Value>This option is only for advanced users (not recommended to change manually). All appropriate actions (such as inventory adjustment, sending notification emails, reward points, gift card activation/deactivation, etc) should be done manually in this case.</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Orders.Fields.OrderStatus.VendorConfirm">
+    <Value>Confirm order</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Orders.Fields.OrderStatus.VendorComplete">
+    <Value>Complete order</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Orders.VendorConfirmed">
+    <Value>The order has been successfully confirmed</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Orders.VendorCompleted">
+    <Value>The order has been successfully completed</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Orders.Fields.VendorMarkAsPaid">
+    <Value>Mark as paid</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Orders.VendorMarkedAsPaid">
+    <Value>The order has been successfully marked as paid</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Orders.Fields.OrderStatus.Hint">
     <Value>The status of this order.</Value>
   </LocaleResource>

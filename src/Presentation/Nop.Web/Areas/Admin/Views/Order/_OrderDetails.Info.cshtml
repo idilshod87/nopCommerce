@@ -143,8 +143,39 @@
             }
             else
             {
-                //vendors should see whether or order is cancelled
-                if (Model.OrderStatusId == (int)OrderStatus.Cancelled)
+                //vendors can see order status and confirm pending orders
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="OrderStatus" />
+                    </div>
+                    <div class="col-md-9">
+                        <div class="input-group input-group-short">
+                            <div class="input-group-text align-items-start">
+                                <div class="font-weight-bold">@Model.OrderStatus</div>
+                            </div>
+                            @if (Model.CanVendorConfirmOrder || Model.CanVendorCompleteOrder)
+                            {
+                                <div class="input-group-btn">
+                                    @if (Model.CanVendorConfirmOrder)
+                                    {
+                                        <button type="submit" name="vendorconfirmorder" id="vendorconfirmorder" class="btn btn-success">
+                                            @T("Admin.Orders.Fields.OrderStatus.VendorConfirm")
+                                        </button>
+                                        <nop-action-confirmation asp-button-id="vendorconfirmorder" />
+                                    }
+                                    @if (Model.CanVendorCompleteOrder)
+                                    {
+                                        <button type="submit" name="vendorcompleteorder" id="vendorcompleteorder" class="btn btn-primary" style="margin-left: 3px;">
+                                            @T("Admin.Orders.Fields.OrderStatus.VendorComplete")
+                                        </button>
+                                        <nop-action-confirmation asp-button-id="vendorcompleteorder" />
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                @if (Model.OrderStatusId == (int)OrderStatus.Cancelled)
                 {
                     <div class="form-group row">
                         <div class="col-md-3">
@@ -160,6 +191,34 @@
             }
         </div>
     </div>
+    @if (Model.IsLoggedInAsVendor)
+    {
+        <div class="card card-default">
+            <div class="card-body">
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="PaymentStatus" />
+                    </div>
+                    <div class="col-md-9">
+                        <div class="input-group input-group-short">
+                            <div class="input-group-text align-items-start">
+                                <div class="font-weight-bold">@Model.PaymentStatus</div>
+                            </div>
+                            @if (Model.CanVendorMarkAsPaid)
+                            {
+                                <div class="input-group-btn">
+                                    <button type="submit" name="vendormarkaspaid" id="vendormarkaspaid" class="btn btn-primary">
+                                        @T("Admin.Orders.Fields.VendorMarkAsPaid")
+                                    </button>
+                                    <nop-action-confirmation asp-button-id="vendormarkaspaid" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
     @if (!Model.IsLoggedInAsVendor)
     {
     <div class="card card-default">

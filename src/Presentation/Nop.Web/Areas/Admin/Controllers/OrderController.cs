@@ -786,6 +786,162 @@ public partial class OrderController : BaseAdminController
     }
 
     [HttpPost, ActionName("Edit")]
+    [FormValueRequired("vendorconfirmorder")]
+    [CheckPermission(StandardPermission.Orders.ORDERS_VIEW)]
+    public virtual async Task<IActionResult> VendorConfirmOrder(int id)
+    {
+        //try to get an order with the specified id
+        var order = await _orderService.GetOrderByIdAsync(id);
+        if (order == null)
+            return RedirectToAction("List");
+
+        //check whether the current user is a vendor
+        var currentVendor = await _workContext.GetCurrentVendorAsync();
+        if (currentVendor == null)
+            return RedirectToAction("Edit", new { id = order.Id });
+
+        //a vendor should have access only to his products
+        if (!await HasAccessToOrderAsync(order.Id))
+            return RedirectToAction("List");
+
+        try
+        {
+            //vendors can only confirm pending orders
+            if (order.OrderStatus == OrderStatus.Pending)
+            {
+                var prevOrderStatus = order.OrderStatus;
+
+                order.OrderStatusId = (int)OrderStatus.Processing;
+                await _orderService.UpdateOrderAsync(order);
+
+                await _eventPublisher.PublishAsync(new OrderStatusChangedEvent(order, prevOrderStatus));
+
+                //add a note
+                await _orderService.InsertOrderNoteAsync(new OrderNote
+                {
+                    OrderId = order.Id,
+                    Note = $"Order has been confirmed by vendor '{currentVendor.Name}'",
+                    DisplayToCustomer = false,
+                    CreatedOnUtc = DateTime.UtcNow
+                });
+
+                await LogEditOrderAsync(order.Id);
+
+                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Orders.VendorConfirmed"));
+            }
+
+            return RedirectToAction("Edit", new { id = order.Id });
+        }
+        catch (Exception exc)
+        {
+            await _notificationService.ErrorNotificationAsync(exc);
+            return RedirectToAction("Edit", new { id = order.Id });
+        }
+    }
+
+    [HttpPost, ActionName("Edit")]
+    [FormValueRequired("vendorcompleteorder")]
+    [CheckPermission(StandardPermission.Orders.ORDERS_VIEW)]
+    public virtual async Task<IActionResult> VendorCompleteOrder(int id)
+    {
+        //try to get an order with the specified id
+        var order = await _orderService.GetOrderByIdAsync(id);
+        if (order == null)
+            return RedirectToAction("List");
+
+        //check whether the current user is a vendor
+        var currentVendor = await _workContext.GetCurrentVendorAsync();
+        if (currentVendor == null)
+            return RedirectToAction("Edit", new { id = order.Id });
+
+        //a vendor should have access only to his products
+        if (!await HasAccessToOrderAsync(order.Id))
+            return RedirectToAction("List");
+
+        try
+        {
+            //vendors can only complete processing orders
+            if (order.OrderStatus == OrderStatus.Processing)
+            {
+                var prevOrderStatus = order.OrderStatus;
+
+                order.OrderStatusId = (int)OrderStatus.Complete;
+                await _orderService.UpdateOrderAsync(order);
+
+                await _eventPublisher.PublishAsync(new OrderStatusChangedEvent(order, prevOrderStatus));
+
+                //add a note
+                await _orderService.InsertOrderNoteAsync(new OrderNote
+                {
+                    OrderId = order.Id,
+                    Note = $"Order has been completed by vendor '{currentVendor.Name}'",
+                    DisplayToCustomer = false,
+                    CreatedOnUtc = DateTime.UtcNow
+                });
+
+                await LogEditOrderAsync(order.Id);
+
+                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Orders.VendorCompleted"));
+            }
+
+            return RedirectToAction("Edit", new { id = order.Id });
+        }
+        catch (Exception exc)
+        {
+            await _notificationService.ErrorNotificationAsync(exc);
+            return RedirectToAction("Edit", new { id = order.Id });
+        }
+    }
+
+    [HttpPost, ActionName("Edit")]
+    [FormValueRequired("vendormarkaspaid")]
+    [CheckPermission(StandardPermission.Orders.ORDERS_VIEW)]
+    public virtual async Task<IActionResult> VendorMarkOrderAsPaid(int id)
+    {
+        //try to get an order with the specified id
+        var order = await _orderService.GetOrderByIdAsync(id);
+        if (order == null)
+            return RedirectToAction("List");
+
+        //check whether the current user is a vendor
+        var currentVendor = await _workContext.GetCurrentVendorAsync();
+        if (currentVendor == null)
+            return RedirectToAction("Edit", new { id = order.Id });
+
+        //a vendor should have access only to his products
+        if (!await HasAccessToOrderAsync(order.Id))
+            return RedirectToAction("List");
+
+        try
+        {
+            if (_orderProcessingService.CanMarkOrderAsPaid(order))
+            {
+                await _orderProcessingService.MarkOrderAsPaidAsync(order);
+
+                //add a note
+                await _orderService.InsertOrderNoteAsync(new OrderNote
+                {
+                    OrderId = order.Id,
+                    Note = $"Order has been marked as paid by vendor '{currentVendor.Name}'",
+                    DisplayToCustomer = false,
+                    CreatedOnUtc = DateTime.UtcNow
+                });
+
+                await LogEditOrderAsync(order.Id);
+
+                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Orders.VendorMarkedAsPaid"));
+            }
+
+            return RedirectToAction("Edit", new { id = order.Id });
+        }
+        catch (Exception exc)
+        {
+            await _notificationService.ErrorNotificationAsync(exc);
+            return RedirectToAction("Edit", new { id = order.Id });
+        }
+    }
+
+    [HttpPost, ActionName("Edit")]
     [FormValueRequired("btnSaveOrderStatus")]
     [CheckPermission(StandardPermission.Orders.ORDERS_CREATE_EDIT_DELETE)]
     public virtual async Task<IActionResult> ChangeOrderStatus(int id, OrderModel model)

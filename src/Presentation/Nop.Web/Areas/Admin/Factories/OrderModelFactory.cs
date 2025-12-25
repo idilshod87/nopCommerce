@@ -615,6 +615,18 @@ public partial class OrderModelFactory : IOrderModelFactory
         model.CanVoid = await _orderProcessingService.CanVoidAsync(order);
         model.CanVoidOffline = _orderProcessingService.CanVoidOffline(order);
 
+        //vendors can confirm pending orders and complete processing orders
+        var currentVendor = await _workContext.GetCurrentVendorAsync();
+        model.CanVendorConfirmOrder = currentVendor != null && 
+                                      order.OrderStatus == OrderStatus.Pending &&
+                                      (await _orderService.GetOrderItemsAsync(order.Id, vendorId: currentVendor.Id)).Any();
+        model.CanVendorCompleteOrder = currentVendor != null && 
+                                       order.OrderStatus == OrderStatus.Processing &&
+                                       (await _orderService.GetOrderItemsAsync(order.Id, vendorId: currentVendor.Id)).Any();
+        model.CanVendorMarkAsPaid = currentVendor != null && 
+                                    _orderProcessingService.CanMarkOrderAsPaid(order) &&
+                                    (await _orderService.GetOrderItemsAsync(order.Id, vendorId: currentVendor.Id)).Any();
+
         model.PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyByIdAsync(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
         model.MaxAmountToRefund = order.OrderTotal - order.RefundedAmount;
 
