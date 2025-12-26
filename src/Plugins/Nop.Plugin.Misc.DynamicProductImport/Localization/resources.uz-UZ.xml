@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="Uzbek">
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.NameRequired">
+    <Value>Shablon nomi majburiy</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.MappingsRequired">
+    <Value>Kamida bitta maydon moslashtirish talab qilinadi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Saved">
+    <Value>Shablon muvaffaqiyatli saqlandi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.NotFound">
+    <Value>Shablon topilmadi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Deleted">
+    <Value>Shablon muvaffaqiyatli o'chirildi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Load">
+    <Value>Shablonni yuklash</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Save">
+    <Value>Shablon sifatida saqlash</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Name">
+    <Value>Shablon nomi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.SystemTemplate">
+    <Value>Tizim shabloni (barcha yetkazib beruvchilarga ko'rinadi)</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Select">
+    <Value>Shablonni tanlang</Value>
+  </LocaleResource>
+</Language>

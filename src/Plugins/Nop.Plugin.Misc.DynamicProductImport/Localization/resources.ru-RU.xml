@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="Russian">
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.NameRequired">
+    <Value>Название шаблона обязательно</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.MappingsRequired">
+    <Value>Требуется хотя бы одно сопоставление полей</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Saved">
+    <Value>Шаблон успешно сохранен</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.NotFound">
+    <Value>Шаблон не найден</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Deleted">
+    <Value>Шаблон успешно удален</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Load">
+    <Value>Загрузить шаблон</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Save">
+    <Value>Сохранить как шаблон</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Name">
+    <Value>Название шаблона</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.SystemTemplate">
+    <Value>Системный шаблон (виден всем поставщикам)</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Select">
+    <Value>Выберите шаблон</Value>
+  </LocaleResource>
+</Language>

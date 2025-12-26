@@ -220,7 +220,13 @@
         }
 
         $('#dynamic-import-mapping-body').on('change', 'select', validateDynamicImport);
-        $('#dynamic-import-vendor').on('change', validateDynamicImport);
+        $('#dynamic-import-vendor').on('change', function() {
+            validateDynamicImport();
+            
+            // Перезагружаем шаблоны для выбранного поставщика
+            var vendorId = parseInt($(this).val() || 0, 10);
+            loadTemplates(vendorId);
+        });
 
         // Обработчик добавления нового поля
         $('#dynamic-import-add-field').on('click', function () {
