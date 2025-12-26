@@ -144,7 +144,7 @@ public class DynamicProductImportController : BaseAdminController
                 _fileProvider.DeleteFile(filePath);
 
             await _notificationService.ErrorNotificationAsync(exc);
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = exc.Message });
+            return BadRequest(new { success = false, message = exc.Message });
         }
     }
 

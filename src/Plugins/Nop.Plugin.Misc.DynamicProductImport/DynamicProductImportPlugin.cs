@@ -1,6 +1,8 @@
+using Nop.Core.Domain.Cms;
 using Nop.Plugin.Misc.DynamicProductImport.Components;
-using Nop.Services.Common;
 using Nop.Services.Cms;
+using Nop.Services.Common;
+using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Plugins;
 using Nop.Web.Framework.Infrastructure;
@@ -15,14 +17,21 @@ public class DynamicProductImportPlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
     #region Fields
 
     private readonly ILocalizationService _localizationService;
+    private readonly ISettingService _settingService;
+    private readonly WidgetSettings _widgetSettings;
 
     #endregion
 
     #region Ctor
 
-    public DynamicProductImportPlugin(ILocalizationService localizationService)
+    public DynamicProductImportPlugin(
+        ILocalizationService localizationService,
+        ISettingService settingService,
+        WidgetSettings widgetSettings)
     {
         _localizationService = localizationService;
+        _settingService = settingService;
+        _widgetSettings = widgetSettings;
     }
 
     #endregion
@@ -45,6 +54,13 @@ public class DynamicProductImportPlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
             ["Admin.Common.ImportFromExcel.DynamicMappingTip"] = "Map Excel columns to product fields"
         });
 
+        //activate widget by default
+        if (!_widgetSettings.ActiveWidgetSystemNames.Contains("Misc.DynamicProductImport"))
+        {
+            _widgetSettings.ActiveWidgetSystemNames.Add("Misc.DynamicProductImport");
+            await _settingService.SaveSettingAsync(_widgetSettings);
+        }
+
         await base.InstallAsync();
     }
 
@@ -56,6 +72,13 @@ public class DynamicProductImportPlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
     {
         await _localizationService.DeleteLocaleResourcesAsync("Admin.Catalog.Products.DynamicImport");
         await _localizationService.DeleteLocaleResourcesAsync("Admin.Common.ImportFromExcel.DynamicMappingTip");
+
+        //deactivate widget
+        if (_widgetSettings.ActiveWidgetSystemNames.Contains("Misc.DynamicProductImport"))
+        {
+            _widgetSettings.ActiveWidgetSystemNames.Remove("Misc.DynamicProductImport");
+            await _settingService.SaveSettingAsync(_widgetSettings);
+        }
 
         await base.UninstallAsync();
     }

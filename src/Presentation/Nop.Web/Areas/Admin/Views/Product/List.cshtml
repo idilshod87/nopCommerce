@@ -81,11 +81,11 @@
                         @T("Admin.Common.Import")
                     </button>
                 }
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.ProductListButtons, additionalData = Model })
                 <button type="button" id="delete-selected" class="btn btn-danger">
                     <i class="far fa-trash-can"></i>
                     @T("Admin.Common.Delete.Selected")
                 </button>
-                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.ProductListButtons, additionalData = Model })
             </div>
         </div>
 

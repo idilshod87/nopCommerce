@@ -18,7 +18,6 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-                @Html.AntiForgeryToken()
                 <div class="form-group row">
                     <div class="col-md-3">
                         <div class="label-wrapper">
@@ -32,7 +31,7 @@
                         <small class="form-text text-muted">@T("Admin.Common.ImportFromExcel.ManyRecordsWarning")</small>
                     </div>
                 </div>
-                <div class="form-group row">
+                <div class="form-group row" id="dynamic-import-vendor-wrapper" style="display:none;">
                     <div class="col-md-3">
                         <div class="label-wrapper">
                             <label class="col-form-label">
@@ -87,7 +86,9 @@
             $('#dynamic-import-file').val('');
             $('#dynamic-import-mapping-body').empty();
             $('#dynamic-import-mapping-wrapper').hide();
+            $('#dynamic-import-vendor-wrapper').hide();
             $('#dynamic-import-tip').hide();
+            $('#dynamic-import-upload').show();
             $('#dynamic-import-start').prop('disabled', true);
             if (!dynamicImportState.isVendorLocked) {
                 $('#dynamic-import-vendor').prop('disabled', false).empty();
@@ -178,6 +179,23 @@
         $('#dynamic-import-mapping-body').on('change', 'select', validateDynamicImport);
         $('#dynamic-import-vendor').on('change', validateDynamicImport);
 
+        $('#dynamic-import-file').on('change', function () {
+            if (dynamicImportState.fileId) {
+                dynamicImportState.fileId = null;
+                dynamicImportState.columns = [];
+                dynamicImportState.requiredFields = [];
+                $('#dynamic-import-mapping-body').empty();
+                $('#dynamic-import-mapping-wrapper').hide();
+                $('#dynamic-import-vendor-wrapper').hide();
+                $('#dynamic-import-tip').hide();
+                $('#dynamic-import-start').prop('disabled', true);
+                if (!dynamicImportState.isVendorLocked) {
+                    $('#dynamic-import-vendor').prop('disabled', false).empty();
+                }
+            }
+            $('#dynamic-import-upload').show();
+        });
+
         $('#dynamic-import-upload').on('click', function () {
             var fileInput = $('#dynamic-import-file')[0].files[0];
             if (!fileInput) {
@@ -187,7 +205,7 @@
 
             var formData = new FormData();
             formData.append('importexcelfile', fileInput);
-            var token = $('#dynamic-import-window input[name="__RequestVerificationToken"]').val();
+            var token = $('input[name="__RequestVerificationToken"]').val();
             if (token) {
                 formData.append('__RequestVerificationToken', token);
             }
@@ -211,10 +229,33 @@
                         : ['SKU', 'Name', 'Price', 'StockQuantity'];
 
                     fillVendors(resp.vendors || []);
+                    $('#dynamic-import-vendor-wrapper').show();
+                    $('#dynamic-import-upload').hide();
                     renderMapping();
                 },
                 error: function (xhr) {
-                    var message = (xhr.responseJSON && xhr.responseJSON.message) || '@T("Admin.Common.Error")';
+                    console.error('Upload error:', xhr);
+                    var message = '@T("Admin.Common.Error")';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        var errors = [];
+                        $.each(xhr.responseJSON.errors, function(key, val) {
+                            if (Array.isArray(val)) {
+                                errors.push(key + ': ' + val.join(', '));
+                            } else {
+                                errors.push(key + ': ' + val);
+                            }
+                        });
+                        message = errors.join('\n');
+                    } else if (xhr.responseText) {
+                        try {
+                            var json = JSON.parse(xhr.responseText);
+                            message = json.message || message;
+                        } catch(e) {
+                            console.error('Could not parse error response:', e);
+                        }
+                    }
                     alert(message);
                 }
             });

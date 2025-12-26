@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Nop.Services.Security;
+using Nop.Web.Areas.Admin.Models.Catalog;
 using Nop.Web.Framework.Components;
 using Nop.Web.Framework.Infrastructure;
 
@@ -45,7 +46,11 @@ public class DynamicImportButtonViewComponent : NopViewComponent
         if (!widgetZone.Equals(AdminWidgetZones.ProductListButtons))
             return Content(string.Empty);
 
-        return View("~/Plugins/Misc.DynamicProductImport/Views/Product/DynamicImportButton.cshtml", additionalData);
+        //cast additionalData to ProductSearchModel
+        if (additionalData is not ProductSearchModel model)
+            return Content(string.Empty);
+
+        return View("~/Plugins/Misc.DynamicProductImport/Views/Product/DynamicImportButton.cshtml", model);
     }
 
     #endregion
