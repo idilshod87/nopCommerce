@@ -11,6 +11,7 @@ public class DynamicImportDependencyRegistrar : INopStartup
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IDynamicImportManager, DynamicImportManager>();
+        services.AddScoped<IMappingTemplateService, MappingTemplateService>();
     }
 
     public void Configure(IApplicationBuilder application)

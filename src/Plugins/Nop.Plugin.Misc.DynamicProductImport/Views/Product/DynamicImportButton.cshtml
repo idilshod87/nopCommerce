@@ -43,26 +43,56 @@
                         <select id="dynamic-import-vendor" class="form-control"></select>
                     </div>
                 </div>
+                <div class="form-group row" id="dynamic-import-template-wrapper" style="display:none;">
+                    <div class="col-md-3">
+                        <div class="label-wrapper">
+                            <label class="col-form-label">
+                                @T("Admin.Catalog.Products.DynamicImport.Template.Load")
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="input-group">
+                            <select id="dynamic-import-template-select" class="form-control">
+                                <option value="">@T("Admin.Catalog.Products.DynamicImport.Template.Select")</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-danger" id="dynamic-import-template-delete" style="display:none;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="table-responsive" id="dynamic-import-mapping-wrapper" style="display:none;">
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>@T("Admin.Common.Field")</th>
                                 <th>@T("Admin.Common.ExcelColumn")</th>
+                                <th style="width:100px; text-align:right;"></th>
                             </tr>
                         </thead>
                         <tbody id="dynamic-import-mapping-body"></tbody>
                     </table>
+                    <button type="button" class="btn btn-secondary" id="dynamic-import-add-field">
+                        <i class="fas fa-plus"></i>
+                        @T("Admin.Common.AddField")
+                    </button>
                 </div>
                 <div class="alert alert-info" id="dynamic-import-tip" style="display:none;">
                     @T("Admin.Common.ImportFromExcel.DynamicMappingTip")
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="dynamic-import-template-save" style="display:none;">
+                    <i class="fas fa-save"></i>
+                    @T("Admin.Catalog.Products.DynamicImport.Template.Save")
+                </button>
                 <button type="button" class="btn btn-info" id="dynamic-import-upload">
                     @T("Admin.Common.Next")
                 </button>
-                <button type="button" class="btn btn-primary" id="dynamic-import-start" disabled>
+                <button type="button" class="btn btn-primary" id="dynamic-import-start" disabled style="display:none;">
                     @T("Admin.Common.Import")
                 </button>
             </div>
@@ -76,20 +106,26 @@
             fileId: null,
             columns: [],
             requiredFields: [],
-            isVendorLocked: @Model.IsLoggedInAsVendor.ToString().ToLower()
+            availableFields: [],
+            isVendorLocked: @Model.IsLoggedInAsVendor.ToString().ToLower(),
+            templates: [],
+            currentVendorId: 0
         };
 
         function resetDynamicImport() {
             dynamicImportState.fileId = null;
             dynamicImportState.columns = [];
             dynamicImportState.requiredFields = [];
+            dynamicImportState.availableFields = [];
             $('#dynamic-import-file').val('');
             $('#dynamic-import-mapping-body').empty();
             $('#dynamic-import-mapping-wrapper').hide();
             $('#dynamic-import-vendor-wrapper').hide();
+            $('#dynamic-import-template-wrapper').hide();
+            $('#dynamic-import-template-save').hide();
             $('#dynamic-import-tip').hide();
             $('#dynamic-import-upload').show();
-            $('#dynamic-import-start').prop('disabled', true);
+            $('#dynamic-import-start').prop('disabled', true).hide();
             if (!dynamicImportState.isVendorLocked) {
                 $('#dynamic-import-vendor').prop('disabled', false).empty();
             }
@@ -115,8 +151,7 @@
         function renderMapping() {
             var body = $('#dynamic-import-mapping-body');
             body.empty();
-
-            var fields = dynamicImportState.requiredFields;
+            
             var optionsHtml = '<option value="">@T("Admin.Common.Select")</option>';
             $.each(dynamicImportState.columns, function (_, column) {
                 var label = column.name;
@@ -125,10 +160,12 @@
                 optionsHtml += '<option value="' + column.index + '">' + label + '</option>';
             });
 
-            $.each(fields, function (_, field) {
-                var row = '<tr class="dynamic-import-mapping-row" data-field="' + field + '">' +
+            // Отображаем только обязательные поля
+            $.each(dynamicImportState.requiredFields, function (_, field) {
+                var row = '<tr class="dynamic-import-mapping-row" data-field="' + field + '" data-required="true">' +
                     '<td>' + field + ' *</td>' +
                     '<td><select class="form-control dynamic-import-column">' + optionsHtml + '</select></td>' +
+                    '<td></td>' + // Пустая ячейка для обязательных полей
                     '</tr>';
                 body.append(row);
             });
@@ -146,6 +183,7 @@
 
             $('#dynamic-import-mapping-wrapper').toggle(body.children().length > 0);
             $('#dynamic-import-tip').toggle(body.children().length > 0);
+            $('#dynamic-import-template-save').toggle(body.children().length > 0);
             validateDynamicImport();
         }
 
@@ -155,13 +193,18 @@
             var allRequiredMapped = true;
 
             $('#dynamic-import-mapping-body tr').each(function () {
-                var field = $(this).data('field').toString().toLowerCase();
-                var columnIndex = parseInt($(this).find('select').val() || 0);
+                var field = $(this).data('field');
+                var isRequired = $(this).data('required') === true;
+                
+                // Для опциональных полей проверяем, выбрано ли поле
+                if (!isRequired && !field) {
+                    return; // Пропускаем незаполненные опциональные строки
+                }
+                
+                var columnIndex = parseInt($(this).find('.dynamic-import-column').val() || 0);
 
-                if (dynamicImportState.requiredFields.some(function (f) { return f.toLowerCase() === field; })) {
-                    if (!columnIndex) {
-                        allRequiredMapped = false;
-                    }
+                if (isRequired && !columnIndex) {
+                    allRequiredMapped = false;
                 }
 
                 if (columnIndex) {
@@ -179,16 +222,83 @@
         $('#dynamic-import-mapping-body').on('change', 'select', validateDynamicImport);
         $('#dynamic-import-vendor').on('change', validateDynamicImport);
 
+        // Обработчик добавления нового поля
+        $('#dynamic-import-add-field').on('click', function () {
+            var body = $('#dynamic-import-mapping-body');
+            var existingFields = [];
+            body.find('tr').each(function () {
+                existingFields.push($(this).data('field'));
+            });
+
+            // Получаем доступные опциональные поля
+            var optionalFields = dynamicImportState.availableFields.filter(function (field) {
+                return dynamicImportState.requiredFields.indexOf(field) === -1 && existingFields.indexOf(field) === -1;
+            });
+
+            if (optionalFields.length === 0) {
+                alert('@T("Admin.Catalog.Products.DynamicImport.NoMoreFields")');
+                return;
+            }
+
+            // Создаем select для выбора поля
+            var fieldOptionsHtml = '<option value="">@T("Admin.Common.Select")</option>';
+            $.each(optionalFields, function (_, field) {
+                fieldOptionsHtml += '<option value="' + field + '">' + field + '</option>';
+            });
+
+            var columnOptionsHtml = '<option value="">@T("Admin.Common.Select")</option>';
+            $.each(dynamicImportState.columns, function (_, column) {
+                var label = column.name;
+                if (column.preview)
+                    label += ' (' + column.preview + ')';
+                columnOptionsHtml += '<option value="' + column.index + '">' + label + '</option>';
+            });
+
+            var row = '<tr class="dynamic-import-mapping-row" data-field="" data-required="false">' +
+                '<td><select class="form-control dynamic-import-field-selector">' + fieldOptionsHtml + '</select></td>' +
+                '<td><select class="form-control dynamic-import-column">' + columnOptionsHtml + '</select></td>' +
+                '<td style="text-align:right;"><button type="button" class="btn btn-danger btn-sm dynamic-import-remove-field"><i class="fas fa-trash"></i></button></td>' +
+                '</tr>';
+            body.append(row);
+            validateDynamicImport();
+        });
+
+        // Обработчик изменения поля в опциональной строке
+        $('#dynamic-import-mapping-body').on('change', '.dynamic-import-field-selector', function () {
+            var row = $(this).closest('tr');
+            var selectedField = $(this).val();
+            row.data('field', selectedField);
+            
+            // Автоматически выбираем колонку, если имя совпадает
+            if (selectedField) {
+                var fieldName = selectedField.toLowerCase();
+                var match = dynamicImportState.columns.find(function (c) {
+                    return c.name && c.name.toString().toLowerCase() === fieldName;
+                });
+                if (match) {
+                    row.find('.dynamic-import-column').val(match.index);
+                }
+            }
+            validateDynamicImport();
+        });
+
+        // Обработчик удаления опционального поля
+        $('#dynamic-import-mapping-body').on('click', '.dynamic-import-remove-field', function () {
+            $(this).closest('tr').remove();
+            validateDynamicImport();
+        });
+
         $('#dynamic-import-file').on('change', function () {
             if (dynamicImportState.fileId) {
                 dynamicImportState.fileId = null;
                 dynamicImportState.columns = [];
                 dynamicImportState.requiredFields = [];
+                dynamicImportState.availableFields = [];
                 $('#dynamic-import-mapping-body').empty();
                 $('#dynamic-import-mapping-wrapper').hide();
                 $('#dynamic-import-vendor-wrapper').hide();
                 $('#dynamic-import-tip').hide();
-                $('#dynamic-import-start').prop('disabled', true);
+                $('#dynamic-import-start').prop('disabled', true).hide();
                 if (!dynamicImportState.isVendorLocked) {
                     $('#dynamic-import-vendor').prop('disabled', false).empty();
                 }
@@ -227,11 +337,16 @@
                     dynamicImportState.requiredFields = resp.requiredFields && resp.requiredFields.length
                         ? resp.requiredFields
                         : ['SKU', 'Name', 'Price', 'StockQuantity'];
+                    dynamicImportState.availableFields = resp.availableFields && resp.availableFields.length
+                        ? resp.availableFields
+                        : dynamicImportState.requiredFields;
 
                     fillVendors(resp.vendors || []);
                     $('#dynamic-import-vendor-wrapper').show();
                     $('#dynamic-import-upload').hide();
+                    $('#dynamic-import-start').show();
                     renderMapping();
+                    loadTemplates(0);
                 },
                 error: function (xhr) {
                     console.error('Upload error:', xhr);
@@ -277,7 +392,17 @@
             var mappings = [];
             $('#dynamic-import-mapping-body tr').each(function () {
                 var field = $(this).data('field');
-                var columnIndex = parseInt($(this).find('select').val() || 0, 10);
+                var isRequired = $(this).data('required') === true;
+                
+                // Для опциональных полей с селектором поля
+                if (!isRequired) {
+                    var fieldSelector = $(this).find('.dynamic-import-field-selector');
+                    if (fieldSelector.length) {
+                        field = fieldSelector.val();
+                    }
+                }
+                
+                var columnIndex = parseInt($(this).find('.dynamic-import-column').val() || 0, 10);
                 if (columnIndex > 0 && field) {
                     mappings.push({ property: field, columnIndex: columnIndex });
                 }
@@ -332,6 +457,222 @@
         });
 
         $('#dynamic-import-window').on('hidden.bs.modal', resetDynamicImport);
+
+        // Загрузка списка шаблонов
+        function loadTemplates(vendorId) {
+            dynamicImportState.currentVendorId = vendorId || 0;
+            
+            $.ajax({
+                url: '@Url.Action("GetMappingTemplates", "DynamicProductImport")',
+                type: 'GET',
+                data: { vendorId: dynamicImportState.currentVendorId },
+                success: function (resp) {
+                    if (resp && resp.success) {
+                        dynamicImportState.templates = resp.templates || [];
+                        var select = $('#dynamic-import-template-select');
+                        select.empty();
+                        select.append(new Option('@T("Admin.Catalog.Products.DynamicImport.Template.Select")', ''));
+                        
+                        $.each(dynamicImportState.templates, function (_, template) {
+                            var label = template.name;
+                            if (template.isSystem) {
+                                label += ' (@T("Admin.System"))';
+                            }
+                            select.append(new Option(label, template.id));
+                        });
+                        
+                        $('#dynamic-import-template-wrapper').show();
+                    }
+                },
+                error: function (xhr) {
+                    console.error('Failed to load templates:', xhr);
+                }
+            });
+        }
+
+        // Применение шаблона к маппингу
+        function applyTemplate(template) {
+            var body = $('#dynamic-import-mapping-body');
+            body.empty();
+
+            if (!template.mappings || !template.mappings.length) {
+                return;
+            }
+
+            $.each(template.mappings, function (_, mapping) {
+                var fieldName = mapping.property || mapping.Property;
+                var columnIndex = mapping.columnIndex || mapping.ColumnIndex || 0;
+                var isRequired = dynamicImportState.requiredFields.indexOf(fieldName) !== -1;
+                
+                var columnOptionsHtml = '<option value="">@T("Admin.Common.Select")</option>';
+                $.each(dynamicImportState.columns, function (_, column) {
+                    var label = column.name;
+                    if (column.preview)
+                        label += ' (' + column.preview + ')';
+                    var selected = column.index === columnIndex ? ' selected' : '';
+                    columnOptionsHtml += '<option value="' + column.index + '"' + selected + '>' + label + '</option>';
+                });
+
+                var row;
+                if (isRequired) {
+                    row = '<tr class="dynamic-import-mapping-row" data-field="' + fieldName + '" data-required="true">' +
+                        '<td>' + fieldName + ' *</td>' +
+                        '<td><select class="form-control dynamic-import-column">' + columnOptionsHtml + '</select></td>' +
+                        '<td></td>' +
+                        '</tr>';
+                } else {
+                    var fieldOptionsHtml = '<option value="">@T("Admin.Common.Select")</option>';
+                    var optionalFields = dynamicImportState.availableFields.filter(function (field) {
+                        return dynamicImportState.requiredFields.indexOf(field) === -1;
+                    });
+                    $.each(optionalFields, function (_, field) {
+                        var selected = field === fieldName ? ' selected' : '';
+                        fieldOptionsHtml += '<option value="' + field + '"' + selected + '>' + field + '</option>';
+                    });
+
+                    row = '<tr class="dynamic-import-mapping-row" data-field="' + fieldName + '" data-required="false">' +
+                        '<td><select class="form-control dynamic-import-field-selector">' + fieldOptionsHtml + '</select></td>' +
+                        '<td><select class="form-control dynamic-import-column">' + columnOptionsHtml + '</select></td>' +
+                        '<td style="text-align:right;"><button type="button" class="btn btn-danger btn-sm dynamic-import-remove-field"><i class="fas fa-trash"></i></button></td>' +
+                        '</tr>';
+                }
+                
+                body.append(row);
+            });
+
+            validateDynamicImport();
+        }
+
+        // Изменение выбора шаблона
+        $('#dynamic-import-template-select').on('change', function () {
+            var templateId = $(this).val();
+            var canDelete = false;
+            
+            if (templateId) {
+                var template = dynamicImportState.templates.find(function (t) { return t.id == templateId; });
+                // Можно удалять только свои шаблоны или системные (если не vendor)
+                canDelete = template && (!template.isSystem || !dynamicImportState.isVendorLocked);
+                
+                // Автоматически загружаем выбранный шаблон
+                $.ajax({
+                    url: '@Url.Action("GetMappingTemplate", "DynamicProductImport")',
+                    type: 'GET',
+                    data: { id: templateId },
+                    success: function (resp) {
+                        if (resp && resp.success && resp.template) {
+                            applyTemplate(resp.template);
+                        }
+                    },
+                    error: function (xhr) {
+                        alert('@T("Admin.Common.Error")');
+                        console.error('Failed to load template:', xhr);
+                    }
+                });
+            }
+            
+            $('#dynamic-import-template-delete').toggle(canDelete);
+        });
+
+        // Удаление шаблона
+        $('#dynamic-import-template-delete').on('click', function () {
+            var templateId = $('#dynamic-import-template-select').val();
+            if (!templateId) {
+                return;
+            }
+
+            if (!confirm('@T("Admin.Common.AreYouSure")')) {
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("DeleteMappingTemplate", "DynamicProductImport")',
+                type: 'POST',
+                data: JSON.stringify({ id: parseInt(templateId) }),
+                contentType: 'application/json',
+                success: function (resp) {
+                    if (resp && resp.success) {
+                        loadTemplates(dynamicImportState.currentVendorId);
+                        $('#dynamic-import-template-select').val('');
+                        $('#dynamic-import-template-delete').hide();
+                    } else {
+                        alert(resp.message || '@T("Admin.Common.Error")');
+                    }
+                },
+                error: function (xhr) {
+                    alert('@T("Admin.Common.Error")');
+                    console.error('Failed to delete template:', xhr);
+                }
+            });
+        });
+
+        // Сохранение как шаблон
+        $('#dynamic-import-template-save').on('click', function () {
+            var mappings = [];
+            $('#dynamic-import-mapping-body tr').each(function () {
+                var field = $(this).data('field');
+                var isRequired = $(this).data('required') === true;
+                
+                if (!isRequired) {
+                    var fieldSelector = $(this).find('.dynamic-import-field-selector');
+                    if (fieldSelector.length) {
+                        field = fieldSelector.val();
+                    }
+                }
+                
+                var columnIndex = parseInt($(this).find('.dynamic-import-column').val() || 0, 10);
+                if (field && columnIndex > 0) {
+                    mappings.push({ property: field, columnIndex: columnIndex });
+                }
+            });
+
+            if (!mappings.length) {
+                alert('@T("Admin.Catalog.Products.DynamicImport.Template.MappingsRequired")');
+                return;
+            }
+
+            var templateName = prompt('@T("Admin.Catalog.Products.DynamicImport.Template.Name")');
+            if (!templateName) {
+                return;
+            }
+
+            var vendorId = parseInt($('#dynamic-import-vendor').val() || 0, 10);
+            
+            var isSystemTemplate = false;
+            // Системные шаблоны можно создавать только если не выбран поставщик и пользователь не vendor
+            if (!dynamicImportState.isVendorLocked && vendorId === 0) {
+                isSystemTemplate = confirm('@T("Admin.Catalog.Products.DynamicImport.Template.SystemTemplate")');
+            }
+
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            $.ajax({
+                url: '@Url.Action("SaveMappingTemplate", "DynamicProductImport")',
+                type: 'POST',
+                data: JSON.stringify({
+                    name: templateName,
+                    isSystemTemplate: isSystemTemplate,
+                    vendorId: vendorId,
+                    mappings: mappings
+                }),
+                contentType: 'application/json',
+                headers: token ? { 'RequestVerificationToken': token } : {},
+                success: function (resp) {
+                    if (resp && resp.success) {
+                        alert(resp.message || '@T("Admin.Catalog.Products.DynamicImport.Template.Saved")');
+                        loadTemplates(dynamicImportState.currentVendorId);
+                    } else {
+                        alert(resp.message || '@T("Admin.Common.Error")');
+                    }
+                },
+                error: function (xhr) {
+                    var message = '@T("Admin.Common.Error")';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    }
+                    alert(message);
+                    console.error('Failed to save template:', xhr);
+                }
+            });
+        });
     })();
 </script>
 

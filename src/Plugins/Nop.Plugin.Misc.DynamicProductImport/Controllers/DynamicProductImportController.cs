@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Vendors;
 using Nop.Core.Infrastructure;
+using Nop.Plugin.Misc.DynamicProductImport.Domain;
 using Nop.Plugin.Misc.DynamicProductImport.Models;
 using Nop.Services.Localization;
 using Nop.Services.Messages;
@@ -29,11 +31,57 @@ public class DynamicProductImportController : BaseAdminController
 
     private readonly IDynamicImportManager _importManager;
     private readonly ILocalizationService _localizationService;
+    private readonly IMappingTemplateService _templateService;
     private readonly INopFileProvider _fileProvider;
     private readonly INotificationService _notificationService;
     private readonly IVendorService _vendorService;
     private readonly IWorkContext _workContext;
     private readonly VendorSettings _vendorSettings;
+
+    private static readonly string[] RequiredFields = { "SKU", "Name", "Price", "StockQuantity" };
+    
+    private static readonly string[] AvailableFields =
+    {
+        // Обязательные поля
+        "SKU",
+        "Name",
+        "Price",
+        "StockQuantity",
+        
+        // Категории и производители
+        "Categories",
+        "Manufacturers",
+        
+        // Описание
+        "ShortDescription",
+        "FullDescription",
+        
+        // Цены
+        "OldPrice",
+        "ProductCost",
+        "MinimumCustomerEnteredPrice",
+        "MaximumCustomerEnteredPrice",
+        
+        // Размеры и вес
+        "Weight",
+        "Length",
+        "Width",
+        "Height",
+        
+        // Идентификаторы
+        "Gtin",
+        "ManufacturerPartNumber",
+        
+        // Настройки товара
+        "Published",
+        "VisibleIndividually",
+        "OrderMinimumQuantity",
+        "OrderMaximumQuantity",
+        "DisableBuyButton",
+        "CallForPrice",
+        "AvailableForPreOrder",
+        "MarkAsNew"
+    };
 
     #endregion
 
@@ -42,6 +90,7 @@ public class DynamicProductImportController : BaseAdminController
     public DynamicProductImportController(
         IDynamicImportManager importManager,
         ILocalizationService localizationService,
+        IMappingTemplateService templateService,
         INopFileProvider fileProvider,
         INotificationService notificationService,
         IVendorService vendorService,
@@ -50,6 +99,7 @@ public class DynamicProductImportController : BaseAdminController
     {
         _importManager = importManager;
         _localizationService = localizationService;
+        _templateService = templateService;
         _fileProvider = fileProvider;
         _notificationService = notificationService;
         _vendorService = vendorService;
@@ -134,7 +184,8 @@ public class DynamicProductImportController : BaseAdminController
                 success = true,
                 fileId,
                 columns,
-                requiredFields = new[] { "SKU", "Name", "Price", "StockQuantity" },
+                requiredFields = RequiredFields,
+                availableFields = AvailableFields,
                 vendors
             });
         }
@@ -180,9 +231,8 @@ public class DynamicProductImportController : BaseAdminController
             return Forbid();
 
         var mappings = request.Mappings ?? new List<ProductImportDynamicMappingModel>();
-        var requiredFields = new[] { "SKU", "Name", "Price", "StockQuantity" };
 
-        var missingRequiredFields = requiredFields.Where(r =>
+        var missingRequiredFields = RequiredFields.Where(r =>
             !mappings.Any(m => string.Equals(m.Property, r, StringComparison.InvariantCultureIgnoreCase) && m.ColumnIndex > 0)).ToList();
 
         if (missingRequiredFields.Any())
@@ -227,6 +277,122 @@ public class DynamicProductImportController : BaseAdminController
             if (_fileProvider.FileExists(filePath))
                 _fileProvider.DeleteFile(filePath);
         }
+    }
+
+    [HttpGet]
+    [CheckPermission(StandardPermission.Catalog.PRODUCTS_IMPORT_EXPORT)]
+    public virtual async Task<IActionResult> GetMappingTemplates(int vendorId = 0)
+    {
+        var currentVendor = await _workContext.GetCurrentVendorAsync();
+        if (currentVendor != null)
+            vendorId = currentVendor.Id;
+
+        var templates = await _templateService.GetTemplatesAsync(vendorId, includeSystemTemplates: true);
+        
+        return Json(new
+        {
+            success = true,
+            templates = templates.Select(t => new
+            {
+                id = t.Id,
+                name = t.Name,
+                isSystem = t.IsSystemTemplate,
+                vendorId = t.VendorId
+            })
+        });
+    }
+
+    [HttpPost]
+    [CheckPermission(StandardPermission.Catalog.PRODUCTS_IMPORT_EXPORT)]
+    public virtual async Task<IActionResult> SaveMappingTemplate([FromBody] SaveMappingTemplateModel model)
+    {
+        var currentVendor = await _workContext.GetCurrentVendorAsync();
+        
+        if (string.IsNullOrWhiteSpace(model.Name))
+            return BadRequest(new { message = await _localizationService.GetResourceAsync("Admin.Catalog.Products.DynamicImport.Template.NameRequired") });
+
+        if (model.Mappings == null || !model.Mappings.Any())
+            return BadRequest(new { message = await _localizationService.GetResourceAsync("Admin.Catalog.Products.DynamicImport.Template.MappingsRequired") });
+
+        // Поставщики не могут создавать системные шаблоны
+        if (currentVendor != null && model.IsSystemTemplate)
+            return BadRequest(new { message = "Vendors cannot create system templates" });
+
+        var template = new MappingTemplate
+        {
+            Name = model.Name,
+            VendorId = currentVendor?.Id ?? model.VendorId,
+            IsSystemTemplate = model.IsSystemTemplate && currentVendor == null && model.VendorId == 0, // Только администраторы могут создавать системные шаблоны (без привязки к поставщику)
+            MappingsJson = JsonSerializer.Serialize(model.Mappings),
+            CreatedOnUtc = DateTime.UtcNow
+        };
+
+        await _templateService.InsertTemplateAsync(template);
+
+        return Json(new
+        {
+            success = true,
+            templateId = template.Id,
+            message = await _localizationService.GetResourceAsync("Admin.Catalog.Products.DynamicImport.Template.Saved")
+        });
+    }
+
+    [HttpGet]
+    [CheckPermission(StandardPermission.Catalog.PRODUCTS_IMPORT_EXPORT)]
+    public virtual async Task<IActionResult> GetMappingTemplate(int id)
+    {
+        var template = await _templateService.GetTemplateByIdAsync(id);
+        if (template == null)
+            return NotFound(new { message = await _localizationService.GetResourceAsync("Admin.Catalog.Products.DynamicImport.Template.NotFound") });
+
+        var currentVendor = await _workContext.GetCurrentVendorAsync();
+        
+        // Проверяем права доступа: системные доступны всем, свои только своим
+        if (!template.IsSystemTemplate && currentVendor != null && template.VendorId != currentVendor.Id)
+            return Forbid();
+
+        var mappings = string.IsNullOrEmpty(template.MappingsJson)
+            ? new List<ImportProductMapping>()
+            : JsonSerializer.Deserialize<List<ImportProductMapping>>(template.MappingsJson);
+
+        return Json(new
+        {
+            success = true,
+            template = new
+            {
+                id = template.Id,
+                name = template.Name,
+                isSystem = template.IsSystemTemplate,
+                mappings
+            }
+        });
+    }
+
+    [HttpPost]
+    [CheckPermission(StandardPermission.Catalog.PRODUCTS_IMPORT_EXPORT)]
+    public virtual async Task<IActionResult> DeleteMappingTemplate(int id)
+    {
+        var template = await _templateService.GetTemplateByIdAsync(id);
+        if (template == null)
+            return NotFound(new { message = await _localizationService.GetResourceAsync("Admin.Catalog.Products.DynamicImport.Template.NotFound") });
+
+        var currentVendor = await _workContext.GetCurrentVendorAsync();
+
+        // Системные шаблоны могут удалять только администраторы
+        if (template.IsSystemTemplate && currentVendor != null)
+            return Forbid();
+
+        // Свои шаблоны могут удалять только их владельцы
+        if (!template.IsSystemTemplate && currentVendor != null && template.VendorId != currentVendor.Id)
+            return Forbid();
+
+        await _templateService.DeleteTemplateAsync(template);
+
+        return Json(new
+        {
+            success = true,
+            message = await _localizationService.GetResourceAsync("Admin.Catalog.Products.DynamicImport.Template.Deleted")
+        });
     }
 
     #endregion

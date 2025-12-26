@@ -51,7 +51,22 @@ public class DynamicProductImportPlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
             ["Admin.Catalog.Products.DynamicImport.DuplicateColumn"] = "Duplicate column mapping detected",
             ["Admin.Catalog.Products.DynamicImport.FileNotFound"] = "Uploaded file not found",
             ["Admin.Catalog.Products.DynamicImport.VendorNotAllowed"] = "Vendor selection is required",
-            ["Admin.Common.ImportFromExcel.DynamicMappingTip"] = "Map Excel columns to product fields"
+            ["Admin.Catalog.Products.DynamicImport.NoMoreFields"] = "No more fields available to add",
+            ["Admin.Catalog.Products.DynamicImport.Template.NameRequired"] = "Template name is required",
+            ["Admin.Catalog.Products.DynamicImport.Template.MappingsRequired"] = "At least one field mapping is required",
+            ["Admin.Catalog.Products.DynamicImport.Template.Saved"] = "Template saved successfully",
+            ["Admin.Catalog.Products.DynamicImport.Template.NotFound"] = "Template not found",
+            ["Admin.Catalog.Products.DynamicImport.Template.Deleted"] = "Template deleted successfully",
+            ["Admin.Catalog.Products.DynamicImport.Template.Load"] = "Load template",
+            ["Admin.Catalog.Products.DynamicImport.Template.Save"] = "Save as template",
+            ["Admin.Catalog.Products.DynamicImport.Template.Name"] = "Template name",
+            ["Admin.Catalog.Products.DynamicImport.Template.SystemTemplate"] = "System template (visible to all vendors)",
+            ["Admin.Catalog.Products.DynamicImport.Template.Select"] = "Select a template",
+            ["Admin.Common.ImportFromExcel.DynamicMappingTip"] = "Map Excel columns to product fields",
+            ["Admin.Common.Field"] = "Field",
+            ["Admin.Common.ExcelColumn"] = "Excel Column",
+            ["Admin.Common.AddField"] = "Add field",
+            ["Admin.Common.Next"] = "Next"
         });
 
         //activate widget by default
