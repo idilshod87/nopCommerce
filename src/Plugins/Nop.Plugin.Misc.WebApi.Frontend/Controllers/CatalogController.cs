@@ -65,7 +65,7 @@ public class CatalogController : ControllerBase
 
     /// <summary>
     /// GET /catalog/category/root
-    /// Get root categories with subcategories.
+    /// Get root categories with subcategories (all levels).
     /// </summary>
     [HttpGet("category/root")]
     [ProducesResponseType(typeof(ApiResponse<IList<CategorySimpleModel>>), StatusCodes.Status200OK)]
@@ -79,31 +79,34 @@ public class CatalogController : ControllerBase
 
         foreach (var category in rootCategories)
         {
-            var categoryModel = new CategorySimpleModel
-            {
-                Id = category.Id,
-                Name = await _localizationService.GetLocalizedAsync(category, x => x.Name),
-                SeName = await _urlRecordService.GetSeNameAsync(category)
-            };
-
-            // Load subcategories
-            var subCategories = allCategories.Where(c => c.ParentCategoryId == category.Id).OrderBy(c => c.DisplayOrder).ToList();
-            foreach (var subCategory in subCategories)
-            {
-                var subCategoryModel = new CategorySimpleModel
-                {
-                    Id = subCategory.Id,
-                    Name = await _localizationService.GetLocalizedAsync(subCategory, x => x.Name),
-                    SeName = await _urlRecordService.GetSeNameAsync(subCategory)
-                };
-
-                categoryModel.SubCategories.Add(subCategoryModel);
-            }
-
+            var categoryModel = await BuildCategoryModelRecursiveAsync(category, allCategories);
             result.Add(categoryModel);
         }
 
         return Ok(new ApiResponse<IList<CategorySimpleModel>> { Data = result });
+    }
+
+    /// <summary>
+    /// Recursively builds category model with all subcategories.
+    /// </summary>
+    private async Task<CategorySimpleModel> BuildCategoryModelRecursiveAsync(Category category, IList<Category> allCategories)
+    {
+        var categoryModel = new CategorySimpleModel
+        {
+            Id = category.Id,
+            Name = await _localizationService.GetLocalizedAsync(category, x => x.Name),
+            SeName = await _urlRecordService.GetSeNameAsync(category)
+        };
+
+        // Load subcategories recursively
+        var subCategories = allCategories.Where(c => c.ParentCategoryId == category.Id).OrderBy(c => c.DisplayOrder).ToList();
+        foreach (var subCategory in subCategories)
+        {
+            var subCategoryModel = await BuildCategoryModelRecursiveAsync(subCategory, allCategories);
+            categoryModel.SubCategories.Add(subCategoryModel);
+        }
+
+        return categoryModel;
     }
 
     /// <summary>
