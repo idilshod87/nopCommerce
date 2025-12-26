@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -38,7 +38,7 @@ public class DynamicProductImportController : BaseAdminController
     private readonly IWorkContext _workContext;
     private readonly VendorSettings _vendorSettings;
 
-    private static readonly string[] RequiredFields = { "SKU", "Name", "Price", "StockQuantity" };
+    private static readonly string[] RequiredFields = { "SKU", "Name", "Price", "StockQuantity", "Categories"};
     
     private static readonly string[] AvailableFields =
     {
@@ -73,14 +73,7 @@ public class DynamicProductImportController : BaseAdminController
         "ManufacturerPartNumber",
         
         // Настройки товара
-        "Published",
-        "VisibleIndividually",
-        "OrderMinimumQuantity",
-        "OrderMaximumQuantity",
-        "DisableBuyButton",
-        "CallForPrice",
-        "AvailableForPreOrder",
-        "MarkAsNew"
+        "Published"
     };
 
     #endregion

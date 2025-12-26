@@ -223,6 +223,12 @@ public class CatalogController : ControllerBase
     {
         command ??= new CatalogProductsCommand();
         
+        // Ensure valid pagination values
+        if (command.PageNumber < 1)
+            command.PageNumber = 1;
+        if (command.PageSize < 1)
+            command.PageSize = 10;
+        
         var store = await _storeContext.GetCurrentStoreAsync();
         
         // Collect all category IDs including subcategories
@@ -277,7 +283,7 @@ public class CatalogController : ControllerBase
             searchDescriptions: sid,
             searchProductTags: sit,
             languageId: workingLanguage.Id,
-            orderBy: (ProductSortingEnum)command.OrderBy,
+            orderBy: (ProductSortingEnum)(command.OrderBy ?? 0),
             vendorId: vendorId);
         
         // Prepare product models
