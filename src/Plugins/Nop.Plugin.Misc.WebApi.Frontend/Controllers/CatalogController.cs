@@ -203,21 +203,93 @@ public class CatalogController : ControllerBase
     /// GET /catalog/search
     /// Search products.
     /// </summary>
+    /// <param name="q">Search query string</param>
+    /// <param name="cid">Category IDs to search in (supports multiple). If specified, includes subcategories.</param>
+    /// <param name="mid">Manufacturer IDs to filter by (supports multiple)</param>
+    /// <param name="vid">Vendor IDs to filter by (supports multiple)</param>
+    /// <param name="sid">Search in product descriptions</param>
+    /// <param name="sit">Search in product tags</param>
+    /// <param name="command">Paging and sorting parameters</param>
     [HttpGet("search")]
     [ProducesResponseType(typeof(ApiResponse<SearchModel>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Search([FromQuery] string q, [FromQuery] int[] vid = null, [FromQuery] CatalogProductsCommand command = null)
+    public async Task<IActionResult> Search(
+        [FromQuery] string q, 
+        [FromQuery] int[] cid = null, 
+        [FromQuery] int[] mid = null,
+        [FromQuery] int[] vid = null,
+        [FromQuery] bool sid = false,
+        [FromQuery] bool sit = false,
+        [FromQuery] CatalogProductsCommand command = null)
     {
         command ??= new CatalogProductsCommand();
+        
+        var store = await _storeContext.GetCurrentStoreAsync();
+        
+        // Collect all category IDs including subcategories
+        var categoryIds = new List<int>();
+        if (cid != null && cid.Length > 0)
+        {
+            foreach (var categoryId in cid.Where(id => id > 0))
+            {
+                categoryIds.Add(categoryId);
+                // Include all subcategories for each specified category
+                var childCategoryIds = await _categoryService.GetChildCategoryIdsAsync(categoryId, store.Id);
+                categoryIds.AddRange(childCategoryIds);
+            }
+        }
+        
+        // Collect all manufacturer IDs
+        var manufacturerIds = mid != null && mid.Length > 0 
+            ? mid.Where(id => id > 0).ToList() 
+            : new List<int>();
+        
         // Use first vendor ID if multiple are provided
         // Note: The underlying search currently supports only one vendor ID at a time
         var vendorId = vid != null && vid.Length > 0 ? vid[0] : 0;
+        
+        // Prepare search model
         var searchModel = new SearchModel
         {
             q = q,
+            // For backward compatibility, set single category/manufacturer if only one is provided
+            cid = cid != null && cid.Length > 0 ? cid[0] : 0,
+            mid = mid != null && mid.Length > 0 ? mid[0] : 0,
             vid = vendorId,
-            advs = vendorId > 0, // Enable advanced search when vendor ID is specified
+            isc = true, // Always include subcategories when categories are specified
+            sid = sid, // Search in descriptions
+            sit = sit, // Search in product tags
+            advs = categoryIds.Any() || manufacturerIds.Any() || vendorId > 0 || sid || sit, // Enable advanced search
             asv = true // Enable vendor search
         };
+        
+        // Get working language for search
+        var workingLanguage = await _workContext.GetWorkingLanguageAsync();
+        
+        // Perform product search with all categories and manufacturers
+        var products = await _productService.SearchProductsAsync(
+            command.PageNumber - 1,
+            command.PageSize,
+            categoryIds: categoryIds,
+            manufacturerIds: manufacturerIds,
+            storeId: store.Id,
+            visibleIndividuallyOnly: true,
+            keywords: q,
+            searchDescriptions: sid,
+            searchProductTags: sit,
+            languageId: workingLanguage.Id,
+            orderBy: (ProductSortingEnum)command.OrderBy,
+            vendorId: vendorId);
+        
+        // Prepare product models
+        var productModels = (await _productModelFactory.PrepareProductOverviewModelsAsync(products)).ToList();
+        
+        // Build the search result model
+        searchModel.CatalogProductsModel = new CatalogProductsModel
+        {
+            Products = productModels
+        };
+        
+        // Prepare the full search model with available categories and manufacturers
         var model = await _catalogModelFactory.PrepareSearchModelAsync(searchModel, command);
 
         return Ok(new ApiResponse<SearchModel> { Data = model });
