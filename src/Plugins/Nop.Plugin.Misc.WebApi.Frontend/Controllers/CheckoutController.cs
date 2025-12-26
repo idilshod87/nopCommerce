@@ -944,12 +944,11 @@ public class CheckoutController : ControllerBase
     {
         if (vendorPayments == null || vendorPayments.Count == 0)
         {
-            await _genericAttributeService.SaveAttributeAsync<string>(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, null, storeId);
+            await _genericAttributeService.SaveAttributeAsync<Dictionary<int, string>>(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, null, storeId);
             return;
         }
 
-        var serialized = JsonSerializer.Serialize(vendorPayments);
-        await _genericAttributeService.SaveAttributeAsync(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, serialized, storeId);
+        await _genericAttributeService.SaveAttributeAsync(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, vendorPayments, storeId);
     }
 
     #endregion
