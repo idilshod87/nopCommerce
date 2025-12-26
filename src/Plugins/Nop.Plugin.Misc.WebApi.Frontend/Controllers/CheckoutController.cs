@@ -480,20 +480,38 @@ public class CheckoutController : ControllerBase
         }
 
         var vendorsInCart = await GetCartVendorsAsync(cart);
-        var vendorPaymentSelections = request?.VendorPayments?.Where(vp => vp?.VendorId > 0).ToList() ?? new List<VendorPaymentSelectionDto>();
+        var vendorPaymentSelections = request?.VendorPayments?.Where(vp => vp != null && vp.VendorId >= 0).ToList() ?? new List<VendorPaymentSelectionDto>();
         var vendorPaymentMap = new Dictionary<int, string>();
+
+        // If no vendor payments specified in request, try to load previously saved selections
+        if (!vendorPaymentSelections.Any())
+        {
+            var savedSelections = await GetVendorPaymentSelectionsAsync(customer, store.Id);
+            if (savedSelections.Any())
+            {
+                // Use saved selections as base, will be updated if new payment method is provided
+                vendorPaymentMap = new Dictionary<int, string>(savedSelections);
+            }
+        }
+
+        // If vendor payments are specified but cart has no vendors, treat vendorId:0 as store default
+        var treatAsStoreDefault = vendorPaymentSelections.Any() && !vendorsInCart.Any();
 
         foreach (var selection in vendorPaymentSelections)
         {
-            if (!vendorsInCart.ContainsKey(selection.VendorId))
+            // Skip vendor validation if treating as store default (vendorId:0 when no actual vendors in cart)
+            if (!treatAsStoreDefault && !vendorsInCart.ContainsKey(selection.VendorId))
                 return BadRequest(new { Message = $"Vendor {selection.VendorId} is not present in the current cart" });
 
             if (string.IsNullOrWhiteSpace(selection.PaymentMethod))
                 return BadRequest(new { Message = $"Payment method is required for vendor {selection.VendorId}" });
 
-            if (!await _paymentPluginManager.IsPluginActiveAsync(selection.PaymentMethod, customer, store.Id))
-                return BadRequest(new { Message = $"Payment method '{selection.PaymentMethod}' is not active for vendor {selection.VendorId}" });
+            // Validate that payment method exists and is active
+            var paymentPlugin = await _paymentPluginManager.LoadPluginBySystemNameAsync(selection.PaymentMethod, customer, store.Id);
+            if (paymentPlugin == null || !_paymentPluginManager.IsPluginActive(paymentPlugin))
+                return BadRequest(new { Message = $"Payment method '{selection.PaymentMethod}' is not active" });
 
+            // Save payment method selection for the vendor (or vendorId=0 for store default)
             vendorPaymentMap[selection.VendorId] = selection.PaymentMethod;
         }
 
@@ -514,11 +532,25 @@ public class CheckoutController : ControllerBase
         if (string.IsNullOrWhiteSpace(selectedPaymentMethod))
             return BadRequest(new { Message = "Payment method is required" });
 
-        if (!await _paymentPluginManager.IsPluginActiveAsync(selectedPaymentMethod, customer, store.Id))
+        // Validate that the selected payment method exists and is active
+        var selectedPaymentPlugin = await _paymentPluginManager.LoadPluginBySystemNameAsync(selectedPaymentMethod, customer, store.Id);
+        if (selectedPaymentPlugin == null || !_paymentPluginManager.IsPluginActive(selectedPaymentPlugin))
             return BadRequest(new { Message = "Payment method is not active" });
 
-        if (!vendorPaymentMap.Any() && vendorsInCart.Any())
-            vendorPaymentMap = vendorsInCart.Keys.ToDictionary(id => id, _ => selectedPaymentMethod);
+        // If vendorPaymentMap is empty, populate it based on cart vendors
+        if (!vendorPaymentMap.Any())
+        {
+            if (vendorsInCart.Any())
+            {
+                // Cart has vendors - assign payment method to all vendors
+                vendorPaymentMap = vendorsInCart.Keys.ToDictionary(id => id, _ => selectedPaymentMethod);
+            }
+            else
+            {
+                // Cart has no vendors (all items from store) - assign to vendorId=0
+                vendorPaymentMap[0] = selectedPaymentMethod;
+            }
+        }
 
         await _genericAttributeService.SaveAttributeAsync(customer,
             NopCustomerDefaults.SelectedPaymentMethodAttribute, selectedPaymentMethod, store.Id);
@@ -799,7 +831,7 @@ public class CheckoutController : ControllerBase
                     Order = placeOrderResult.PlacedOrder
                 };
                 await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
-                await _genericAttributeService.SaveAttributeAsync<Dictionary<int, string>>(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, null, store.Id);
+                await _genericAttributeService.SaveAttributeAsync<string>(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, null, store.Id);
 
                 var completedModel = await _checkoutModelFactory.PrepareCheckoutCompletedModelAsync(placeOrderResult.PlacedOrder!);
                 return Ok(new ApiResponse<CheckoutCompletedModel> { Data = completedModel });
@@ -940,15 +972,41 @@ public class CheckoutController : ControllerBase
         }
     }
 
+    private async Task<Dictionary<int, string>> GetVendorPaymentSelectionsAsync(Customer customer, int storeId)
+    {
+        var raw = await _genericAttributeService.GetAttributeAsync<string>(customer,
+            WebApiFrontendDefaults.VendorPaymentMethodsAttribute,
+            storeId);
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return new Dictionary<int, string>();
+
+        try
+        {
+            return JsonSerializer.Deserialize<Dictionary<int, string>>(raw) ?? new Dictionary<int, string>();
+        }
+        catch
+        {
+            // If deserialization fails, reset the attribute
+            await _genericAttributeService.SaveAttributeAsync<string>(customer,
+                WebApiFrontendDefaults.VendorPaymentMethodsAttribute,
+                null,
+                storeId);
+            return new Dictionary<int, string>();
+        }
+    }
+
     private async Task SaveVendorPaymentSelectionsAsync(Customer customer, int storeId, Dictionary<int, string>? vendorPayments)
     {
         if (vendorPayments == null || vendorPayments.Count == 0)
         {
-            await _genericAttributeService.SaveAttributeAsync<Dictionary<int, string>>(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, null, storeId);
+            await _genericAttributeService.SaveAttributeAsync<string>(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, null, storeId);
             return;
         }
 
-        await _genericAttributeService.SaveAttributeAsync(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, vendorPayments, storeId);
+        // Save as JSON string to avoid "(Collection)" serialization issue
+        var json = JsonSerializer.Serialize(vendorPayments);
+        await _genericAttributeService.SaveAttributeAsync(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, json, storeId);
     }
 
     #endregion

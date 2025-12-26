@@ -908,56 +908,39 @@ public class ShoppingCartController : ControllerBase
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
 
+        // Always get as string first to avoid cast exceptions
+        var raw = await _genericAttributeService.GetAttributeAsync<string>(customer,
+            WebApiFrontendDefaults.VendorPaymentMethodsAttribute,
+            store.Id);
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return new();
+
         try
         {
-            return await _genericAttributeService.GetAttributeAsync<Dictionary<int, string>>(customer,
-                WebApiFrontendDefaults.VendorPaymentMethodsAttribute,
-                store.Id) ?? new();
+            // Try to deserialize as JSON
+            var parsed = JsonSerializer.Deserialize<Dictionary<int, string>>(raw);
+            if (parsed != null)
+                return parsed;
         }
-        catch (InvalidCastException)
+        catch
         {
-            // attribute may have been stored as raw string in earlier versions; try to deserialize
-            var raw = await _genericAttributeService.GetAttributeAsync<string>(customer,
-                WebApiFrontendDefaults.VendorPaymentMethodsAttribute,
-                store.Id);
-
-            if (!string.IsNullOrWhiteSpace(raw))
-            {
-                try
-                {
-                    var parsed = JsonSerializer.Deserialize<Dictionary<int, string>>(raw);
-                    if (parsed != null)
-                    {
-                        await _genericAttributeService.SaveAttributeAsync(customer,
-                            WebApiFrontendDefaults.VendorPaymentMethodsAttribute,
-                            parsed,
-                            store.Id);
-                        return parsed;
-                    }
-                }
-                catch
-                {
-                    // ignore malformed legacy value; will reset below
-                }
-            }
-
+            // If deserialization fails, reset the attribute
             await _genericAttributeService.SaveAttributeAsync<Dictionary<int, string>>(customer,
                 WebApiFrontendDefaults.VendorPaymentMethodsAttribute,
                 null,
                 store.Id);
-            return new();
         }
+
+        return new();
     }
 
     private async Task<IList<VendorPaymentInfoDto>> PrepareVendorPaymentInfoAsync(ShoppingCartModel model, IList<ShoppingCartItem> cart)
     {
+        // Group items by VendorId (including VendorId=0 for store items)
         var vendorGroups = model.Items
-            .Where(item => item.VendorId > 0)
-            .GroupBy(item => item.VendorId)
+            .GroupBy(item => item.VendorId > 0 ? item.VendorId : 0)
             .ToList();
-
-        if (!vendorGroups.Any())
-            return new List<VendorPaymentInfoDto>();
 
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
@@ -965,6 +948,16 @@ public class ShoppingCartController : ControllerBase
         var vendorPaymentSelections = await GetVendorPaymentSelectionsAsync();
         var defaultSelectedPaymentMethod = await _genericAttributeService.GetAttributeAsync<string>(customer,
             NopCustomerDefaults.SelectedPaymentMethodAttribute, store.Id);
+
+        // If no vendor-specific selections saved, but default payment method exists, use it for all vendors
+        if (!vendorPaymentSelections.Any() && !string.IsNullOrWhiteSpace(defaultSelectedPaymentMethod))
+        {
+            // Apply default payment method to all vendor groups
+            foreach (var group in vendorGroups)
+            {
+                vendorPaymentSelections[group.Key] = defaultSelectedPaymentMethod;
+            }
+        }
 
         var result = new List<VendorPaymentInfoDto>();
         var activePaymentMethods = await (await _paymentPluginManager.LoadActivePluginsAsync(customer, store.Id))
@@ -977,7 +970,12 @@ public class ShoppingCartController : ControllerBase
             var vendorId = group.Key;
             vendorPaymentSelections.TryGetValue(vendorId, out var systemName);
 
-            if (string.IsNullOrWhiteSpace(systemName) && vendorGroups.Count == 1 && !string.IsNullOrWhiteSpace(defaultSelectedPaymentMethod))
+            // If no payment method found for this vendor, try to get the first available one (for single vendor scenarios)
+            if (string.IsNullOrWhiteSpace(systemName) && vendorPaymentSelections.Any())
+                systemName = vendorPaymentSelections.First().Value;
+
+            // Fallback to default selected payment method if available
+            if (string.IsNullOrWhiteSpace(systemName) && !string.IsNullOrWhiteSpace(defaultSelectedPaymentMethod))
                 systemName = defaultSelectedPaymentMethod;
 
             string? paymentMethodName = null;
@@ -1012,7 +1010,9 @@ public class ShoppingCartController : ControllerBase
             result.Add(new VendorPaymentInfoDto
             {
                 VendorId = vendorId,
-                VendorName = group.Select(item => item.VendorName).FirstOrDefault(name => !string.IsNullOrWhiteSpace(name)) ?? string.Empty,
+                VendorName = vendorId == 0 
+                    ? string.Empty 
+                    : group.Select(item => item.VendorName).FirstOrDefault(name => !string.IsNullOrWhiteSpace(name)) ?? string.Empty,
                 PaymentMethodSystemName = systemName ?? string.Empty,
                 PaymentMethodName = paymentMethodName ?? string.Empty,
                 AvailablePaymentMethods = availableMethods
