@@ -23,6 +23,27 @@ using Nop.Web.Models.Order;
 namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
 
 /// <summary>
+/// Order status grouping for filtering
+/// </summary>
+public enum OrderStatusGroup
+{
+    /// <summary>
+    /// All orders regardless of status
+    /// </summary>
+    All = 0,
+
+    /// <summary>
+    /// Current/active orders (Pending, Processing)
+    /// </summary>
+    Current = 1,
+
+    /// <summary>
+    /// Completed orders (Complete, Cancelled)
+    /// </summary>
+    Completed = 2
+}
+
+/// <summary>
 /// Public API for customer orders, aligned with NopStation Cart API routes.
 /// </summary>
 [ApiController]
@@ -92,23 +113,52 @@ public class OrderController : ControllerBase
     /// </summary>
     /// <param name="pageNumber">Page number</param>
     /// <param name="limit">Order filtering period</param>
-    /// <param name="orderStatuses">Order statuses to filter by. Can specify multiple values (e.g., ?orderStatuses=10&orderStatuses=20). Valid values: 10=Pending, 20=Processing, 30=Complete, 40=Cancelled</param>
+    /// <param name="status">Order statuses to filter by. Can specify multiple values (e.g., ?status=10&status=20). Valid values: 10=Pending, 20=Processing, 30=Complete, 40=Cancelled</param>
+    /// <param name="statusGroup">Order status group filter. Valid values: 0=All, 1=Current (Pending+Processing), 2=Completed (Complete+Cancelled). Takes precedence over status parameter.</param>
     [HttpGet("history")]
     [ProducesResponseType(typeof(ApiResponse<CustomerOrderListModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetOrderHistory(
         [FromQuery] int? pageNumber = null,
         [FromQuery] OrderHistoryPeriods limit = OrderHistoryPeriods.All,
-        [FromQuery] List<int> orderStatus = null)
+        [FromQuery] List<int> status = null,
+        [FromQuery] OrderStatusGroup? statusGroup = null)
     {
         var customer = await GetCurrentRegisteredCustomerAsync();
         if (customer == null)
             return Unauthorized(new { Message = "Authentication required" });
 
-        // If orderStatuses filter is provided, use custom implementation
-        if (orderStatus != null && orderStatus.Any())
+        List<int> statusFilter = null;
+
+        // If statusGroup is provided, it takes precedence
+        if (statusGroup.HasValue)
         {
-            var model = await PrepareCustomerOrderListModelWithStatusFilterAsync(pageNumber, limit, orderStatus);
+            statusFilter = statusGroup.Value switch
+            {
+                OrderStatusGroup.Current => new List<int> 
+                { 
+                    (int)OrderStatus.Pending, 
+                    (int)OrderStatus.Processing 
+                },
+                OrderStatusGroup.Completed => new List<int> 
+                { 
+                    (int)OrderStatus.Complete, 
+                    (int)OrderStatus.Cancelled 
+                },
+                OrderStatusGroup.All => null,
+                _ => null
+            };
+        }
+        // Otherwise use individual status filter if provided
+        else if (status != null && status.Any())
+        {
+            statusFilter = status;
+        }
+
+        // If status filter is provided, use custom implementation
+        if (statusFilter != null && statusFilter.Any())
+        {
+            var model = await PrepareCustomerOrderListModelWithStatusFilterAsync(pageNumber, limit, statusFilter);
             return Ok(new ApiResponse<CustomerOrderListModel> { Data = model });
         }
 
@@ -181,7 +231,7 @@ public class OrderController : ControllerBase
     private async Task<CustomerOrderListModel> PrepareCustomerOrderListModelWithStatusFilterAsync(
         int? page,
         OrderHistoryPeriods limit,
-        List<int> orderStatus)
+        List<int> status)
     {
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
@@ -194,7 +244,7 @@ public class OrderController : ControllerBase
             customerId: customer.Id,
             createdFromUtc: limit == OrderHistoryPeriods.All ? null : DateTime.UtcNow.AddDays((int)limit * -1),
             createdToUtc: limit > 0 ? DateTime.UtcNow : null,
-            osIds: orderStatus, // Apply status filter
+            osIds: status, // Apply status filter
             pageIndex: pageIndex,
             pageSize: pageSize);
 
