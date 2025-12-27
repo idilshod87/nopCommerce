@@ -1,5 +1,4 @@
-#nullable enable
-namespace Nop.Plugin.Misc.WebApi.Frontend.DTOs;
+﻿namespace Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 
 /// <summary>
 /// Generic API response wrapper matching NopStation Cart API style (top-level Data property).
@@ -9,5 +8,3 @@ public class ApiResponse<T>
 {
     public T Data { get; set; } = default!;
 }
-
-

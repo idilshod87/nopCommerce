@@ -254,6 +254,9 @@ public class FrontendApiStartup : INopStartup
 {
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
+        // Register API catalog model factory
+        services.AddScoped<Factories.IApiCatalogModelFactory, Factories.ApiCatalogModelFactory>();
+
         // JWT Bearer authentication is configured via JwtBearerAuthenticationRegistrar
         // which implements IExternalAuthenticationRegistrar and is called automatically
         // by AddNopAuthentication() in AuthenticationStartup (Order 500)
