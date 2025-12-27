@@ -792,6 +792,12 @@ public class CheckoutController : ControllerBase
                     var selectedPaymentMethod = await _genericAttributeService.GetAttributeAsync<string>(customer,
                         NopCustomerDefaults.SelectedPaymentMethodAttribute, store.Id);
 
+                    // If no default payment method, try to get from vendor payment selections
+                    if (string.IsNullOrWhiteSpace(selectedPaymentMethod) && vendorPaymentSelections.Any())
+                    {
+                        selectedPaymentMethod = vendorPaymentSelections.First().Value;
+                    }
+
                     if (string.IsNullOrWhiteSpace(selectedPaymentMethod))
                     {
                         model.Warnings.Add(await _localizationService.GetResourceAsync("Checkout.SelectPaymentMethod"));
