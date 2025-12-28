@@ -38,8 +38,8 @@ public class DynamicProductImportController : BaseAdminController
     private readonly IWorkContext _workContext;
     private readonly VendorSettings _vendorSettings;
 
-    private static readonly string[] RequiredFields = { "SKU", "Name", "Price", "StockQuantity", "Categories"};
-    
+    private static readonly string[] RequiredFields = { "SKU", "Name", "Price", "StockQuantity" };
+
     private static readonly string[] AvailableFields =
     {
         // Обязательные поля
@@ -49,7 +49,6 @@ public class DynamicProductImportController : BaseAdminController
         "StockQuantity",
         
         // Категории и производители
-        "Categories",
         "Manufacturers",
         
         // Описание
@@ -281,7 +280,7 @@ public class DynamicProductImportController : BaseAdminController
             vendorId = currentVendor.Id;
 
         var templates = await _templateService.GetTemplatesAsync(vendorId, includeSystemTemplates: true);
-        
+
         return Json(new
         {
             success = true,
@@ -300,7 +299,7 @@ public class DynamicProductImportController : BaseAdminController
     public virtual async Task<IActionResult> SaveMappingTemplate([FromBody] SaveMappingTemplateModel model)
     {
         var currentVendor = await _workContext.GetCurrentVendorAsync();
-        
+
         if (string.IsNullOrWhiteSpace(model.Name))
             return BadRequest(new { message = await _localizationService.GetResourceAsync("Admin.Catalog.Products.DynamicImport.Template.NameRequired") });
 
@@ -339,7 +338,7 @@ public class DynamicProductImportController : BaseAdminController
             return NotFound(new { message = await _localizationService.GetResourceAsync("Admin.Catalog.Products.DynamicImport.Template.NotFound") });
 
         var currentVendor = await _workContext.GetCurrentVendorAsync();
-        
+
         // Проверяем права доступа: системные доступны всем, свои только своим
         if (!template.IsSystemTemplate && currentVendor != null && template.VendorId != currentVendor.Id)
             return Forbid();
