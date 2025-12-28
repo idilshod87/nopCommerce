@@ -1,0 +1,11 @@
+{
+  "Group": "Misc",
+  "FriendlyName": "Telegram Notifications",
+  "SystemName": "Misc.TelegramNotifications",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.90" ],
+  "Author": "nopCommerce team",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.TelegramNotifications.dll",
+  "Description": "This plugin allows sending order status change notifications via Telegram"
+}

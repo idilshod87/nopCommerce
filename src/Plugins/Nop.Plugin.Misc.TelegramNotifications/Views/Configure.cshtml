@@ -1,0 +1,104 @@
+@model ConfigurationModel
+
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+<form asp-controller="TelegramNotifications" asp-action="Configure" method="post">
+    <div class="cards-group">
+        <div class="card card-default">
+            <div class="card-body">
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="Enabled" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Enabled" />
+                        <span asp-validation-for="Enabled"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="BotToken" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="BotToken" />
+                        <span asp-validation-for="BotToken"></span>
+                        <div class="form-text">
+                            @T("Plugins.Misc.TelegramNotifications.Fields.BotToken.Hint")
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ChatId" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ChatId" />
+                        <span asp-validation-for="ChatId"></span>
+                        <div class="form-text">
+                            @T("Plugins.Misc.TelegramNotifications.Fields.ChatId.Hint")
+                        </div>
+                    </div>
+                </div>
+                <div class="card card-default mt-3">
+                    <div class="card-header">
+                        @T("Plugins.Misc.TelegramNotifications.NotificationSettings")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="NotifyOnOrderPlaced" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="NotifyOnOrderPlaced" />
+                                <span asp-validation-for="NotifyOnOrderPlaced"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="NotifyOnOrderStatusChanged" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="NotifyOnOrderStatusChanged" />
+                                <span asp-validation-for="NotifyOnOrderStatusChanged"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="NotifyOnOrderPaid" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="NotifyOnOrderPaid" />
+                                <span asp-validation-for="NotifyOnOrderPaid"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="NotifyOnOrderCancelled" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="NotifyOnOrderCancelled" />
+                                <span asp-validation-for="NotifyOnOrderCancelled"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="NotifyOnOrderCompleted" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="NotifyOnOrderCompleted" />
+                                <span asp-validation-for="NotifyOnOrderCompleted"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <button type="submit" name="save" class="btn btn-primary">
+            @T("Admin.Common.Save")
+        </button>
+    </div>
+</form>
