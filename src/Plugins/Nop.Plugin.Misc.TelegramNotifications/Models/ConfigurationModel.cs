@@ -11,9 +11,6 @@ public record ConfigurationModel : BaseNopModel
     [NopResourceDisplayName("Plugins.Misc.TelegramNotifications.Fields.BotToken")]
     public string BotToken { get; set; } = string.Empty;
 
-    [NopResourceDisplayName("Plugins.Misc.TelegramNotifications.Fields.ChatId")]
-    public string ChatId { get; set; } = string.Empty;
-
     [NopResourceDisplayName("Plugins.Misc.TelegramNotifications.Fields.Enabled")]
     public bool Enabled { get; set; }
 

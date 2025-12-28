@@ -1,9 +1,12 @@
+using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Nop.Core.Domain.Orders;
+using Nop.Data;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Localization;
+using Nop.Plugin.ExternalAuth.Telegram.Domain.Authentication;
 
 namespace Nop.Plugin.Misc.TelegramNotifications.Services;
 
@@ -18,6 +21,7 @@ public class TelegramNotificationService
     private readonly ILocalizationService _localizationService;
     private readonly ICustomerService _customerService;
     private readonly ICountryService _countryService;
+    private readonly IRepository<TelegramAuthSession> _telegramAuthSessionRepository;
 
     public TelegramNotificationService(
         IHttpClientFactory httpClientFactory,
@@ -25,7 +29,8 @@ public class TelegramNotificationService
         TelegramNotificationsSettings settings,
         ILocalizationService localizationService,
         ICustomerService customerService,
-        ICountryService countryService)
+        ICountryService countryService,
+        IRepository<TelegramAuthSession> telegramAuthSessionRepository)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
@@ -33,6 +38,7 @@ public class TelegramNotificationService
         _localizationService = localizationService;
         _customerService = customerService;
         _countryService = countryService;
+        _telegramAuthSessionRepository = telegramAuthSessionRepository;
     }
 
     /// <summary>
@@ -42,17 +48,49 @@ public class TelegramNotificationService
     /// <param name="previousStatus">Previous order status</param>
     public async Task SendOrderStatusNotificationAsync(Order order, OrderStatus? previousStatus = null)
     {
-        if (!_settings.Enabled || string.IsNullOrWhiteSpace(_settings.BotToken) || string.IsNullOrWhiteSpace(_settings.ChatId))
+        if (!_settings.Enabled || string.IsNullOrWhiteSpace(_settings.BotToken))
             return;
 
         try
         {
+            // Get customer's Telegram Chat ID
+            var chatId = await GetCustomerTelegramChatIdAsync(order.CustomerId);
+            if (!chatId.HasValue)
+            {
+                _logger.LogWarning("Customer {CustomerId} does not have Telegram Chat ID. Skipping notification for order {OrderId}",
+                    order.CustomerId, order.Id);
+                return;
+            }
+
             var message = await BuildOrderMessageAsync(order, previousStatus);
-            await SendTelegramMessageAsync(message);
+            await SendTelegramMessageAsync(chatId.Value, message);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending Telegram notification for order {OrderId}", order.Id);
+        }
+    }
+
+    /// <summary>
+    /// Get customer's Telegram Chat ID from TelegramAuthSession
+    /// </summary>
+    private async Task<long?> GetCustomerTelegramChatIdAsync(int customerId)
+    {
+        try
+        {
+            var session = await _telegramAuthSessionRepository.Table
+                .Where(s => s.CustomerId == customerId 
+                    && s.TelegramChatId.HasValue 
+                    && s.StatusId == (int)TelegramAuthStatus.Verified)
+                .OrderByDescending(s => s.VerifiedOnUtc)
+                .FirstOrDefaultAsync();
+
+            return session?.TelegramChatId;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting Telegram Chat ID for customer {CustomerId}", customerId);
+            return null;
         }
     }
 
@@ -127,14 +165,14 @@ public class TelegramNotificationService
     /// <summary>
     /// Send message to Telegram
     /// </summary>
-    private async Task SendTelegramMessageAsync(string message)
+    private async Task SendTelegramMessageAsync(long chatId, string message)
     {
         var client = _httpClientFactory.CreateClient();
         var url = $"https://api.telegram.org/bot{_settings.BotToken}/sendMessage";
 
         var payload = new
         {
-            chat_id = _settings.ChatId,
+            chat_id = chatId,
             text = message,
             parse_mode = "HTML"
         };
@@ -147,7 +185,12 @@ public class TelegramNotificationService
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
-            _logger.LogWarning("Telegram API returned {StatusCode}: {Body}", response.StatusCode, responseBody);
+            _logger.LogWarning("Telegram API returned {StatusCode}: {Body} for chat {ChatId}",
+                response.StatusCode, responseBody, chatId);
+        }
+        else
+        {
+            _logger.LogInformation("Successfully sent Telegram notification to chat {ChatId}", chatId);
         }
     }
 }

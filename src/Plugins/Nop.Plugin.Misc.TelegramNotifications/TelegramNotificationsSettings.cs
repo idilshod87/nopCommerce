@@ -8,14 +8,9 @@ namespace Nop.Plugin.Misc.TelegramNotifications;
 public class TelegramNotificationsSettings : ISettings
 {
     /// <summary>
-    /// Gets or sets the Telegram bot token
+    /// Gets or sets the Telegram bot token (should be the same as in Nop.Plugin.ExternalAuth.Telegram)
     /// </summary>
     public string BotToken { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the chat ID to send notifications to
-    /// </summary>
-    public string ChatId { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets a value indicating whether to send notifications when order is placed

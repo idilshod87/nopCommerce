@@ -47,7 +47,6 @@ public class TelegramNotificationsController : BasePluginController
         var model = new ConfigurationModel
         {
             BotToken = settings.BotToken,
-            ChatId = settings.ChatId,
             Enabled = settings.Enabled,
             NotifyOnOrderPlaced = settings.NotifyOnOrderPlaced,
             NotifyOnOrderStatusChanged = settings.NotifyOnOrderStatusChanged,
@@ -72,7 +71,6 @@ public class TelegramNotificationsController : BasePluginController
         var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(storeId);
 
         settings.BotToken = model.BotToken;
-        settings.ChatId = model.ChatId;
         settings.Enabled = model.Enabled;
         settings.NotifyOnOrderPlaced = model.NotifyOnOrderPlaced;
         settings.NotifyOnOrderStatusChanged = model.NotifyOnOrderStatusChanged;
