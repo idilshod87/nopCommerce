@@ -43,10 +43,13 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 RUN apk add tiff --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/main/ --allow-untrusted
 RUN apk add libgdiplus --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/community/ --allow-untrusted
 RUN apk add libc-dev tzdata gcompat --no-cache
+RUN apk add --no-cache unzip
 
 WORKDIR /app
 
 COPY --from=build /app/published .
+
+RUN unzip -q ./wwwroot/lib_npm/cldr-data/main/main.zip -d ./wwwroot/lib_npm/cldr-data/main
 
 ENV ASPNETCORE_URLS=http://+:80
 EXPOSE 80
