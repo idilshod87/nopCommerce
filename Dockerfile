@@ -49,7 +49,13 @@ WORKDIR /app
 
 COPY --from=build /app/published .
 
-RUN unzip -q ./wwwroot/lib_npm/cldr-data/main/main.zip -d ./wwwroot/lib_npm/cldr-data/main
+RUN set -ex \
+    && CLDR_ZIP=./wwwroot/lib_npm/cldr-data/main/main.zip \
+    && if [ -f "$CLDR_ZIP" ]; then \
+        unzip -o "$CLDR_ZIP" -d ./wwwroot/lib_npm/cldr-data/main; \
+    else \
+        echo "CLDR archive not found at $CLDR_ZIP, skipping extraction"; \
+    fi
 
 ENV ASPNETCORE_URLS=http://+:80
 EXPOSE 80
