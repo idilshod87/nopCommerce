@@ -52,7 +52,7 @@ COPY --from=build /app/published .
 RUN set -ex \
     && CLDR_ZIP=./wwwroot/lib_npm/cldr-data/main/main.zip \
     && if [ -f "$CLDR_ZIP" ]; then \
-        unzip -o "$CLDR_ZIP" -d ./wwwroot/lib_npm/cldr-data/main; \
+        unzip -o "$CLDR_ZIP" "en/*" "ru/*" "uz/*" -d ./wwwroot/lib_npm/cldr-data/main; \
     else \
         echo "CLDR archive not found at $CLDR_ZIP, skipping extraction"; \
     fi
