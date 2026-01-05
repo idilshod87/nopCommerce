@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="Russian">
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.AdditionalFee">
+    <Value>Дополнительный сбор</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.AdditionalFee.Hint">
+    <Value>Размер дополнительного сбора.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.AdditionalFeePercentage">
+    <Value>Дополнительный сбор. Использовать процент</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.AdditionalFeePercentage.Hint">
+    <Value>Определяет, применять ли процентный дополнительный сбор к сумме заказа. Если отключено, используется фиксированное значение.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.DescriptionText">
+    <Value>Описание</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.DescriptionText.Hint">
+    <Value>Введите текст, который будет показан покупателям во время оформления заказа.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.PaymentMethodDescription">
+    <Value>Оплата наличными</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.ShippableProductRequired">
+    <Value>Требуется доставляемый товар</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.ShippableProductRequired.Hint">
+    <Value>Опция, указывающая, что для отображения этого способа оплаты в чекауте в корзине должны быть товары с доставкой.</Value>
+  </LocaleResource>
+</Language>

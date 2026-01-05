@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="Uzbek">
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.AdditionalFee">
+    <Value>Qo'shimcha to'lov</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.AdditionalFee.Hint">
+    <Value>Qo'shimcha to'lov miqdori.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.AdditionalFeePercentage">
+    <Value>Qo'shimcha to'lov. Foiz sifatida qo'llash</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.AdditionalFeePercentage.Hint">
+    <Value>Buyurtma summasiga qo'shimcha to'lovni foiz sifatida qo'llash kerakligini belgilaydi. O'chirilgan bo'lsa, qat'iy qiymat ishlatiladi.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.DescriptionText">
+    <Value>Tavsif</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.DescriptionText.Hint">
+    <Value>Xaridorlarga hisob-kitob vaqtida ko'rsatiladigan ma'lumotni kiriting.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.PaymentMethodDescription">
+    <Value>Naqd pul orqali to'lang</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.ShippableProductRequired">
+    <Value>Yetkazib beriladigan mahsulot talab qilinadi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CheckMoneyOrder.ShippableProductRequired.Hint">
+    <Value>Ushbu to'lov usuli ko'rsatilsin, desangiz savatda yetkazib berish talab qilinadigan mahsulotlar bo'lishi kerakligini ko'rsatuvchi parametr.</Value>
+  </LocaleResource>
+</Language>
