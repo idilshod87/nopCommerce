@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="Uzbek">
+  <LocaleResource Name="Plugins.Misc.Metrx.Vendors.DeliveryDateCard">
+    <Value>Yetkazib berish</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate">
+    <Value>Yetkazib berish muddati</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate.Hint">
+    <Value>Ushbu yetkazib beruvchi mahsulotlariga qo'llaniladigan standart yetkazib berish muddatini tanlang.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate.NoVendor">
+    <Value>Yetkazib beruvchini yaratgandan so'ng saqlanishi uchun muddatni hozir yoki saqlagandan keyin tanlang.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate.NoneAvailable">
+    <Value>Bu parametrdan foydalanish uchun Katalog → Attributlar → Yetkazib berish muddatlari bo'limida muddatlarni yarating.</Value>
+  </LocaleResource>
+</Language>

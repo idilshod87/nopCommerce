@@ -1,0 +1,49 @@
+@using Nop.Plugin.Misc.Metrx
+@model Nop.Plugin.Misc.Metrx.Models.Admin.VendorDeliveryDateModel
+
+<nop-card asp-name="vendor-metrx-delivery" asp-icon="fas fa-truck" asp-title="@T("Plugins.Misc.Metrx.Vendors.DeliveryDateCard")" asp-hide-block-attribute-name="VendorPage.HideMetrxDeliveryBlock" asp-hide="@Model.IsCollapsed" asp-advanced="false">
+    <div class="card-body">
+        @if (!Model.AllowEditing)
+        {
+            <div class="alert alert-info">
+                @T("Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate.NoVendor")
+            </div>
+        }
+
+        @if (!Model.AvailableDeliveryDates.Any())
+        {
+            <div class="alert alert-warning mb-0">
+                @T("Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate.NoneAvailable")
+            </div>
+        }
+        else 
+        {
+            <div class="form-group row mb-0">
+                <div class="col-md-3">
+                    <label class="control-label" for="@MetrxDefaults.VendorDeliveryDateFieldName">
+                        @T("Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate")
+                    </label>
+                </div>
+                <div class="col-md-9">
+                    <select class="form-control" id="@MetrxDefaults.VendorDeliveryDateFieldName" name="@MetrxDefaults.VendorDeliveryDateFieldName">
+                        <option value="">@T("Admin.Common.Select")</option>
+                        @foreach (var option in Model.AvailableDeliveryDates)
+                        {
+                            if (option.Selected)
+                            {
+                                <option value="@option.Value" selected="selected">@option.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@option.Value">@option.Text</option>
+                            }
+                        }
+                    </select>
+                    <span class="form-text text-muted">
+                        @T("Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate.Hint")
+                    </span>
+                </div>
+            </div>
+        }
+    </div>
+</nop-card>

@@ -1,0 +1,11 @@
+{
+  "Group": "Misc",
+  "FriendlyName": "Metrx Customizations",
+  "SystemName": "Misc.Metrx",
+  "Version": "4.90.1",
+  "SupportedVersions": [ "4.90" ],
+  "Author": "Metrx",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.Metrx.dll",
+  "Description": "Utility plugin for Metrx-specific extensions, starting with vendor delivery date management."
+}
