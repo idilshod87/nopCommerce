@@ -131,59 +131,6 @@ public class ShoppingCartController : ControllerBase
     }
 
     /// <summary>
-    /// POST /shoppingCart/AddProductToCart/details/{productId}/{cartType}
-    /// cartType: 1 - shopping cart, 2 - wishlist (aligned with NopStation docs).
-    /// Body: { "FormValues": [ { "Key": "product_attribute_{id}", "Value": "{valueId}" }, { "Key": "addtocart_{productId}.EnteredQuantity", "Value": "2" } ] }
-    /// </summary>
-    [HttpPost("AddProductToCart/details/{productId:int}/{cartType:int}")]
-    [Consumes("application/json")]
-    [ProducesResponseType(typeof(ApiResponse<AddToCartResultDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AddProductToCartDetails(int productId, int cartType, [FromBody] FormValuesRequest request)
-    {
-        var product = await _productService.GetProductByIdAsync(productId);
-        if (product == null || product.Deleted || !product.Published)
-            return NotFound(new { Message = "Product not found" });
-
-        var form = BuildFormCollection(request);
-
-        var addToCartWarnings = new List<string>();
-
-        // attributes
-        var attributesXml = await _productAttributeParser.ParseProductAttributesAsync(product, form, addToCartWarnings);
-
-        // quantity
-        var quantity = _productAttributeParser.ParseEnteredQuantity(product, form);
-        if (quantity <= 0)
-            quantity = product.OrderMinimumQuantity > 0 ? product.OrderMinimumQuantity : 1;
-
-        var customer = await _workContext.GetCurrentCustomerAsync();
-        var store = await _storeContext.GetCurrentStoreAsync();
-
-        var cartTypeEnum = cartType == (int)ShoppingCartType.Wishlist
-            ? ShoppingCartType.Wishlist
-            : ShoppingCartType.ShoppingCart;
-
-        addToCartWarnings.AddRange(await _shoppingCartService.AddToCartAsync(
-            customer,
-            product,
-            cartTypeEnum,
-            store.Id,
-            attributesXml,
-            quantity: quantity));
-
-        var success = !addToCartWarnings.Any();
-
-        var result = new AddToCartResultDto
-        {
-            Success = success,
-            Warnings = addToCartWarnings
-        };
-
-        return Ok(new ApiResponse<AddToCartResultDto> { Data = result });
-    }
-
-    /// <summary>
     /// POST /shoppingcart/addcart
     /// Simplified endpoint for adding product to shopping cart for mobile app.
     /// Full route: POST /public-api/shoppingCart/addcart
