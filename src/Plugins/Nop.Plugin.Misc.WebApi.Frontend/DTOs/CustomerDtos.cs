@@ -24,6 +24,7 @@ public class AddressDto
     public string? ZipPostalCode { get; set; }
     public string? PhoneNumber { get; set; }
     public string? FaxNumber { get; set; }
+    public string? AddressLine { get; set; }
 }
 
 /// <summary>

@@ -522,7 +522,8 @@ public class CustomerController : ControllerBase
             Address2 = address.Address2,
             ZipPostalCode = address.ZipPostalCode,
             PhoneNumber = address.PhoneNumber,
-            FaxNumber = address.FaxNumber
+            FaxNumber = address.FaxNumber,
+            AddressLine = address.AddressLine
         };
     }
 
