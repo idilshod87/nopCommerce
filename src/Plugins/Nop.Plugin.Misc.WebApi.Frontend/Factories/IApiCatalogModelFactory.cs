@@ -1,3 +1,4 @@
+using Nop.Plugin.Misc.WebApi.Frontend.Models.Catalog;
 using Nop.Web.Models.Catalog;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Factories;
@@ -17,10 +18,10 @@ public interface IApiCatalogModelFactory
     /// <param name="vendorIds">Vendor IDs to filter by (supports multiple)</param>
     /// <returns>
     /// A task that represents the asynchronous operation
-    /// The task result contains the search model
+    /// The task result contains the API search model with hierarchical categories
     /// </returns>
-    Task<SearchModel> PrepareSearchModelAsync(
-        SearchModel searchModel,
+    Task<ApiSearchModel> PrepareSearchModelAsync(
+        ApiSearchModel searchModel,
         CatalogProductsCommand command,
         IList<int> categoryIds = null,
         IList<int> manufacturerIds = null,

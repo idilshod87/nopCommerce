@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Vendors;
+using Nop.Plugin.Misc.WebApi.Frontend.Models.Catalog;
 using Nop.Services.Catalog;
 using Nop.Services.Localization;
 using Nop.Services.Seo;
@@ -70,8 +71,8 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
     /// <summary>
     /// Prepare the search model with support for multiple categories, manufacturers, and vendors
     /// </summary>
-    public virtual async Task<SearchModel> PrepareSearchModelAsync(
-        SearchModel model,
+    public virtual async Task<ApiSearchModel> PrepareSearchModelAsync(
+        ApiSearchModel model,
         CatalogProductsCommand command,
         IList<int> categoryIds = null,
         IList<int> manufacturerIds = null,
@@ -87,69 +88,27 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
         var currentStore = await _storeContext.GetCurrentStoreAsync();
         var workingLanguage = await _workContext.GetWorkingLanguageAsync();
 
-        // Prepare available categories
-        var categoriesModels = new List<SearchModel.CategoryModel>();
+        // Prepare available categories in hierarchical structure
         var allCategories = await _categoryService.GetAllCategoriesAsync(storeId: currentStore.Id);
         
-        foreach (var c in allCategories)
+        // Build hierarchical structure - only root categories (no parent)
+        var rootCategories = allCategories.Where(c => c.ParentCategoryId == 0).OrderBy(c => c.DisplayOrder).ToList();
+        
+        foreach (var rootCategory in rootCategories)
         {
-            // Generate full category name (breadcrumb)
-            var categoryBreadcrumb = string.Empty;
-            var breadcrumb = await _categoryService.GetCategoryBreadCrumbAsync(c, allCategories);
-            for (var i = 0; i <= breadcrumb.Count - 1; i++)
-            {
-                categoryBreadcrumb += await _localizationService.GetLocalizedAsync(breadcrumb[i], x => x.Name);
-                if (i != breadcrumb.Count - 1)
-                    categoryBreadcrumb += " >> ";
-            }
-
-            categoriesModels.Add(new SearchModel.CategoryModel
-            {
-                Id = c.Id,
-                Breadcrumb = categoryBreadcrumb
-            });
-        }
-
-        if (categoriesModels.Any())
-        {
-            // First empty entry
-            model.AvailableCategories.Add(new SelectListItem
-            {
-                Value = "0",
-                Text = await _localizationService.GetResourceAsync("Common.All")
-            });
-            
-            // All other categories
-            foreach (var c in categoriesModels)
-            {
-                model.AvailableCategories.Add(new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = c.Breadcrumb,
-                    Selected = model.cid == c.Id
-                });
-            }
+            var categoryModel = await BuildCategoryModelAsync(rootCategory, allCategories);
+            model.AvailableCategories.Add(categoryModel);
         }
 
         // Prepare available manufacturers
         var manufacturers = await _manufacturerService.GetAllManufacturersAsync(storeId: currentStore.Id);
-        if (manufacturers.Any())
+        foreach (var m in manufacturers)
         {
-            model.AvailableManufacturers.Add(new SelectListItem
+            model.AvailableManufacturers.Add(new ApiSearchModel.ManufacturerModel
             {
-                Value = "0",
-                Text = await _localizationService.GetResourceAsync("Common.All")
+                Id = m.Id,
+                Name = await _localizationService.GetLocalizedAsync(m, x => x.Name)
             });
-            
-            foreach (var m in manufacturers)
-            {
-                model.AvailableManufacturers.Add(new SelectListItem
-                {
-                    Value = m.Id.ToString(),
-                    Text = await _localizationService.GetLocalizedAsync(m, x => x.Name),
-                    Selected = model.mid == m.Id
-                });
-            }
         }
 
         // Prepare available vendors
@@ -157,23 +116,13 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
         if (model.asv)
         {
             var vendors = await _vendorService.GetAllVendorsAsync();
-            if (vendors.Any())
+            foreach (var vendor in vendors)
             {
-                model.AvailableVendors.Add(new SelectListItem
+                model.AvailableVendors.Add(new ApiSearchModel.VendorModel
                 {
-                    Value = "0",
-                    Text = await _localizationService.GetResourceAsync("Common.All")
+                    Id = vendor.Id,
+                    Name = await _localizationService.GetLocalizedAsync(vendor, x => x.Name)
                 });
-                
-                foreach (var vendor in vendors)
-                {
-                    model.AvailableVendors.Add(new SelectListItem
-                    {
-                        Value = vendor.Id.ToString(),
-                        Text = await _localizationService.GetLocalizedAsync(vendor, x => x.Name),
-                        Selected = model.vid == vendor.Id
-                    });
-                }
             }
         }
 
@@ -199,7 +148,7 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
                 var vendor = await _vendorService.GetVendorByIdAsync(vendorId);
                 if (vendor != null && !vendor.Deleted && vendor.Active)
                 {
-                    model.FoundVendors.Add(new VendorBriefInfoModel
+                    model.Vendors.Add(new VendorBriefInfoModel
                     {
                         Id = vendor.Id,
                         Name = await _localizationService.GetLocalizedAsync(vendor, x => x.Name),
@@ -216,7 +165,7 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
     /// Prepare search products model with support for multiple filters
     /// </summary>
     protected virtual async Task<CatalogProductsModel> PrepareSearchProductsModelAsync(
-        SearchModel searchModel,
+        ApiSearchModel searchModel,
         CatalogProductsCommand command,
         IList<int> categoryIds,
         IList<int> manufacturerIds,
@@ -483,6 +432,28 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
         model.PageSize = command.PageSize;
 
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Build category model recursively with subcategories
+    /// </summary>
+    protected virtual async Task<ApiSearchModel.CategoryModel> BuildCategoryModelAsync(Category category, IList<Category> allCategories)
+    {
+        var categoryModel = new ApiSearchModel.CategoryModel
+        {
+            Id = category.Id,
+            Name = await _localizationService.GetLocalizedAsync(category, x => x.Name)
+        };
+
+        // Load subcategories recursively
+        var subCategories = allCategories.Where(c => c.ParentCategoryId == category.Id).OrderBy(c => c.DisplayOrder).ToList();
+        foreach (var subCategory in subCategories)
+        {
+            var subCategoryModel = await BuildCategoryModelAsync(subCategory, allCategories);
+            categoryModel.SubCategories.Add(subCategoryModel);
+        }
+
+        return categoryModel;
     }
 
     #endregion

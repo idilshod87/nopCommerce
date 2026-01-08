@@ -5,6 +5,7 @@ using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Media;
 using Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 using Nop.Plugin.Misc.WebApi.Frontend.Factories;
+using Nop.Plugin.Misc.WebApi.Frontend.Models.Catalog;
 using Nop.Services.Catalog;
 using Nop.Services.Localization;
 using Nop.Services.Seo;
@@ -215,7 +216,7 @@ public class CatalogController : ControllerBase
     /// <param name="sit">Search in product tags</param>
     /// <param name="command">Paging and sorting parameters</param>
     [HttpGet("search")]
-    [ProducesResponseType(typeof(ApiResponse<SearchModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ApiSearchModel>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Search(
         [FromQuery] string q,
         [FromQuery] int[] cid = null,
@@ -249,7 +250,7 @@ public class CatalogController : ControllerBase
             : new List<int>();
 
         // Prepare search model
-        var searchModel = new SearchModel
+        var searchModel = new ApiSearchModel
         {
             q = q ?? string.Empty,
             cid = cid != null && cid.Length > 0 ? cid[0] : 0,
@@ -270,7 +271,7 @@ public class CatalogController : ControllerBase
             manufacturerIds,
             vendorIds);
 
-        return Ok(new ApiResponse<SearchModel> { Data = model });
+        return Ok(new ApiResponse<ApiSearchModel> { Data = model });
     }
 
     /// <summary>
