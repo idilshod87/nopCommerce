@@ -74,10 +74,10 @@ public class CustomerController : ControllerBase
 
     /// <summary>
     /// GET /customer/info
-    /// Returns current customer account info (CustomerInfoModel).
+    /// Returns current customer account info with addresses.
     /// </summary>
     [HttpGet("info")]
-    [ProducesResponseType(typeof(ApiResponse<CustomerInfoModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<CustomerDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetInfo()
     {
@@ -85,11 +85,13 @@ public class CustomerController : ControllerBase
         if (customer == null)
             return Unauthorized();
 
-        var model = new CustomerInfoModel();
-        model = await _customerModelFactory.PrepareCustomerInfoModelAsync(model, customer, false);
-        RemoveTimeZoneOptions(model);
+        // Get customer addresses and map to simplified DTOs
+        var addressListModel = await _customerModelFactory.PrepareCustomerAddressListModelAsync();
+        var addressDtos = addressListModel.Addresses.Select(MapToAddressDto).ToList();
 
-        return Ok(new ApiResponse<CustomerInfoModel> { Data = model });
+        var response = await MapToCustomerDtoAsync(customer, addressDtos);
+
+        return Ok(new ApiResponse<CustomerDto> { Data = response });
     }
 
     /// <summary>
@@ -499,6 +501,59 @@ public class CustomerController : ControllerBase
             model.AvailableTimeZones.Clear();
 
         model.AllowCustomersToSetTimeZone = false;
+    }
+
+    private static AddressDto MapToAddressDto(AddressModel address)
+    {
+        return new AddressDto
+        {
+            Id = address.Id,
+            FirstName = address.FirstName,
+            LastName = address.LastName,
+            Email = address.Email,
+            Company = address.Company,
+            CountryId = address.CountryId,
+            CountryName = address.CountryName,
+            StateProvinceId = address.StateProvinceId,
+            StateProvinceName = address.StateProvinceName,
+            County = address.County,
+            City = address.City,
+            Address1 = address.Address1,
+            Address2 = address.Address2,
+            ZipPostalCode = address.ZipPostalCode,
+            PhoneNumber = address.PhoneNumber,
+            FaxNumber = address.FaxNumber
+        };
+    }
+
+    private async Task<CustomerDto> MapToCustomerDtoAsync(Customer customer, IList<AddressDto> addresses)
+    {
+        var model = await _customerModelFactory.PrepareCustomerInfoModelAsync(new CustomerInfoModel(), customer, false);
+        
+        return new CustomerDto
+        {
+            Id = customer.Id,
+            Email = model.Email,
+            Username = model.Username,
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            Gender = model.Gender,
+            DateOfBirth = model.ParseDateOfBirth(),
+            Company = model.Company,
+            StreetAddress = model.StreetAddress,
+            StreetAddress2 = model.StreetAddress2,
+            ZipPostalCode = model.ZipPostalCode,
+            City = model.City,
+            County = model.County,
+            CountryId = model.CountryId > 0 ? model.CountryId : null,
+            CountryName = model.AvailableCountries?.FirstOrDefault(c => c.Value == model.CountryId.ToString())?.Text,
+            StateProvinceId = model.StateProvinceId > 0 ? model.StateProvinceId : null,
+            StateProvinceName = model.AvailableStates?.FirstOrDefault(s => s.Value == model.StateProvinceId.ToString())?.Text,
+            Phone = model.Phone,
+            Fax = model.Fax,
+            VatNumber = model.VatNumber,
+            Addresses = addresses
+        };
     }
 
     #endregion
