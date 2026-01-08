@@ -1,14 +1,17 @@
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Media;
 using Nop.Core.Domain.Vendors;
 using Nop.Plugin.Misc.WebApi.Frontend.Models.Catalog;
 using Nop.Services.Catalog;
 using Nop.Services.Localization;
+using Nop.Services.Media;
 using Nop.Services.Seo;
 using Nop.Services.Vendors;
 using Nop.Web.Factories;
 using Nop.Web.Models.Catalog;
+using Nop.Web.Models.Media;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Factories;
 
@@ -23,6 +26,7 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
     private readonly ICategoryService _categoryService;
     private readonly ILocalizationService _localizationService;
     private readonly IManufacturerService _manufacturerService;
+    private readonly IPictureService _pictureService;
     private readonly IProductModelFactory _productModelFactory;
     private readonly IProductService _productService;
     private readonly IStoreContext _storeContext;
@@ -30,6 +34,7 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
     private readonly IVendorService _vendorService;
     private readonly IWorkContext _workContext;
     private readonly CatalogSettings _catalogSettings;
+    private readonly MediaSettings _mediaSettings;
     private readonly VendorSettings _vendorSettings;
 
     #endregion
@@ -41,6 +46,7 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
         ICategoryService categoryService,
         ILocalizationService localizationService,
         IManufacturerService manufacturerService,
+        IPictureService pictureService,
         IProductModelFactory productModelFactory,
         IProductService productService,
         IStoreContext storeContext,
@@ -48,12 +54,14 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
         IVendorService vendorService,
         IWorkContext workContext,
         CatalogSettings catalogSettings,
+        MediaSettings mediaSettings,
         VendorSettings vendorSettings)
     {
         _catalogModelFactory = catalogModelFactory;
         _categoryService = categoryService;
         _localizationService = localizationService;
         _manufacturerService = manufacturerService;
+        _pictureService = pictureService;
         _productModelFactory = productModelFactory;
         _productService = productService;
         _storeContext = storeContext;
@@ -61,6 +69,7 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
         _vendorService = vendorService;
         _workContext = workContext;
         _catalogSettings = catalogSettings;
+        _mediaSettings = mediaSettings;
         _vendorSettings = vendorSettings;
     }
 
@@ -86,7 +95,6 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
         vendorIds ??= new List<int>();
 
         var currentStore = await _storeContext.GetCurrentStoreAsync();
-        var workingLanguage = await _workContext.GetWorkingLanguageAsync();
 
         // Prepare available categories in hierarchical structure
         var allCategories = await _categoryService.GetAllCategoriesAsync(storeId: currentStore.Id);
@@ -118,11 +126,26 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
             var vendors = await _vendorService.GetAllVendorsAsync();
             foreach (var vendor in vendors)
             {
-                model.AvailableVendors.Add(new ApiSearchModel.VendorModel
+                var vendorModel = new ApiSearchModel.VendorModel
                 {
                     Id = vendor.Id,
                     Name = await _localizationService.GetLocalizedAsync(vendor, x => x.Name)
-                });
+                };
+
+                // Prepare picture model
+                var picture = await _pictureService.GetPictureByIdAsync(vendor.PictureId);
+                var pictureSize = _mediaSettings.VendorThumbPictureSize;
+                var (imageUrl, _) = await _pictureService.GetPictureUrlAsync(picture, pictureSize);
+
+                vendorModel.PictureModel = new PictureModel
+                {
+                    ImageUrl = imageUrl,
+                    FullSizeImageUrl = (await _pictureService.GetPictureUrlAsync(picture)).Url,
+                    Title = string.Format(await _localizationService.GetResourceAsync("Media.Vendor.ImageLinkTitleFormat"), vendorModel.Name),
+                    AlternateText = string.Format(await _localizationService.GetResourceAsync("Media.Vendor.ImageAlternateTextFormat"), vendorModel.Name)
+                };
+
+                model.AvailableVendors.Add(vendorModel);
             }
         }
 
@@ -148,12 +171,26 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
                 var vendor = await _vendorService.GetVendorByIdAsync(vendorId);
                 if (vendor != null && !vendor.Deleted && vendor.Active)
                 {
-                    model.Vendors.Add(new VendorBriefInfoModel
+                    var vendorModel = new ApiSearchModel.VendorModel
                     {
                         Id = vendor.Id,
-                        Name = await _localizationService.GetLocalizedAsync(vendor, x => x.Name),
-                        SeName = await _urlRecordService.GetSeNameAsync(vendor),
-                    });
+                        Name = await _localizationService.GetLocalizedAsync(vendor, x => x.Name)
+                    };
+
+                    // Prepare picture model
+                    var picture = await _pictureService.GetPictureByIdAsync(vendor.PictureId);
+                    var pictureSize = _mediaSettings.VendorThumbPictureSize;
+                    var (imageUrl, _) = await _pictureService.GetPictureUrlAsync(picture, pictureSize);
+
+                    vendorModel.PictureModel = new PictureModel
+                    {
+                        ImageUrl = imageUrl,
+                        FullSizeImageUrl = (await _pictureService.GetPictureUrlAsync(picture)).Url,
+                        Title = string.Format(await _localizationService.GetResourceAsync("Media.Vendor.ImageLinkTitleFormat"), vendorModel.Name),
+                        AlternateText = string.Format(await _localizationService.GetResourceAsync("Media.Vendor.ImageAlternateTextFormat"), vendorModel.Name)
+                    };
+
+                    model.Vendors.Add(vendorModel);
                 }
             }
         }

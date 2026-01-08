@@ -1,5 +1,6 @@
 using Nop.Web.Framework.Models;
 using Nop.Web.Models.Catalog;
+using Nop.Web.Models.Media;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Models.Catalog;
 
@@ -13,7 +14,7 @@ public partial record ApiSearchModel : BaseNopModel
         AvailableCategories = new List<CategoryModel>();
         AvailableManufacturers = new List<ManufacturerModel>();
         AvailableVendors = new List<VendorModel>();
-        Vendors = new List<VendorBriefInfoModel>();
+        Vendors = new List<VendorModel>();
         CatalogProductsModel = new CatalogProductsModel();
     }
 
@@ -82,7 +83,7 @@ public partial record ApiSearchModel : BaseNopModel
     /// <summary>
     /// List of vendors found in search results
     /// </summary>
-    public IList<VendorBriefInfoModel> Vendors { get; set; }
+    public IList<VendorModel> Vendors { get; set; }
 
     #region Nested classes
 
@@ -123,10 +124,20 @@ public partial record ApiSearchModel : BaseNopModel
     /// </summary>
     public partial record VendorModel : BaseNopEntityModel
     {
+        public VendorModel()
+        {
+            PictureModel = new PictureModel();
+        }
+
         /// <summary>
         /// Gets or sets the vendor name
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the picture model
+        /// </summary>
+        public PictureModel PictureModel { get; set; }
     }
 
     #endregion
