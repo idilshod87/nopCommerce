@@ -469,27 +469,6 @@ public class CustomerController : ControllerBase
 
     #endregion
 
-    #region Downloadable products
-
-    /// <summary>
-    /// GET /customer/downloadableproducts
-    /// Returns list of downloadable products for current customer.
-    /// </summary>
-    [HttpGet("downloadableproducts")]
-    [ProducesResponseType(typeof(ApiResponse<CustomerDownloadableProductsModel>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetDownloadableProducts()
-    {
-        var customer = await GetCurrentRegisteredCustomerAsync();
-        if (customer == null)
-            return Unauthorized();
-
-        var model = await _customerModelFactory.PrepareCustomerDownloadableProductsModelAsync();
-        return Ok(new ApiResponse<CustomerDownloadableProductsModel> { Data = model });
-    }
-
-    #endregion
-
     #region Utilities
 
     private static void RemoveTimeZoneOptions(CustomerInfoModel model)
