@@ -22,6 +22,7 @@ using Nop.Services.Shipping;
 using Nop.Services.Tax;
 using Nop.Web.Factories;
 using Nop.Web.Models.Checkout;
+using System.util;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
 
@@ -137,7 +138,12 @@ public class CheckoutController : ControllerBase
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
         if (!cart.Any())
-            return BadRequest(new { Message = "Cart is empty" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Cart is empty",
+                detail: await _localizationService.GetResourceAsync("Cart.IsEmpty"));
+        }
 
         var model = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
 
@@ -155,14 +161,24 @@ public class CheckoutController : ControllerBase
     public async Task<IActionResult> SaveBilling([FromBody] SaveBillingRequest request)
     {
         if (_orderSettings.CheckoutDisabled)
-            return BadRequest(new { Message = await _localizationService.GetResourceAsync("Checkout.Disabled") });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Checkout Disabled",
+                detail: await _localizationService.GetResourceAsync("Checkout.Disabled"));
+        }
 
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
         if (!cart.Any())
-            return BadRequest(new { Message = "Cart is empty" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Cart is empty",
+                detail: await _localizationService.GetResourceAsync("Cart.IsEmpty"));
+        }
 
         var response = new CheckoutStepResponseDto();
 
@@ -171,7 +187,12 @@ public class CheckoutController : ControllerBase
             //existing address
             var address = await _customerService.GetCustomerAddressAsync(customer.Id, request.BillingAddressId.Value);
             if (address == null)
-                return BadRequest(new { Message = await _localizationService.GetResourceAsync("Checkout.Address.NotFound") });
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Address not found",
+                    detail: await _localizationService.GetResourceAsync("Checkout.Address.NotFound"));
+            }
 
             customer.BillingAddressId = address.Id;
             await _customerService.UpdateCustomerAsync(customer);
@@ -183,7 +204,12 @@ public class CheckoutController : ControllerBase
             {
                 var warning = await SaveCustomerVatNumberAsync(request.VatNumber, customer);
                 if (!string.IsNullOrEmpty(warning))
-                    return BadRequest(new { Message = warning });
+                {
+                    return Problem(
+                        statusCode: StatusCodes.Status400BadRequest,
+                        title: "VAT validation failed",
+                        detail: warning);
+                }
             }
 
             //custom address attributes would be parsed from form, but for API we'll skip them for now
@@ -261,14 +287,24 @@ public class CheckoutController : ControllerBase
     public async Task<IActionResult> SaveShipping([FromBody] SaveShippingRequest request)
     {
         if (_orderSettings.CheckoutDisabled)
-            return BadRequest(new { Message = await _localizationService.GetResourceAsync("Checkout.Disabled") });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Checkout Disabled",
+                detail: await _localizationService.GetResourceAsync("Checkout.Disabled"));
+        }
 
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
         if (!cart.Any())
-            return BadRequest(new { Message = "Cart is empty" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Cart is empty",
+                detail: await _localizationService.GetResourceAsync("Cart.IsEmpty"));
+        }
 
         //if (!await _shoppingCartService.ShoppingCartRequiresShippingAsync(cart))
         //    return BadRequest(new { Message = "Shipping is not required" });
@@ -298,7 +334,10 @@ public class CheckoutController : ControllerBase
                     }
                 }
             }
-            return BadRequest(new { Message = "Pickup point is not allowed" });
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Pickup point is not allowed",
+                detail: await _localizationService.GetResourceAsync("Checkout.PickupPoint.NotAllowed"));
         }
 
         //set value indicating that "pick up in store" option has not been chosen
@@ -309,7 +348,12 @@ public class CheckoutController : ControllerBase
             //existing address
             var address = await _customerService.GetCustomerAddressAsync(customer.Id, request.ShippingAddressId.Value);
             if (address == null)
-                return BadRequest(new { Message = await _localizationService.GetResourceAsync("Checkout.Address.NotFound") });
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Address not found",
+                    detail: await _localizationService.GetResourceAsync("Checkout.Address.NotFound"));
+            }
 
             customer.ShippingAddressId = address.Id;
             await _customerService.UpdateCustomerAsync(customer);
@@ -364,14 +408,24 @@ public class CheckoutController : ControllerBase
     public async Task<IActionResult> SaveShippingMethod([FromBody] SaveShippingMethodRequest request)
     {
         if (_orderSettings.CheckoutDisabled)
-            return BadRequest(new { Message = await _localizationService.GetResourceAsync("Checkout.Disabled") });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Checkout Disabled",
+                detail: await _localizationService.GetResourceAsync("Checkout.Disabled"));
+        }
 
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
         if (!cart.Any())
-            return BadRequest(new { Message = "Cart is empty" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Cart is empty",
+                detail: await _localizationService.GetResourceAsync("Cart.IsEmpty"));
+        }
 
         var response = new CheckoutStepResponseDto();
 
@@ -405,7 +459,10 @@ public class CheckoutController : ControllerBase
                     }
                 }
             }
-            return BadRequest(new { Message = "Pickup point is not allowed" });
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Pickup point is not allowed",
+                detail: await _localizationService.GetResourceAsync("Checkout.PickupPoint.NotAllowed"));
         }
 
         //set value indicating that "pick up in store" option has not been chosen
@@ -413,11 +470,21 @@ public class CheckoutController : ControllerBase
 
         //parse selected method
         if (string.IsNullOrEmpty(request?.ShippingOption))
-            return BadRequest(new { Message = "Shipping option is required" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Shipping option is required",
+                detail: await _localizationService.GetResourceAsync("Checkout.ShippingOption.Required"));
+        }
 
         var splittedOption = request.ShippingOption.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
         if (splittedOption.Length != 2)
-            return BadRequest(new { Message = "Invalid shipping option format" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid shipping option format",
+                detail: await _localizationService.GetResourceAsync("Checkout.ShippingOption.InvalidFormat"));
+        }
 
         var selectedName = splittedOption[0];
         var shippingRateComputationMethodSystemName = splittedOption[1];
@@ -440,7 +507,12 @@ public class CheckoutController : ControllerBase
         var shippingOption = shippingOptions
             .FirstOrDefault(so => !string.IsNullOrEmpty(so.Name) && so.Name.Equals(selectedName, StringComparison.InvariantCultureIgnoreCase));
         if (shippingOption == null)
-            return BadRequest(new { Message = "Shipping option not found" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Shipping option not found",
+                detail: await _localizationService.GetResourceAsync("Checkout.ShippingOption.NotFound"));
+        }
 
         //save
         await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.SelectedShippingOptionAttribute, shippingOption, store.Id);
@@ -460,14 +532,24 @@ public class CheckoutController : ControllerBase
     public async Task<IActionResult> SavePaymentMethod([FromBody] SavePaymentMethodRequest request)
     {
         if (_orderSettings.CheckoutDisabled)
-            return BadRequest(new { Message = await _localizationService.GetResourceAsync("Checkout.Disabled") });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Checkout Disabled",
+                detail: await _localizationService.GetResourceAsync("Checkout.Disabled"));
+        }
 
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
         if (!cart.Any())
-            return BadRequest(new { Message = "Cart is empty" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Cart is empty",
+                detail: await _localizationService.GetResourceAsync("Cart.IsEmpty"));
+        }
 
         var response = new CheckoutStepResponseDto();
 
@@ -501,15 +583,30 @@ public class CheckoutController : ControllerBase
         {
             // Skip vendor validation if treating as store default (vendorId:0 when no actual vendors in cart)
             if (!treatAsStoreDefault && !vendorsInCart.ContainsKey(selection.VendorId))
-                return BadRequest(new { Message = $"Vendor {selection.VendorId} is not present in the current cart" });
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Vendor not in cart",
+                    detail: string.Format(await _localizationService.GetResourceAsync("Checkout.Vendor.NotInCart"), selection.VendorId));
+            }
 
             if (string.IsNullOrWhiteSpace(selection.PaymentMethod))
-                return BadRequest(new { Message = $"Payment method is required for vendor {selection.VendorId}" });
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Payment method required",
+                    detail: string.Format(await _localizationService.GetResourceAsync("Checkout.PaymentMethod.RequiredForVendor"), selection.VendorId));
+            }
 
             // Validate that payment method exists and is active
             var paymentPlugin = await _paymentPluginManager.LoadPluginBySystemNameAsync(selection.PaymentMethod, customer, store.Id);
             if (paymentPlugin == null || !_paymentPluginManager.IsPluginActive(paymentPlugin))
-                return BadRequest(new { Message = $"Payment method '{selection.PaymentMethod}' is not active" });
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Payment method not active",
+                    detail: string.Format(await _localizationService.GetResourceAsync("Checkout.PaymentMethod.NotActive"), selection.PaymentMethod));
+            }
 
             // Save payment method selection for the vendor (or vendorId=0 for store default)
             vendorPaymentMap[selection.VendorId] = selection.PaymentMethod;
@@ -530,12 +627,22 @@ public class CheckoutController : ControllerBase
             selectedPaymentMethod = vendorPaymentMap.First().Value;
 
         if (string.IsNullOrWhiteSpace(selectedPaymentMethod))
-            return BadRequest(new { Message = "Payment method is required" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Payment method required",
+                detail: await _localizationService.GetResourceAsync("Checkout.PaymentMethod.Required"));
+        }
 
         // Validate that the selected payment method exists and is active
         var selectedPaymentPlugin = await _paymentPluginManager.LoadPluginBySystemNameAsync(selectedPaymentMethod, customer, store.Id);
         if (selectedPaymentPlugin == null || !_paymentPluginManager.IsPluginActive(selectedPaymentPlugin))
-            return BadRequest(new { Message = "Payment method is not active" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Payment method not active",
+                detail: await _localizationService.GetResourceAsync("Checkout.PaymentMethod.NotActive"));
+        }
 
         // If vendorPaymentMap is empty, populate it based on cart vendors
         if (!vendorPaymentMap.Any())
@@ -591,14 +698,24 @@ public class CheckoutController : ControllerBase
     public async Task<IActionResult> GetConfirmOrder()
     {
         if (_orderSettings.CheckoutDisabled)
-            return BadRequest(new { Message = await _localizationService.GetResourceAsync("Checkout.Disabled") });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Checkout Disabled",
+                detail: await _localizationService.GetResourceAsync("Checkout.Disabled"));
+        }
 
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
         if (!cart.Any())
-            return BadRequest(new { Message = "Cart is empty" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Cart is empty",
+                detail: await _localizationService.GetResourceAsync("Cart.IsEmpty"));
+        }
 
         var model = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
 
@@ -615,7 +732,9 @@ public class CheckoutController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<CheckoutConfirmModel>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ConfirmOrder()
     {
-        return await ConfirmOrderInternal();
+        var result = await ConfirmOrderInternal();
+
+        return result;
     }
 
     /// <summary>
@@ -630,26 +749,51 @@ public class CheckoutController : ControllerBase
     public async Task<IActionResult> ConfirmSelectedOrder([FromBody] ConfirmSelectedOrderRequest request)
     {
         if (_orderSettings.CheckoutDisabled)
-            return BadRequest(new { Message = await _localizationService.GetResourceAsync("Checkout.Disabled") });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Checkout Disabled",
+                detail: await _localizationService.GetResourceAsync("Checkout.Disabled"));
+        }
 
         if (request?.ItemIds == null || !request.ItemIds.Any())
-            return BadRequest(new { Message = "ItemIds is required" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "ItemIds is required",
+                detail: await _localizationService.GetResourceAsync("Checkout.ItemIds.Required"));
+        }
 
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
         if (!cart.Any())
-            return BadRequest(new { Message = "Cart is empty" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Cart is empty",
+                detail: await _localizationService.GetResourceAsync("Cart.IsEmpty"));
+        }
 
         var selectedIds = request.ItemIds.Distinct().ToList();
         var missingIds = selectedIds.Except(cart.Select(x => x.Id)).ToList();
         if (missingIds.Any())
-            return BadRequest(new { Message = $"Items not found in cart: {string.Join(", ", missingIds)}" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Items not found in cart",
+                detail: string.Format(await _localizationService.GetResourceAsync("Checkout.Items.NotFoundInCart"), string.Join(", ", missingIds)));
+        }
 
         var itemsToKeep = cart.Where(x => selectedIds.Contains(x.Id)).ToList();
         if (!itemsToKeep.Any())
-            return BadRequest(new { Message = "No matching items in cart" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "No matching items in cart",
+                detail: await _localizationService.GetResourceAsync("Checkout.Items.NoMatchingInCart"));
+        }
 
         var itemsToRestore = cart.Where(x => !selectedIds.Contains(x.Id)).ToList();
 
@@ -694,23 +838,53 @@ public class CheckoutController : ControllerBase
     private async Task<IActionResult> ConfirmOrderInternal()
     {
         if (_orderSettings.CheckoutDisabled)
-            return BadRequest(new { Message = await _localizationService.GetResourceAsync("Checkout.Disabled") });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Checkout Disabled",
+                detail: await _localizationService.GetResourceAsync("Checkout.Disabled"));
+        }
 
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
         if (!cart.Any())
-            return BadRequest(new { Message = "Cart is empty" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Cart is empty",
+                detail: await _localizationService.GetResourceAsync("Cart.IsEmpty"));
+        }
 
         //ensure billing address is set (only if billing address step is enabled)
-        if (!_orderSettings.DisableBillingAddressCheckoutStep)
+        if (!_orderSettings.DisableBillingAddressCheckoutStep && customer.BillingAddressId == null)
         {
-            if (customer.BillingAddressId == null)
-                return BadRequest(new { Message = "Billing address is not provided. Please select billing address." });
+            var vpd = new ValidationProblemDetails(new Dictionary<string, string[]>
+            {
+                { "BillingAddress", new[] { "Billing address is not provided. Please select billing address." } }
+            })
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Validation error"
+            };
+            return BadRequest(vpd);
         }
 
         var model = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
+
+        if (model.Warnings.Any())
+        {
+            var vpd = new ValidationProblemDetails(new Dictionary<string, string[]>
+            {
+                { "Warnings", model.Warnings.ToArray() }
+            })
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Validation error"
+            };
+            return BadRequest(vpd);
+        }
 
         //ensure shipping option is selected before placing the order to avoid shipping total calculation failure
         if (await _shoppingCartService.ShoppingCartRequiresShippingAsync(cart))
@@ -732,7 +906,15 @@ public class CheckoutController : ControllerBase
                 else
                 {
                     model.Warnings.Add(await _localizationService.GetResourceAsync("Checkout.SelectShippingMethod"));
-                    return BadRequest(new ApiResponse<CheckoutConfirmModel> { Data = model });
+                    var vpd = new ValidationProblemDetails(new Dictionary<string, string[]>
+                    {
+                        { "Warnings", model.Warnings.ToArray() }
+                    })
+                    {
+                        Status = StatusCodes.Status400BadRequest,
+                        Title = "Validation error"
+                    };
+                    return BadRequest(vpd);
                 }
             }
         }
@@ -750,7 +932,15 @@ public class CheckoutController : ControllerBase
                     if (interval.TotalMinutes <= _orderSettings.MinimumOrderPlacementInterval)
                     {
                         model.Warnings.Add(await _localizationService.GetResourceAsync("Checkout.MinOrderPlacementInterval"));
-                        return BadRequest(new ApiResponse<CheckoutConfirmModel> { Data = model });
+                        var vpd = new ValidationProblemDetails(new Dictionary<string, string[]>
+                        {
+                            { "Warnings", model.Warnings.ToArray() }
+                        })
+                        {
+                            Status = StatusCodes.Status400BadRequest,
+                            Title = "Validation error"
+                        };
+                        return BadRequest(vpd);
                     }
                 }
             }
@@ -778,9 +968,16 @@ public class CheckoutController : ControllerBase
 
             if (vendorValidationWarnings.Any())
             {
-                foreach (var warning in vendorValidationWarnings)
-                    model.Warnings.Add(warning);
-                return BadRequest(new ApiResponse<CheckoutConfirmModel> { Data = model });
+                model.Warnings.AddRange(vendorValidationWarnings);
+                var vpd = new ValidationProblemDetails(new Dictionary<string, string[]>
+                {
+                    { "Warnings", model.Warnings.ToArray() }
+                })
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "Validation error"
+                };
+                return BadRequest(vpd);
             }
 
             //place order
@@ -801,13 +998,29 @@ public class CheckoutController : ControllerBase
                     if (string.IsNullOrWhiteSpace(selectedPaymentMethod))
                     {
                         model.Warnings.Add(await _localizationService.GetResourceAsync("Checkout.SelectPaymentMethod"));
-                        return BadRequest(new ApiResponse<CheckoutConfirmModel> { Data = model });
+                        var vpd = new ValidationProblemDetails(new Dictionary<string, string[]>
+                        {
+                            { "Warnings", model.Warnings.ToArray() }
+                        })
+                        {
+                            Status = StatusCodes.Status400BadRequest,
+                            Title = "Validation error"
+                        };
+                        return BadRequest(vpd);
                     }
 
                     if (!await _paymentPluginManager.IsPluginActiveAsync(selectedPaymentMethod, customer, store.Id))
                     {
                         model.Warnings.Add(await _localizationService.GetResourceAsync("Checkout.NoPaymentMethods"));
-                        return BadRequest(new ApiResponse<CheckoutConfirmModel> { Data = model });
+                        var vpd = new ValidationProblemDetails(new Dictionary<string, string[]>
+                        {
+                            { "Warnings", model.Warnings.ToArray() }
+                        })
+                        {
+                            Status = StatusCodes.Status400BadRequest,
+                            Title = "Validation error"
+                        };
+                        return BadRequest(vpd);
                     }
 
                     processPaymentRequest = new ProcessPaymentRequest
@@ -828,30 +1041,47 @@ public class CheckoutController : ControllerBase
             await _orderProcessingService.SetProcessPaymentRequestAsync(processPaymentRequest);
 
             var placeOrderResult = await _orderProcessingService.PlaceOrderAsync(processPaymentRequest);
-            if (placeOrderResult.Success)
+            if (!placeOrderResult.Success)
             {
-                await _orderProcessingService.SetProcessPaymentRequestAsync(null);
-
-                var postProcessPaymentRequest = new PostProcessPaymentRequest
+                model.Warnings.AddRange(placeOrderResult.Errors);
+                var vpd = new ValidationProblemDetails(new Dictionary<string, string[]>
                 {
-                    Order = placeOrderResult.PlacedOrder
+                    { "Warnings", model.Warnings.ToArray() }
+                })
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "Validation error"
                 };
-                await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
-                await _genericAttributeService.SaveAttributeAsync<string>(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, null, store.Id);
-
-                var completedModel = await _checkoutModelFactory.PrepareCheckoutCompletedModelAsync(placeOrderResult.PlacedOrder!);
-                return Ok(new ApiResponse<CheckoutCompletedModel> { Data = completedModel });
+                return BadRequest(vpd);
             }
 
-            foreach (var error in placeOrderResult.Errors)
-                model.Warnings.Add(error);
+            await _orderProcessingService.SetProcessPaymentRequestAsync(null);
+
+            var postProcessPaymentRequest = new PostProcessPaymentRequest
+            {
+                Order = placeOrderResult.PlacedOrder
+            };
+            await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
+            await _genericAttributeService.SaveAttributeAsync<string>(customer, WebApiFrontendDefaults.VendorPaymentMethodsAttribute, null, store.Id);
+
+            var completedModel = await _checkoutModelFactory.PrepareCheckoutCompletedModelAsync(placeOrderResult.PlacedOrder!);
+
+            return Ok(new ApiResponse<CheckoutCompletedModel> { Data = completedModel });
         }
         catch (Exception exc)
         {
             model.Warnings.Add(exc.Message);
         }
 
-        return BadRequest(new ApiResponse<CheckoutConfirmModel> { Data = model });
+        var vpdFinal = new ValidationProblemDetails(new Dictionary<string, string[]>
+        {
+            { "Warnings", model.Warnings.ToArray() }
+        })
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Title = "Validation error"
+        };
+        return BadRequest(vpdFinal);
     }
 
     /// <summary>
@@ -879,7 +1109,10 @@ public class CheckoutController : ControllerBase
         }
         if (order == null || order.Deleted || customer.Id != order.CustomerId)
         {
-            return NotFound(new { Message = "Order not found" });
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Order not found",
+                detail: await _localizationService.GetResourceAsync("Checkout.Order.NotFound"));
         }
 
         var model = await _checkoutModelFactory.PrepareCheckoutCompletedModelAsync(order);
@@ -897,14 +1130,24 @@ public class CheckoutController : ControllerBase
     public async Task<IActionResult> GetPaymentMethods([FromQuery] int? countryId = null)
     {
         if (_orderSettings.CheckoutDisabled)
-            return BadRequest(new { Message = await _localizationService.GetResourceAsync("Checkout.Disabled") });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Checkout Disabled",
+                detail: await _localizationService.GetResourceAsync("Checkout.Disabled"));
+        }
 
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
         if (!cart.Any())
-            return BadRequest(new { Message = "Cart is empty" });
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Cart is empty",
+                detail: await _localizationService.GetResourceAsync("Cart.IsEmpty"));
+        }
 
         var shippingAddress = await _customerService.GetCustomerShippingAddressAsync(customer);
         var billingAddress = await _customerService.GetCustomerBillingAddressAsync(customer);

@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Mvc.Razor;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Mvc.Razor;
 
 namespace Nop.Plugin.Misc.Metrx.Infrastructure;
 

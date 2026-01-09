@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -280,6 +281,17 @@ public class FrontendApiStartup : INopStartup
                 options));
         });
 
+
+        // Add ProblemDetails for RFC 7807 error responses
+        services.AddProblemDetails(options =>
+        {
+            options.CustomizeProblemDetails = ctx =>
+            {
+                ctx.ProblemDetails.Instance = $"{ctx.HttpContext.Request.Method} {ctx.HttpContext.Request.Path}";
+                ctx.ProblemDetails.Extensions.TryAdd("requestId", ctx.HttpContext.TraceIdentifier);
+            };
+        });
+
         // Configure Swagger for frontend API
         services.AddSwaggerGen(options =>
         {
@@ -402,9 +414,6 @@ public class FrontendApiStartup : INopStartup
                    && !path.StartsWith("/public-api/swagger", StringComparison.OrdinalIgnoreCase);
         }, branch =>
         {
-            if (environment.IsDevelopment())
-                branch.UseDeveloperExceptionPage();
-
             branch.UseRouting();
             
             // Authenticate using JWT Bearer scheme for API routes
