@@ -1,9 +1,11 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
+using Nop.Plugin.Misc.Metrx.Factories;
 using Nop.Plugin.Misc.Metrx.Services;
+using Nop.Web.Areas.Admin.Factories;
 
 namespace Nop.Plugin.Misc.Metrx.Infrastructure;
 
@@ -15,6 +17,8 @@ public class PluginNopStartup : INopStartup
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IVendorDeliveryDateService, VendorDeliveryDateService>();
+        services.AddScoped<IVendorWarehouseService, VendorWarehouseService>();
+        services.AddScoped<IShippingModelFactory, MetrxShippingModelFactory>();
         services.Configure<RazorViewEngineOptions>(options => options.ViewLocationExpanders.Add(new MetrxViewLocationExpander()));
     }
 

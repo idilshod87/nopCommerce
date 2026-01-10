@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Plugin.Misc.Metrx.Models.Admin;
@@ -7,9 +7,8 @@ using Nop.Services.Common;
 using Nop.Services.Shipping.Date;
 using Nop.Web.Areas.Admin.Models.Vendors;
 using Nop.Web.Framework.Components;
-using System.Linq;
 
-namespace Nop.Plugin.Misc.Metrx.Components;
+namespace Nop.Plugin.Misc.Metrx.Areas.Components;
 
 /// <summary>
 /// Renders the vendor delivery date card inside the admin vendor details page
@@ -62,6 +61,6 @@ public class VendorDeliveryDateAdminViewComponent : NopViewComponent
         model.IsCollapsed = await _genericAttributeService.GetAttributeAsync<bool>(currentCustomer,
             "VendorPage.HideMetrxDeliveryBlock", defaultValue: true);
 
-        return View(MetrxDefaults.VendorDeliveryDateAdminViewPath, model);
+        return View(model);
     }
 }

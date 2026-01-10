@@ -1,0 +1,90 @@
+@using Nop.Plugin.Misc.Metrx
+@using Nop.Plugin.Misc.Metrx.Areas.Admin.Models
+@model VendorWarehouseSearchModel
+
+@{
+    ViewBag.PageTitle = T("Plugins.Misc.Metrx.Warehouses.MyWarehouses").Text;
+    NopHtml.SetActiveMenuItemSystemName(MetrxDefaults.VendorWarehousesMenuSystemName);
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Plugins.Misc.Metrx.Warehouses.MyWarehouses")
+    </h1>
+    <div class="float-right">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-square-plus"></i>
+            @T("Admin.Common.AddNew")
+        </a>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="cards-group">
+                <div class="card card-default card-search">
+                    <div class="card-body">
+                        <div class="row search-row opened" data-hideAttribute="VendorWarehouses.HideSearch">
+                            <div class="search-text">@T("Admin.Common.Search")</div>
+                            <div class="icon-search"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></div>
+                        </div>
+                        <div class="search-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="SearchName" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="SearchName" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-8 offset-md-4">
+                                    <button type="button" id="search-warehouse" class="btn btn-primary btn-search">
+                                        <i class="fas fa-magnifying-glass"></i>
+                                        @T("Admin.Common.Search")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-default">
+                    <div class="card-body">
+                        @await Html.PartialAsync("Table", new DataTablesModel
+                        {
+                            Name = "vendor-warehouse-grid",
+                            UrlRead = new DataUrl("List", "VendorWarehouse", null),
+                            SearchButtonId = "search-warehouse",
+                            Length = Model.PageSize,
+                            LengthMenu = Model.AvailablePageSizes,
+                            Filters = new List<FilterParameter>
+                            {
+                                new FilterParameter(nameof(Model.SearchName))
+                            },
+                            ColumnCollection = new List<ColumnProperty>
+                            {
+                                new ColumnProperty(nameof(VendorWarehouseModel.Name))
+                                {
+                                    Title = T("Admin.Configuration.Shipping.Warehouses.Fields.Name").Text
+                                },
+                                new ColumnProperty(nameof(VendorWarehouseModel.Id))
+                                {
+                                    Title = T("Admin.Common.Edit").Text,
+                                    Width = "100",
+                                    ClassName = NopColumnClassDefaults.Button,
+                                    Render = new RenderButtonEdit(new DataUrl("~/Admin/VendorWarehouse/Edit"))
+                                }
+                            }
+                        })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

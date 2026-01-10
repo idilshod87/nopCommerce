@@ -15,4 +15,34 @@
   <LocaleResource Name="Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate.NoneAvailable">
     <Value>Bu parametrdan foydalanish uchun Katalog → Attributlar → Yetkazib berish muddatlari bo'limida muddatlarni yarating.</Value>
   </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Fields.Vendor">
+    <Value>Vendor</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Fields.Vendor.None">
+    <Value>Not assigned</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Menu">
+    <Value>My warehouses</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.MyWarehouses">
+    <Value>My warehouses</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.AddNew">
+    <Value>Add warehouse</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Edit">
+    <Value>Edit warehouse</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.BackToList">
+    <Value>back to list</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Notifications.Created">
+    <Value>Warehouse has been created successfully.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Notifications.Updated">
+    <Value>Warehouse has been updated successfully.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Notifications.Deleted">
+    <Value>Warehouse has been removed successfully.</Value>
+  </LocaleResource>
 </Language>

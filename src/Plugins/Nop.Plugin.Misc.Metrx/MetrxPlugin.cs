@@ -1,5 +1,5 @@
-using Nop.Core.Domain.Cms;
-using Nop.Plugin.Misc.Metrx.Components;
+﻿using Nop.Core.Domain.Cms;
+using Nop.Plugin.Misc.Metrx.Areas.Components;
 using Nop.Services.Cms;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
@@ -51,7 +51,17 @@ public class MetrxPlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
             ["Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate"] = "Delivery date",
             ["Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate.Hint"] = "Select the default delivery date that should be applied to products for this vendor.",
             ["Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate.NoVendor"] = "Select a delivery date now or after saving; it will be stored once the vendor is created.",
-            ["Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate.NoneAvailable"] = "Create delivery dates in Catalog -> Attributes -> Delivery dates to enable this option."
+            ["Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate.NoneAvailable"] = "Create delivery dates in Catalog -> Attributes -> Delivery dates to enable this option.",
+            ["Plugins.Misc.Metrx.Warehouses.Fields.Vendor"] = "Vendor",
+            ["Plugins.Misc.Metrx.Warehouses.Fields.Vendor.None"] = "Not assigned",
+            ["Plugins.Misc.Metrx.Warehouses.Menu"] = "My warehouses",
+            ["Plugins.Misc.Metrx.Warehouses.MyWarehouses"] = "My warehouses",
+            ["Plugins.Misc.Metrx.Warehouses.AddNew"] = "Add warehouse",
+            ["Plugins.Misc.Metrx.Warehouses.Edit"] = "Edit warehouse",
+            ["Plugins.Misc.Metrx.Warehouses.BackToList"] = "back to list",
+            ["Plugins.Misc.Metrx.Warehouses.Notifications.Created"] = "Warehouse has been created successfully.",
+            ["Plugins.Misc.Metrx.Warehouses.Notifications.Updated"] = "Warehouse has been updated successfully.",
+            ["Plugins.Misc.Metrx.Warehouses.Notifications.Deleted"] = "Warehouse has been removed successfully."
         });
 
         if (!_widgetSettings.ActiveWidgetSystemNames.Contains(MetrxDefaults.SystemName))

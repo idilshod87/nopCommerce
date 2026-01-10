@@ -15,4 +15,34 @@
   <LocaleResource Name="Plugins.Misc.Metrx.Vendors.Fields.DeliveryDate.NoneAvailable">
     <Value>Создайте сроки доставки в Каталог → Атрибуты → Сроки доставки, чтобы использовать эту опцию.</Value>
   </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Fields.Vendor">
+    <Value>Поставщик</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Fields.Vendor.None">
+    <Value>Не назначен</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Menu">
+    <Value>Мои склады</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.MyWarehouses">
+    <Value>Мои склады</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.AddNew">
+    <Value>Добавить склад</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Edit">
+    <Value>Редактирование склада</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.BackToList">
+    <Value>назад к списку</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Notifications.Created">
+    <Value>Склад успешно создан.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Notifications.Updated">
+    <Value>Склад успешно обновлен.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Notifications.Deleted">
+    <Value>Склад успешно удален.</Value>
+  </LocaleResource>
 </Language>

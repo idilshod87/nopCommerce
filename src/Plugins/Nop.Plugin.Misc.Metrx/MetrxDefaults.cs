@@ -1,4 +1,4 @@
-namespace Nop.Plugin.Misc.Metrx;
+﻿namespace Nop.Plugin.Misc.Metrx;
 
 /// <summary>
 /// Contains common constants for the Metrx plugin
@@ -21,7 +21,12 @@ public static class MetrxDefaults
     public const string VendorDeliveryDateAttribute = "Metrx.Vendor.DeliveryDateId";
 
     /// <summary>
-    /// Path to the vendor delivery date admin view component.
+    /// System name used for the vendor warehouse navigation node.
     /// </summary>
-    public const string VendorDeliveryDateAdminViewPath = "~/Plugins/Misc.Metrx/Views/Shared/Components/VendorDeliveryDateAdmin/Default.cshtml";
+    public const string VendorWarehousesMenuSystemName = "MetrxVendorWarehouses";
+
+    /// <summary>
+    /// Default route to the vendor warehouse list page.
+    /// </summary>
+    public const string VendorWarehousesListRoute = "~/Admin/VendorWarehouse/List";
 }
