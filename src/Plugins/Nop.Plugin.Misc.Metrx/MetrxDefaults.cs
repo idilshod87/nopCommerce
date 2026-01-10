@@ -1,4 +1,4 @@
-namespace Nop.Plugin.Misc.Metrx;
+﻿namespace Nop.Plugin.Misc.Metrx;
 
 /// <summary>
 /// Contains common constants for the Metrx plugin
@@ -19,9 +19,4 @@ public static class MetrxDefaults
     /// Generic attribute key used to persist the vendor delivery date id.
     /// </summary>
     public const string VendorDeliveryDateAttribute = "Metrx.Vendor.DeliveryDateId";
-
-    /// <summary>
-    /// Path to the vendor delivery date admin view component.
-    /// </summary>
-    public const string VendorDeliveryDateAdminViewPath = "~/Plugins/Misc.Metrx/Views/Shared/Components/VendorDeliveryDateAdmin/Default.cshtml";
 }

@@ -9,8 +9,8 @@ public class MetrxViewLocationExpander : IViewLocationExpander
 {
     private static readonly string[] AreaViewLocations =
     {
-        $"/Plugins/{MetrxDefaults.SystemName}/Views/Areas/{{2}}/{{1}}/{{0}}.cshtml",
-        $"/Plugins/{MetrxDefaults.SystemName}/Views/Areas/{{2}}/Shared/{{0}}.cshtml"
+        $"/Plugins/{MetrxDefaults.SystemName}/Areas/{{2}}/Views/{{1}}/{{0}}.cshtml",
+        $"/Plugins/{MetrxDefaults.SystemName}/Areas/{{2}}/Views/Shared/{{0}}.cshtml"
     };
 
     private static readonly string[] DefaultViewLocations =

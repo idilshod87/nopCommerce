@@ -1,5 +1,5 @@
-using Nop.Core.Domain.Cms;
-using Nop.Plugin.Misc.Metrx.Components;
+﻿using Nop.Core.Domain.Cms;
+using Nop.Plugin.Misc.Metrx.Areas.Components;
 using Nop.Services.Cms;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
