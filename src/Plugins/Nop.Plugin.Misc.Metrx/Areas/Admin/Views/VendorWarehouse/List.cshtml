@@ -32,24 +32,25 @@
                         <div class="search-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group row">
+                                    <div class="form-group row mb-3">
                                         <div class="col-md-4">
                                             <nop-label asp-for="SearchName" />
                                         </div>
                                         <div class="col-md-8">
-                                            <nop-editor asp-for="SearchName" />
+                                            <div class="input-group">
+                                                <nop-editor asp-for="SearchName" />
+                                                <div class="input-group-append">
+                                                    <button type="button" id="search-warehouse" class="btn btn-primary">
+                                                        <i class="fas fa-magnifying-glass"></i>
+                                                        @T("Admin.Common.Search")
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <div class="col-md-8 offset-md-4">
-                                    <button type="button" id="search-warehouse" class="btn btn-primary btn-search">
-                                        <i class="fas fa-magnifying-glass"></i>
-                                        @T("Admin.Common.Search")
-                                    </button>
-                                </div>
-                            </div>
+                            <div class="form-group row"></div>
                         </div>
                     </div>
                 </div>
@@ -71,13 +72,14 @@
                             {
                                 new ColumnProperty(nameof(VendorWarehouseModel.Name))
                                 {
-                                    Title = T("Admin.Configuration.Shipping.Warehouses.Fields.Name").Text
+                                    Title = T("Admin.Configuration.Shipping.Warehouses.Fields.Name").Text,
+                                    ClassName = "name-column"
                                 },
                                 new ColumnProperty(nameof(VendorWarehouseModel.Id))
                                 {
                                     Title = T("Admin.Common.Edit").Text,
-                                    Width = "100",
-                                    ClassName = NopColumnClassDefaults.Button,
+                                    Width = "80",
+                                    ClassName = $"{NopColumnClassDefaults.Button} text-center",
                                     Render = new RenderButtonEdit(new DataUrl("~/Admin/VendorWarehouse/Edit"))
                                 }
                             }
@@ -88,3 +90,22 @@
         </div>
     </div>
 </section>
+
+<style>
+    #vendor-warehouse-grid {
+        width: 100% !important;
+    }
+
+    #vendor-warehouse-grid colgroup col:first-child,
+    #vendor-warehouse-grid th.name-column,
+    #vendor-warehouse-grid td.name-column {
+        width: auto !important;
+    }
+
+    #vendor-warehouse-grid colgroup col:last-child,
+    #vendor-warehouse-grid th.button-column,
+    #vendor-warehouse-grid td.button-column {
+        width: 80px !important;
+        white-space: nowrap;
+    }
+</style>
