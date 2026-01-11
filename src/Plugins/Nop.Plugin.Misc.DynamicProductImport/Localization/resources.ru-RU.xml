@@ -3,6 +3,21 @@
   <LocaleResource Name="Admin.Catalog.Products.DynamicImport">
     <Value>Импорт</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.RequiredFieldMissing">
+    <Value>Не настроено обязательное сопоставление</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.DuplicateColumn">
+    <Value>Обнаружено дублирующееся сопоставление столбца</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.FileNotFound">
+    <Value>Загруженный файл не найден</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.VendorNotAllowed">
+    <Value>Необходимо выбрать поставщика</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.NoMoreFields">
+    <Value>Нет доступных полей для добавления</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.NameRequired">
     <Value>Название шаблона обязательно</Value>
   </LocaleResource>
@@ -32,5 +47,11 @@
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Select">
     <Value>Выберите шаблон</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Common.Next">
+    <Value>Далее</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Common.Import">
+    <Value>Импортировать</Value>
   </LocaleResource>
 </Language>

@@ -3,6 +3,21 @@
   <LocaleResource Name="Admin.Catalog.Products.DynamicImport">
     <Value>Import</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.RequiredFieldMissing">
+    <Value>Majburiy maydon moslashtiruvi topilmadi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.DuplicateColumn">
+    <Value>Takroriy ustun moslash aniqlangan</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.FileNotFound">
+    <Value>Yuklangan fayl topilmadi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.VendorNotAllowed">
+    <Value>Yetkazib beruvchini tanlash kerak</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport.NoMoreFields">
+    <Value>Qo'shish uchun boshqa maydon yo'q</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.NameRequired">
     <Value>Shablon nomi majburiy</Value>
   </LocaleResource>
@@ -32,5 +47,11 @@
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.Select">
     <Value>Shablonni tanlang</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Common.Next">
+    <Value>Keyingi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Common.Import">
+    <Value>Import qilish</Value>
   </LocaleResource>
 </Language>
