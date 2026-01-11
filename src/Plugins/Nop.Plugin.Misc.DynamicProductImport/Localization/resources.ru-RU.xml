@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Language Name="Russian">
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport">
+    <Value>Импорт</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.NameRequired">
     <Value>Название шаблона обязательно</Value>
   </LocaleResource>

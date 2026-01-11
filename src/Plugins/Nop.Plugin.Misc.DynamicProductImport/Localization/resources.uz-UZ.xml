@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Language Name="Uzbek">
+  <LocaleResource Name="Admin.Catalog.Products.DynamicImport">
+    <Value>Import</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Products.DynamicImport.Template.NameRequired">
     <Value>Shablon nomi majburiy</Value>
   </LocaleResource>
