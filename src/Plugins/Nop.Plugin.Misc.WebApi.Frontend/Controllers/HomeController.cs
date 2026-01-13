@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
@@ -12,11 +11,9 @@ using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Seo;
-using Nop.Services.Stores;
 using Nop.Services.Vendors;
 using Nop.Web.Factories;
 using Nop.Web.Models.Catalog;
-using Nop.Web.Models.Media;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
 
@@ -41,7 +38,6 @@ public class HomeController : ControllerBase
     private readonly ILocalizationService _localizationService;
     private readonly CustomerSettings _customerSettings;
     private readonly CatalogSettings _catalogSettings;
-    private readonly ShoppingCartSettings _shoppingCartSettings;
     private readonly OrderSettings _orderSettings;
     private readonly ISettingService _settingService;
 
@@ -58,7 +54,6 @@ public class HomeController : ControllerBase
         ILocalizationService localizationService,
         CustomerSettings customerSettings,
         CatalogSettings catalogSettings,
-        ShoppingCartSettings shoppingCartSettings,
         OrderSettings orderSettings,
         ISettingService settingService)
     {
@@ -74,7 +69,6 @@ public class HomeController : ControllerBase
         _localizationService = localizationService;
         _customerSettings = customerSettings;
         _catalogSettings = catalogSettings;
-        _shoppingCartSettings = shoppingCartSettings;
         _orderSettings = orderSettings;
         _settingService = settingService;
     }
