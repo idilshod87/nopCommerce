@@ -285,6 +285,83 @@ public class HomeController : ControllerBase
     }
 
     /// <summary>
+    /// GET /home/products
+    /// Returns products with pagination and sorting for the mobile app home screen.
+    /// </summary>
+    /// <param name="pageIndex">Page index (0-based). Default is 0.</param>
+    /// <param name="pageSize">Number of products per page. Default is 10, max is 100.</param>
+    /// <param name="orderBy">Sort order: 0=Position, 5=NameAsc, 6=NameDesc, 10=PriceAsc, 11=PriceDesc, 15=CreatedOn</param>
+    /// <param name="categoryId">Optional category ID to filter products.</param>
+    /// <param name="manufacturerId">Optional manufacturer ID to filter products.</param>
+    /// <param name="vendorId">Optional vendor ID to filter products.</param>
+    /// <param name="keywords">Optional search keywords.</param>
+    /// <param name="priceMin">Optional minimum price filter.</param>
+    /// <param name="priceMax">Optional maximum price filter.</param>
+    [HttpGet("products")]
+    [ProducesResponseType(typeof(PagedResultDto<IList<ProductOverviewModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetProducts(
+        [FromQuery] int pageIndex = 0,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] int orderBy = 15,
+        [FromQuery] int? categoryId = null,
+        [FromQuery] int? manufacturerId = null,
+        [FromQuery] int? vendorId = null,
+        [FromQuery] string? keywords = null,
+        [FromQuery] decimal? priceMin = null,
+        [FromQuery] decimal? priceMax = null)
+    {
+        // Validate and constrain parameters
+        pageIndex = Math.Max(0, pageIndex);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        // Validate orderBy against ProductSortingEnum values
+        var validSortValues = new[] { 0, 5, 6, 10, 11, 15 };
+        if (!validSortValues.Contains(orderBy))
+            orderBy = (int)ProductSortingEnum.CreatedOn;
+
+        var store = await _storeContext.GetCurrentStoreAsync();
+
+        var products = await _productService.SearchProductsAsync(
+            pageIndex: pageIndex,
+            pageSize: pageSize,
+            categoryIds: categoryId.HasValue ? new List<int> { categoryId.Value } : null,
+            manufacturerIds: manufacturerId.HasValue ? new List<int> { manufacturerId.Value } : null,
+            storeId: store.Id,
+            vendorId: vendorId ?? 0,
+            warehouseId: 0,
+            productType: null,
+            visibleIndividuallyOnly: true,
+            excludeFeaturedProducts: false,
+            priceMin: priceMin,
+            priceMax: priceMax,
+            keywords: keywords,
+            searchDescriptions: !string.IsNullOrEmpty(keywords),
+            searchProductTags: !string.IsNullOrEmpty(keywords),
+            orderBy: (ProductSortingEnum)orderBy);
+
+        // Use ProductModelFactory to prepare all product data
+        var productOverviewModels = await _productModelFactory.PrepareProductOverviewModelsAsync(
+            products,
+            preparePriceModel: true,
+            preparePictureModel: true,
+            productThumbPictureSize: null,
+            prepareSpecificationAttributes: false);
+
+        var data = productOverviewModels.ToList();
+
+        var result = new PagedResultDto<IList<ProductOverviewModel>>
+        {
+            Data = data,
+            PageIndex = pageIndex,
+            PageSize = pageSize,
+            TotalCount = products.TotalCount,
+            TotalPages = products.TotalPages
+        };
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// GET /home/applandingsetting
     /// Returns app landing settings for mobile app homepage.
     /// Uses mobile app specific settings instead of website settings.
