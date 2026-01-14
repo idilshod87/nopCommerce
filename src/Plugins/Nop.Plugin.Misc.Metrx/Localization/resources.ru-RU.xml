@@ -45,4 +45,7 @@
   <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Notifications.Deleted">
     <Value>Склад успешно удален.</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.Fields.AgeVerification">
+    <Value>Проверка возраста</Value>
+  </LocaleResource>
 </Language>

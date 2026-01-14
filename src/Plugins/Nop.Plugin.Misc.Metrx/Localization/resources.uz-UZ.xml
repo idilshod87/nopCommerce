@@ -45,4 +45,7 @@
   <LocaleResource Name="Plugins.Misc.Metrx.Warehouses.Notifications.Deleted">
     <Value>Warehouse has been removed successfully.</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Products.Fields.AgeVerification">
+    <Value>Yoshni tekshirish</Value>
+  </LocaleResource>
 </Language>
