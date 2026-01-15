@@ -175,6 +175,29 @@ public class ShoppingCartController : ControllerBase
             }
         };
 
+        // Add product attributes to form values
+        if (request.ProductAttributes != null)
+        {
+            foreach (var attr in request.ProductAttributes)
+            {
+                if (attr.Id <= 0)
+                    continue;
+
+                var key = $"product_attribute_{attr.Id}";
+                string? value = null;
+
+                if (attr.Values != null && attr.Values.Any())
+                    value = string.Join(",", attr.Values);
+                else if (attr.Value.HasValue)
+                    value = attr.Value.Value.ToString();
+                else if (!string.IsNullOrWhiteSpace(attr.Text))
+                    value = attr.Text.Trim();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    formValues.Add(new FormValueDto { Key = key, Value = value });
+            }
+        }
+
         decimal customerEnteredPriceConverted = decimal.Zero;
         if (product.CustomerEntersPrice)
         {

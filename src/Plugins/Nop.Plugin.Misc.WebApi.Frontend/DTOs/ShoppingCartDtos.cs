@@ -34,6 +34,39 @@ public class AddToCartRequestDto
     /// Customer-entered price (optional, required only for products that demand it)
     /// </summary>
     public decimal? CustomerEnteredPrice { get; set; }
+
+    /// <summary>
+    /// Product attributes selection (optional, required for products with required attributes).
+    /// Use ProductAttributeMappingId as Id and selected value(s).
+    /// Example: [{ "id": 15, "value": 40 }] for dropdown/radio selection
+    /// </summary>
+    public List<AddToCartAttributeDto>? ProductAttributes { get; set; }
+}
+
+/// <summary>
+/// Product attribute selection for add to cart request
+/// </summary>
+public class AddToCartAttributeDto
+{
+    /// <summary>
+    /// Product attribute mapping ID (from product details response)
+    /// </summary>
+    public int Id { get; set; }
+
+    /// <summary>
+    /// Single value ID (for dropdown, radio, color/image squares)
+    /// </summary>
+    public int? Value { get; set; }
+
+    /// <summary>
+    /// Multiple value IDs (for checkboxes)
+    /// </summary>
+    public List<int>? Values { get; set; }
+
+    /// <summary>
+    /// Text value (for textbox, multiline textbox)
+    /// </summary>
+    public string? Text { get; set; }
 }
 
 /// <summary>
