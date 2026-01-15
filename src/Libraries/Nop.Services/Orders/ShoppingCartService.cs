@@ -407,7 +407,8 @@ public partial class ShoppingCartService : IShoppingCartService
             hasQtyWarnings = true;
         }
 
-        if (quantity > product.OrderMaximumQuantity)
+        //OrderMaximumQuantity = 0 means "unlimited" (no maximum quantity restriction)
+        if (product.OrderMaximumQuantity > 0 && quantity > product.OrderMaximumQuantity)
         {
             warnings.Add(string.Format(await _localizationService.GetResourceAsync("ShoppingCart.MaximumQuantity"), product.OrderMaximumQuantity));
             hasQtyWarnings = true;
