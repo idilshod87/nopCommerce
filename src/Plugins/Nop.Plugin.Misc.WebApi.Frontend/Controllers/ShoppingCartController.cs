@@ -237,6 +237,19 @@ public class ShoppingCartController : ControllerBase
             Warnings = addToCartWarnings
         };
 
+        if (!success)
+        {
+            var vpd = new ValidationProblemDetails(new Dictionary<string, string[]>
+            {
+                { "Warnings", addToCartWarnings.ToArray() }
+            })
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Validation error"
+            };
+            return BadRequest(vpd);
+        }
+
         return Ok(new ApiResponse<AddToCartResponseDto> { Data = response });
     }
 
