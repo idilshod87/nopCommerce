@@ -396,34 +396,27 @@ public class ShoppingCartController : ControllerBase
     }
 
     /// <summary>
-    /// POST /shoppingcart/productattributechange/{productId}
-    /// Body: { "FormValues": [ { "Key": "product_attribute_{id}", "Value": "{valueId}" }, ... ] }
-    /// Returns updated price and stock message for selected attributes.
+    /// POST /shoppingcart/product_attributechange/{productId}
+    /// Strongly typed endpoint for updating product attributes.
+    /// Body: ProductAttributeChangeTypedRequest
     /// </summary>
-    [HttpPost("productattributechange/{productId:int}")]
+    [HttpPost("product_attributechange/{productId:int}")]
     [Consumes("application/json")]
     [ProducesResponseType(typeof(ApiResponse<ProductAttributeChangeResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ProductAttributeChange(int productId, [FromBody] FormValuesRequest request)
+    public async Task<IActionResult> ProductAttributeChangeTyped(int productId, [FromBody] ProductAttributeChangeTypedRequest request)
     {
+        if (request == null)
+            return BadRequest(new { Message = "Request body is required" });
+
         var product = await _productService.GetProductByIdAsync(productId);
         if (product == null || product.Deleted || !product.Published)
             return NotFound(new { Message = "Product not found" });
 
-        var form = BuildFormCollection(request);
-        var errors = new List<string>();
-
-        var attributesXml = await _productAttributeParser.ParseProductAttributesAsync(product, form, errors);
-
-        // stock message with selected attributes
-        var stockAvailability = await _productService.FormatStockMessageAsync(product, attributesXml);
-
-        var result = new ProductAttributeChangeResultDto
-        {
-            ProductId = product.Id,
-            StockAvailability = stockAvailability,
-            Errors = errors
-        };
+        var formValues = BuildFormValuesFromTypedRequest(productId, request);
+        var form = BuildFormCollection(formValues);
+        var result = await PrepareProductAttributeChangeResultAsync(product, form);
 
         return Ok(new ApiResponse<ProductAttributeChangeResultDto> { Data = result });
     }
@@ -850,6 +843,71 @@ public class ShoppingCartController : ControllerBase
 
     #region Private Methods
 
+    private async Task<ProductAttributeChangeResultDto> PrepareProductAttributeChangeResultAsync(Product product, IFormCollection form)
+    {
+        var errors = new List<string>();
+        var attributesXml = await _productAttributeParser.ParseProductAttributesAsync(product, form, errors);
+        var stockAvailability = await _productService.FormatStockMessageAsync(product, attributesXml);
+
+        return new ProductAttributeChangeResultDto
+        {
+            ProductId = product.Id,
+            StockAvailability = stockAvailability,
+            Errors = errors
+        };
+    }
+
+    private static FormValuesRequest BuildFormValuesFromTypedRequest(int productId, ProductAttributeChangeTypedRequest request)
+    {
+        var formValues = new List<FormValueDto>();
+
+        if (request.Quantity.HasValue && request.Quantity.Value > 0)
+        {
+            formValues.Add(new FormValueDto
+            {
+                Key = $"addtocart_{productId}.EnteredQuantity",
+                Value = request.Quantity.Value.ToString()
+            });
+        }
+
+        if (request.ProductAttributes != null)
+        {
+            foreach (var attribute in request.ProductAttributes)
+                AddAttributeSelectionToFormValues(attribute, formValues);
+        }
+
+        return new FormValuesRequest { FormValues = formValues };
+    }
+
+    private static void AddAttributeSelectionToFormValues(ProductAttributeSelectionRequest? selection, ICollection<FormValueDto> formValues)
+    {
+        if (selection == null || selection.Id <= 0)
+            return;
+
+        var key = $"product_attribute_{selection.Id}";
+        string? value = null;
+
+        if (selection.Values != null && selection.Values.Any())
+            value = string.Join(",", selection.Values);
+        else if (selection.Value.HasValue)
+            value = selection.Value.Value.ToString();
+        else if (!string.IsNullOrWhiteSpace(selection.Text))
+            value = selection.Text.Trim();
+
+        if (!string.IsNullOrWhiteSpace(value))
+            formValues.Add(new FormValueDto { Key = key, Value = value });
+
+        if (selection.Date != null)
+        {
+            if (selection.Date.Day > 0)
+                formValues.Add(new FormValueDto { Key = $"{key}_day", Value = selection.Date.Day.ToString() });
+            if (selection.Date.Month > 0)
+                formValues.Add(new FormValueDto { Key = $"{key}_month", Value = selection.Date.Month.ToString() });
+            if (selection.Date.Year > 0)
+                formValues.Add(new FormValueDto { Key = $"{key}_year", Value = selection.Date.Year.ToString() });
+        }
+    }
+
     private async Task<Dictionary<int, string>> GetVendorPaymentSelectionsAsync()
     {
         var customer = await _workContext.GetCurrentCustomerAsync();
@@ -1088,6 +1146,54 @@ public class ApplyGiftCardRequest
 public class RemoveGiftCardRequest
 {
     public int GiftCardId { get; set; }
+}
+
+public class ProductAttributeChangeTypedRequest
+{
+    /// <summary>
+    /// List of product attribute selections.
+    /// </summary>
+    public List<ProductAttributeSelectionRequest>? ProductAttributes { get; set; }
+    
+    /// <summary>
+    /// Quantity for add to cart calculation.
+    /// </summary>
+    public int? Quantity { get; set; }
+}
+
+public class ProductAttributeSelectionRequest
+{
+    /// <summary>
+    /// Product attribute mapping ID.
+    /// </summary>
+    public int Id { get; set; }
+    
+    /// <summary>
+    /// Single value ID (for dropdown, radio, color/image squares).
+    /// </summary>
+    public int? Value { get; set; }
+    
+    /// <summary>
+    /// Multiple value IDs (for checkboxes).
+    /// </summary>
+    public List<int>? Values { get; set; }
+    
+    /// <summary>
+    /// Text value (for textbox, multiline textbox).
+    /// </summary>
+    public string? Text { get; set; }
+    
+    /// <summary>
+    /// Date value (for datepicker).
+    /// </summary>
+    public ProductAttributeDateValueRequest? Date { get; set; }
+}
+
+public class ProductAttributeDateValueRequest
+{
+    public int Day { get; set; }
+    public int Month { get; set; }
+    public int Year { get; set; }
 }
 
 #endregion
