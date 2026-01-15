@@ -367,6 +367,7 @@ public partial class ProductModelFactory : IProductModelFactory
     /// <param name="product">Product</param>
     /// <param name="addPriceRangeFrom">Indicates whether to add a price range information</param>
     /// <param name="forceRedirectionAfterAddingToCart">Whether to force redirection after adding to cart</param>
+    /// <param name="prepareProductAttributes">Whether to prepare the product attribute models</param>
     /// <returns>
     /// A task that represents the asynchronous operation
     /// The task result contains the product price model
@@ -1336,7 +1337,7 @@ public partial class ProductModelFactory : IProductModelFactory
     public virtual async Task<IEnumerable<ProductOverviewModel>> PrepareProductOverviewModelsAsync(IEnumerable<Product> products,
         bool preparePriceModel = true, bool preparePictureModel = true,
         int? productThumbPictureSize = null, bool prepareSpecificationAttributes = false,
-        bool forceRedirectionAfterAddingToCart = false)
+        bool forceRedirectionAfterAddingToCart = false, bool prepareProductAttributes = false)
     {
         ArgumentNullException.ThrowIfNull(products);
 
@@ -1373,6 +1374,11 @@ public partial class ProductModelFactory : IProductModelFactory
             if (prepareSpecificationAttributes)
             {
                 model.ProductSpecificationModel = await PrepareProductSpecificationModelAsync(product);
+            }
+
+            if (prepareProductAttributes)
+            {
+                model.ProductAttributes = await PrepareProductAttributeModelsAsync(product, null);
             }
 
             //reviews

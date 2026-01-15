@@ -332,7 +332,9 @@ public class ApiCatalogModelFactory : IApiCatalogModelFactory
         }
 
         // Prepare product overview models
-        var productModels = await _productModelFactory.PrepareProductOverviewModelsAsync(products);
+        var productModels = await _productModelFactory.PrepareProductOverviewModelsAsync(
+            products,
+            prepareProductAttributes: true);
         model.Products = productModels.ToList();
 
         // Set pagination properties from BasePageableModel

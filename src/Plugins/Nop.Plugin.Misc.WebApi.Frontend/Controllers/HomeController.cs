@@ -339,7 +339,8 @@ public class HomeController : ControllerBase
             preparePriceModel: true,
             preparePictureModel: true,
             productThumbPictureSize: null,
-            prepareSpecificationAttributes: false);
+            prepareSpecificationAttributes: false,
+            prepareProductAttributes: true);
 
         var data = productOverviewModels.ToList();
 

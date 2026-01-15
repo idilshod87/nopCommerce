@@ -1,6 +1,4 @@
-﻿#nullable enable
-using System.Collections.Generic;
-using Nop.Web.Models.ShoppingCart;
+﻿using Nop.Web.Models.ShoppingCart;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 

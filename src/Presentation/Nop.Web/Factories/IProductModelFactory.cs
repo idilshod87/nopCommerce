@@ -28,6 +28,7 @@ public partial interface IProductModelFactory
     /// <param name="productThumbPictureSize">Product thumb picture size (longest side); pass null to use the default value of media settings</param>
     /// <param name="prepareSpecificationAttributes">Whether to prepare the specification attribute models</param>
     /// <param name="forceRedirectionAfterAddingToCart">Whether to force redirection after adding to cart</param>
+    /// <param name="prepareProductAttributes">Whether to prepare the product attribute models</param>
     /// <returns>
     /// A task that represents the asynchronous operation
     /// The task result contains the collection of product overview model
@@ -35,7 +36,7 @@ public partial interface IProductModelFactory
     Task<IEnumerable<ProductOverviewModel>> PrepareProductOverviewModelsAsync(IEnumerable<Product> products,
         bool preparePriceModel = true, bool preparePictureModel = true,
         int? productThumbPictureSize = null, bool prepareSpecificationAttributes = false,
-        bool forceRedirectionAfterAddingToCart = false);
+        bool forceRedirectionAfterAddingToCart = false, bool prepareProductAttributes = false);
 
     /// <summary>
     /// Prepare the product combination models
