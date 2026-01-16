@@ -48,4 +48,7 @@
   <LocaleResource Name="Admin.Catalog.Products.Fields.AgeVerification">
     <Value>Проверка возраста</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.List.SearchProductAttributeName">
+    <Value>Название атрибута</Value>
+  </LocaleResource>
 </Language>

@@ -48,4 +48,7 @@
   <LocaleResource Name="Admin.Catalog.Products.Fields.AgeVerification">
     <Value>Yoshni tekshirish</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.List.SearchProductAttributeName">
+    <Value>Atributi nomi</Value>
+  </LocaleResource>
 </Language>
