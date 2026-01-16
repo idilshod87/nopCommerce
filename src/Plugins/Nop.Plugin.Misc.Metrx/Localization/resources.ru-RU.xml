@@ -51,4 +51,7 @@
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.List.SearchProductAttributeName">
     <Value>Название атрибута</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType">
+    <Value>Тип подписки на рассылку</Value>
+  </LocaleResource>
 </Language>

@@ -51,4 +51,7 @@
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.List.SearchProductAttributeName">
     <Value>Atributi nomi</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType">
+    <Value>Obuna turi</Value>
+  </LocaleResource>
 </Language>
