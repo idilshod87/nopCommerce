@@ -54,4 +54,22 @@
   <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType">
     <Value>Тип подписки на рассылку</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.Fields.Name">
+    <Value>Название</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.Fields.TickedByDefault">
+    <Value>Отмечено по умолчанию</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.Fields.DisplayOrder">
+    <Value>Порядок отображения</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.Fields.LimitedToStores">
+    <Value>Только для избранных магазинов</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.BackToList">
+    <Value>назад к списку</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.EditSubscriptionTypeDetails">
+    <Value>Редактирование типа подписки</Value>
+  </LocaleResource>
 </Language>

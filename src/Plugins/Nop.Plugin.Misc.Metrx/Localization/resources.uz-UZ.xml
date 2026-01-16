@@ -54,4 +54,22 @@
   <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType">
     <Value>Obuna turi</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.Fields.Name">
+    <Value>Nomi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.Fields.TickedByDefault">
+    <Value>Standart belgilangan</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.Fields.DisplayOrder">
+    <Value>Ko'rsatish tartibi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.Fields.LimitedToStores">
+    <Value>Faqat tanlangan do'konlar uchun</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.BackToList">
+    <Value>ro'yxatga qaytish</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.EditSubscriptionTypeDetails">
+    <Value>Obuna turini tahrirlash</Value>
+  </LocaleResource>
 </Language>
