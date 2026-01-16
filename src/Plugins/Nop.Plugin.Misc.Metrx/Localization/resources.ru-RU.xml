@@ -90,4 +90,7 @@
   <LocaleResource Name="Admin.Promotions.NewsletterSubscriptions.List.SubscriptionTypes">
     <Value>Типы подписки</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Orders.Fields.OrderStatus.VendorComplete">
+    <Value>Завершен</Value>
+  </LocaleResource>
 </Language>
