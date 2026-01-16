@@ -72,4 +72,22 @@
   <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.EditSubscriptionTypeDetails">
     <Value>Obuna turini tahrirlash</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscription.Fields.Email">
+    <Value>Elektron pochta</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscription.Fields.SubscriptionType">
+    <Value>Obuna turi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscription.Fields.Active">
+    <Value>Faol</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscription.Fields.Language">
+    <Value>Til</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscription.Fields.CreatedOn">
+    <Value>Yaratilgan sana</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptions.List.SubscriptionTypes">
+    <Value>Obuna turlari</Value>
+  </LocaleResource>
 </Language>

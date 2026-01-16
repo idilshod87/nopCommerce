@@ -72,4 +72,22 @@
   <LocaleResource Name="Admin.Promotions.NewsletterSubscriptionType.EditSubscriptionTypeDetails">
     <Value>Редактирование типа подписки</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscription.Fields.Email">
+    <Value>Электронная почта</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscription.Fields.SubscriptionType">
+    <Value>Тип подписки</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscription.Fields.Active">
+    <Value>Активно</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscription.Fields.Language">
+    <Value>Язык</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscription.Fields.CreatedOn">
+    <Value>Дата создания</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Promotions.NewsletterSubscriptions.List.SubscriptionTypes">
+    <Value>Типы подписки</Value>
+  </LocaleResource>
 </Language>
