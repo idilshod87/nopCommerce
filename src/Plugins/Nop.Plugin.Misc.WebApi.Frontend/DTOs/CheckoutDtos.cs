@@ -25,7 +25,7 @@ public class SaveBillingRequest
 {
     public int? BillingAddressId { get; set; }
     public AddressModel? BillingNewAddress { get; set; }
-    public bool ShipToSameAddress { get; set; }
+    public bool ShipToSameAddress { get; set; } = true;
     public string? VatNumber { get; set; }
 }
 
