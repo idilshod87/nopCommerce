@@ -96,4 +96,7 @@
   <LocaleResource Name="Admin.Orders.Fields.OrderStatus.VendorConfirm">
     <Value>Tasdiqlash</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Orders.Fields.VendorMarkAsPaid">
+    <Value>To'langan deb belgilash</Value>
+  </LocaleResource>
 </Language>
