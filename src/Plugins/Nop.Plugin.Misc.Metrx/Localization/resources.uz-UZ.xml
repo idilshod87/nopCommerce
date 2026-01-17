@@ -91,6 +91,9 @@
     <Value>Obuna turlari</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Orders.Fields.OrderStatus.VendorComplete">
-    <Value>Yakunlangan</Value>
+    <Value>Yakunlash</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Orders.Fields.OrderStatus.VendorConfirm">
+    <Value>Tasdiqlash</Value>
   </LocaleResource>
 </Language>

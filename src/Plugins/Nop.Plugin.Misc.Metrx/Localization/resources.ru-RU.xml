@@ -93,4 +93,7 @@
   <LocaleResource Name="Admin.Orders.Fields.OrderStatus.VendorComplete">
     <Value>Завершен</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Orders.Fields.OrderStatus.VendorConfirm">
+    <Value>Подтвержден</Value>
+  </LocaleResource>
 </Language>
