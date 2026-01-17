@@ -905,16 +905,41 @@ public class CheckoutController : ControllerBase
                 }
                 else
                 {
-                    model.Warnings.Add(await _localizationService.GetResourceAsync("Checkout.SelectShippingMethod"));
-                    var vpd = new ValidationProblemDetails(new Dictionary<string, string[]>
+                    // Автовыбор способа доставки на сервере, чтобы не требовать saveshippingmethod с фронта
+                    var shippingAddress = await _customerService.GetCustomerShippingAddressAsync(customer);
+                    if (shippingAddress != null)
                     {
-                        { "Warnings", model.Warnings.ToArray() }
-                    })
+                        var getShippingOptionResponse = await _shippingService.GetShippingOptionsAsync(cart, shippingAddress, customer, storeId: store.Id);
+                        if (getShippingOptionResponse.Success && getShippingOptionResponse.ShippingOptions.Any())
+                        {
+                            // закэшировать доступные варианты, как в стандартной фабрике
+                            await _genericAttributeService.SaveAttributeAsync(customer,
+                                NopCustomerDefaults.OfferedShippingOptionsAttribute,
+                                getShippingOptionResponse.ShippingOptions,
+                                store.Id);
+
+                            // выбрать первый доступный вариант как дефолтный
+                            selectedShippingOption = getShippingOptionResponse.ShippingOptions.First();
+                            await _genericAttributeService.SaveAttributeAsync(customer,
+                                NopCustomerDefaults.SelectedShippingOptionAttribute,
+                                selectedShippingOption,
+                                store.Id);
+                        }
+                    }
+
+                    if (selectedShippingOption == null)
                     {
-                        Status = StatusCodes.Status400BadRequest,
-                        Title = "Validation error"
-                    };
-                    return BadRequest(vpd);
+                        model.Warnings.Add(await _localizationService.GetResourceAsync("Checkout.SelectShippingMethod"));
+                        var vpd = new ValidationProblemDetails(new Dictionary<string, string[]>
+                        {
+                            { "Warnings", model.Warnings.ToArray() }
+                        })
+                        {
+                            Status = StatusCodes.Status400BadRequest,
+                            Title = "Validation error"
+                        };
+                        return BadRequest(vpd);
+                    }
                 }
             }
         }
