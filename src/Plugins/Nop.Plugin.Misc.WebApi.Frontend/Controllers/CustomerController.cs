@@ -8,6 +8,7 @@ using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.Localization;
 using Nop.Services.Media;
+using Nop.Plugin.Misc.WebApi.Frontend.Models.Customer;
 using Nop.Web.Factories;
 using Nop.Web.Models.Customer;
 using Nop.Web.Models.Common;
@@ -356,7 +357,7 @@ public class CustomerController : ControllerBase
     /// Returns list of customer addresses.
     /// </summary>
     [HttpGet("addresses")]
-    [ProducesResponseType(typeof(ApiResponse<CustomerAddressListModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<Nop.Plugin.Misc.WebApi.Frontend.Models.Customer.CustomerAddressListModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetAddresses()
     {
@@ -364,8 +365,15 @@ public class CustomerController : ControllerBase
         if (customer == null)
             return Unauthorized();
 
-        var model = await _customerModelFactory.PrepareCustomerAddressListModelAsync();
-        return Ok(new ApiResponse<CustomerAddressListModel> { Data = model });
+        var baseModel = await _customerModelFactory.PrepareCustomerAddressListModelAsync();
+        var model = new Nop.Plugin.Misc.WebApi.Frontend.Models.Customer.CustomerAddressListModel
+        {
+            Addresses = baseModel.Addresses,
+            DefaultBillingAddressId = customer.BillingAddressId,
+            DefaultShippingAddressId = customer.ShippingAddressId
+        };
+
+        return Ok(new ApiResponse<Nop.Plugin.Misc.WebApi.Frontend.Models.Customer.CustomerAddressListModel> { Data = model });
     }
 
     /// <summary>

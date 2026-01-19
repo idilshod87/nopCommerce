@@ -16,6 +16,37 @@ public class CheckoutStepResponseDto
     public CheckoutPaymentMethodModel? PaymentMethodModel { get; set; }
     public CheckoutPaymentInfoModel? PaymentInfoModel { get; set; }
     public CheckoutConfirmModel? ConfirmOrderModel { get; set; }
+
+    /// <summary>
+    /// Id of the customer's current/default billing address (if any).
+    /// Used by mobile clients to preselect the last used billing address.
+    /// </summary>
+    public int? DefaultBillingAddressId { get; set; }
+
+    /// <summary>
+    /// Id of the customer's current/default shipping address (if any).
+    /// Used by mobile clients to preselect the last used shipping address.
+    /// </summary>
+    public int? DefaultShippingAddressId { get; set; }
+}
+
+/// <summary>
+/// DTO for GET /checkout/getbilling response.
+/// Contains billing address and default address identifiers.
+/// </summary>
+public class BillingAddressResponseDto
+{
+    public CheckoutBillingAddressModel BillingAddress { get; set; } = new();
+
+    /// <summary>
+    /// Id of the customer's current/default billing address (if any).
+    /// </summary>
+    public int? DefaultBillingAddressId { get; set; }
+
+    /// <summary>
+    /// Id of the customer's current/default shipping address (if any).
+    /// </summary>
+    public int? DefaultShippingAddressId { get; set; }
 }
 
 /// <summary>

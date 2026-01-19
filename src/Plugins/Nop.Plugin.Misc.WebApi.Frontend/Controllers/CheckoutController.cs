@@ -129,7 +129,7 @@ public class CheckoutController : ControllerBase
     /// Get billing address information for checkout.
     /// </summary>
     [HttpGet("getbilling")]
-    [ProducesResponseType(typeof(ApiResponse<OnePageCheckoutModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<BillingAddressResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetBilling()
     {
@@ -147,7 +147,14 @@ public class CheckoutController : ControllerBase
 
         var model = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
 
-        return Ok(new ApiResponse<OnePageCheckoutModel> { Data = model });
+        var response = new BillingAddressResponseDto
+        {
+            BillingAddress = model.BillingAddress,
+            DefaultBillingAddressId = customer.BillingAddressId,
+            DefaultShippingAddressId = customer.ShippingAddressId
+        };
+
+        return Ok(new ApiResponse<BillingAddressResponseDto> { Data = response });
     }
 
     /// <summary>
@@ -273,6 +280,10 @@ public class CheckoutController : ControllerBase
             response.NextStep = 4; // payment method step
         }
 
+        // expose current default addresses for mobile clients
+        response.DefaultBillingAddressId = customer.BillingAddressId;
+        response.DefaultShippingAddressId = customer.ShippingAddressId;
+
         return Ok(new ApiResponse<CheckoutStepResponseDto> { Data = response });
     }
 
@@ -393,6 +404,10 @@ public class CheckoutController : ControllerBase
         var shippingMethodModel = await _checkoutModelFactory.PrepareShippingMethodModelAsync(cart, shippingAddress);
         response.ShippingMethodModel = shippingMethodModel;
         response.NextStep = 3; // shipping method step
+
+        // expose current default addresses for mobile clients
+        response.DefaultBillingAddressId = customer.BillingAddressId;
+        response.DefaultShippingAddressId = customer.ShippingAddressId;
 
         return Ok(new ApiResponse<CheckoutStepResponseDto> { Data = response });
     }
