@@ -357,7 +357,7 @@ public class CustomerController : ControllerBase
     /// Returns list of customer addresses.
     /// </summary>
     [HttpGet("addresses")]
-    [ProducesResponseType(typeof(ApiResponse<Nop.Plugin.Misc.WebApi.Frontend.Models.Customer.CustomerAddressListModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<Models.Customer.CustomerAddressListModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetAddresses()
     {
@@ -366,14 +366,14 @@ public class CustomerController : ControllerBase
             return Unauthorized();
 
         var baseModel = await _customerModelFactory.PrepareCustomerAddressListModelAsync();
-        var model = new Nop.Plugin.Misc.WebApi.Frontend.Models.Customer.CustomerAddressListModel
+        var model = new Models.Customer.CustomerAddressListModel
         {
             Addresses = baseModel.Addresses,
             DefaultBillingAddressId = customer.BillingAddressId,
             DefaultShippingAddressId = customer.ShippingAddressId
         };
 
-        return Ok(new ApiResponse<Nop.Plugin.Misc.WebApi.Frontend.Models.Customer.CustomerAddressListModel> { Data = model });
+        return Ok(new ApiResponse<Models.Customer.CustomerAddressListModel> { Data = model });
     }
 
     /// <summary>
