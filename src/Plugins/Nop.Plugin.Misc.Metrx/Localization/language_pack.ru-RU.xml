@@ -18377,7 +18377,7 @@
     <Value>Отменен</Value>
   </LocaleResource>
   <LocaleResource Name="Enums.Nop.Core.Domain.Orders.OrderStatus.Complete">
-    <Value>Завершение</Value>
+    <Value>Выполнен</Value>
   </LocaleResource>
   <LocaleResource Name="Enums.Nop.Core.Domain.Orders.OrderStatus.Pending">
     <Value>В ожидании</Value>

@@ -8,7 +8,6 @@ using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.Localization;
 using Nop.Services.Media;
-using Nop.Plugin.Misc.WebApi.Frontend.Models.Customer;
 using Nop.Web.Factories;
 using Nop.Web.Models.Customer;
 using Nop.Web.Models.Common;
