@@ -90,6 +90,9 @@
   <LocaleResource Name="Admin.Promotions.NewsletterSubscriptions.List.SubscriptionTypes">
     <Value>Obuna turlari</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Orders.VendorCompleted">
+    <Value>Buyurtma yakunlandi</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Orders.Fields.OrderStatus.VendorComplete">
     <Value>Yakunlash</Value>
   </LocaleResource>
