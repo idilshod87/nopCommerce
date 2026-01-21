@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="Uzbek">
+  <LocaleResource Name="Plugins.Payment.Terminal.AdditionalFee">
+    <Value>Qo'shimcha to'lov</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Terminal.AdditionalFee.Hint">
+    <Value>Buyurtma summasiga qo'shiladigan qo'shimcha to'lov miqdori.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Terminal.AdditionalFeePercentage">
+    <Value>Qo'shimcha to'lov. Foiz sifatida qo'llash</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Terminal.AdditionalFeePercentage.Hint">
+    <Value>Buyurtma summasiga qo'shimcha to'lovni foiz sifatida qo'llash kerakligini belgilaydi. O'chirilgan bo'lsa, qat'iy qiymat ishlatiladi.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Terminal.DescriptionText">
+    <Value>Terminal orqali to'lov bo'yicha ko'rsatmalar</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Terminal.DescriptionText.Hint">
+    <Value>Mijoz terminal orqali to'lov usulini tanlaganda ko'radigan matn.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Terminal.PaymentMethodDescription">
+    <Value>Terminal orqali bank kartasi bilan to'lash</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Terminal.ShippableProductRequired">
+    <Value>Yetkazib beriladigan mahsulot talab qilinadi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Terminal.ShippableProductRequired.Hint">
+    <Value>Ushbu to'lov usuli ko'rsatilsin, desangiz savatda yetkazib berish talab qilinadigan mahsulotlar bo'lishi kerakligini ko'rsatuvchi parametr.</Value>
+  </LocaleResource>
+</Language>

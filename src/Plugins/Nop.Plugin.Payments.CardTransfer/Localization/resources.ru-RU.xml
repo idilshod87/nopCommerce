@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="Russian">
+  <LocaleResource Name="Plugins.Payment.CardTransfer.AdditionalFee">
+    <Value>Дополнительная комиссия</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CardTransfer.AdditionalFee.Hint">
+    <Value>Фиксированная сумма, добавляемая к сумме заказа.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CardTransfer.AdditionalFeePercentage">
+    <Value>Дополнительная комиссия. Использовать процент</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CardTransfer.AdditionalFeePercentage.Hint">
+    <Value>Определяет, применять ли процентную комиссию к сумме заказа. Если отключено, используется фиксированное значение.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CardTransfer.DescriptionText">
+    <Value>Инструкции по переводу на карту</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CardTransfer.DescriptionText.Hint">
+    <Value>Текст, который увидит покупатель при выборе оплаты переводом на карту.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CardTransfer.PaymentMethodDescription">
+    <Value>Оплата переводом на банковскую карту</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CardTransfer.ShippableProductRequired">
+    <Value>Требуется доставляемый товар</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CardTransfer.ShippableProductRequired.Hint">
+    <Value>Опция, указывающая, что для отображения этого способа оплаты в чекауте в корзине должны быть товары с доставкой.</Value>
+  </LocaleResource>
+</Language>

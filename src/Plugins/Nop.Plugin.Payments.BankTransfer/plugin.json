@@ -1,11 +1,11 @@
 {
   "Group": "Payment methods",
-  "FriendlyName": "Bank Transfer (Перечислением)",
+  "FriendlyName": "Оплата перечислением",
   "SystemName": "Payments.BankTransfer",
   "Version": "4.90.1",
   "SupportedVersions": [ "4.90" ],
   "Author": "nopCommerce team",
   "DisplayOrder": 2,
   "FileName": "Nop.Plugin.Payments.BankTransfer.dll",
-  "Description": "This plugin enables bank transfer (wire) payments"
+  "Description": "Оплата перечислением на банковский счет"
 }
