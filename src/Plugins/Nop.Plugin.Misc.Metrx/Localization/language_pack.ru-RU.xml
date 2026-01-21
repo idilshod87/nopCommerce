@@ -13988,7 +13988,7 @@
     <Value>Данные адреса доставки</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Orders.Fields.ShippingAddress.ViewOnGoogleMaps">
-    <Value>Просмотр адреса на Google картах</Value>
+    <Value>Показать на карте</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Orders.Fields.ShippingMethod">
     <Value>Способ доставки</Value>
