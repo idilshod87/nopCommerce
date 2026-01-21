@@ -543,8 +543,20 @@ public partial class ShippingService : IShippingService
 
         var shippingRateComputationMethods = await _shippingPluginManager
             .LoadActivePluginsAsync(customer, storeId, allowedShippingRateComputationMethodSystemName);
+
+        // Metrx customization: если ни одного метода доставки не настроено,
+        // всё равно возвращаем одну дефолтную опцию, чтобы оформление заказа не падало
         if (!shippingRateComputationMethods.Any())
+        {
+            result.ShippingOptions.Add(new ShippingOption
+            {
+                Name = "Стандартная доставка",
+                Rate = decimal.Zero,
+                ShippingRateComputationMethodSystemName = "Metrx.Manual"
+            });
+
             return result;
+        }
 
         //request shipping options from each shipping rate computation methods
         foreach (var srcm in shippingRateComputationMethods)
@@ -617,8 +629,19 @@ public partial class ShippingService : IShippingService
         }
 
         //no shipping options loaded
-        if (!result.ShippingOptions.Any() && !result.Errors.Any())
-            result.Errors.Add(await _localizationService.GetResourceAsync("Checkout.ShippingOptionCouldNotBeLoaded"));
+        // Metrx customization: даже если плагины не вернули вариантов или отдали ошибки,
+        // создаём одну дефолтную опцию доставки без ошибок
+        if (!result.ShippingOptions.Any())
+        {
+            result.Errors.Clear();
+
+            result.ShippingOptions.Add(new ShippingOption
+            {
+                Name = "Стандартная доставка",
+                Rate = decimal.Zero,
+                ShippingRateComputationMethodSystemName = "Metrx.Manual"
+            });
+        }
 
         return result;
     }
@@ -678,19 +701,10 @@ public partial class ShippingService : IShippingService
     /// A task that represents the asynchronous operation
     /// The task result contains true if the shopping cart item requires shipping; otherwise false
     /// </returns>
-    public virtual async Task<bool> IsShipEnabledAsync(ShoppingCartItem shoppingCartItem)
+    public virtual Task<bool> IsShipEnabledAsync(ShoppingCartItem shoppingCartItem)
     {
-        //whether the product requires shipping
-        if (shoppingCartItem.ProductId != 0 && (await _productService.GetProductByIdAsync(shoppingCartItem.ProductId))?.IsShipEnabled == true)
-            return true;
-
-        if (string.IsNullOrEmpty(shoppingCartItem.AttributesXml))
-            return false;
-
-        //or whether associated products of the shopping cart item require shipping
-        return await (await _productAttributeParser.ParseProductAttributeValuesAsync(shoppingCartItem.AttributesXml))
-            .Where(attributeValue => attributeValue.AttributeValueType == AttributeValueType.AssociatedToProduct)
-            .AnyAwaitAsync(async attributeValue => (await _productService.GetProductByIdAsync(attributeValue.AssociatedProductId))?.IsShipEnabled ?? false);
+        // Metrx customization: всегда считаем, что доставка требуется
+        return Task.FromResult(true);
     }
 
     /// <summary>
