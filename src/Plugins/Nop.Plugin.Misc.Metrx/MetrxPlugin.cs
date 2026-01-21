@@ -61,7 +61,12 @@ public class MetrxPlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
             ["Plugins.Misc.Metrx.Warehouses.BackToList"] = "back to list",
             ["Plugins.Misc.Metrx.Warehouses.Notifications.Created"] = "Warehouse has been created successfully.",
             ["Plugins.Misc.Metrx.Warehouses.Notifications.Updated"] = "Warehouse has been updated successfully.",
-            ["Plugins.Misc.Metrx.Warehouses.Notifications.Deleted"] = "Warehouse has been removed successfully."
+                ["Plugins.Misc.Metrx.Warehouses.Notifications.Deleted"] = "Warehouse has been removed successfully.",
+
+                ["Admin.Orders.Fields.ShippingStatus.VendorMarkShipped"] = "Mark as shipped",
+                ["Admin.Orders.Fields.ShippingStatus.VendorMarkDelivered"] = "Mark as delivered",
+                ["Admin.Orders.VendorShippingStatus.Shipped"] = "Shipping status has been marked as shipped.",
+                ["Admin.Orders.VendorShippingStatus.Delivered"] = "Shipping status has been marked as delivered."
         });
 
         if (!_widgetSettings.ActiveWidgetSystemNames.Contains(MetrxDefaults.SystemName))

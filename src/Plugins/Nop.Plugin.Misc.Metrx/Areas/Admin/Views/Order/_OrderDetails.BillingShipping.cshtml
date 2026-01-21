@@ -1,4 +1,5 @@
 @model OrderModel
+@using Nop.Core.Domain.Shipping
 
 @{
     var canShipmentsView = await permissionService.AuthorizeAsync(StandardPermission.Orders.SHIPMENTS_VIEW);
@@ -347,6 +348,42 @@
                         </div>
                         <div class="col-lg-9">
                             <div class="form-text-row">@Model.ShippingStatus</div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <span>@Model.ShippingStatusId</span>
+                    <div class="form-group row">
+                        <div class="col-lg-3">
+                            <nop-label asp-for="ShippingStatus" />
+                        </div>
+                        <div class="col-lg-9">
+                            <div class="input-group input-group-short">
+                                <div class="input-group-text align-items-start">
+                                    <div class="font-weight-bold">@Model.ShippingStatus</div>
+                                </div>
+                                <div class="input-group-btn">
+                                    @if (Model.ShippingStatusId == 0 ||
+                                         Model.ShippingStatusId == (int)ShippingStatus.NotYetShipped ||
+                                         Model.ShippingStatusId == (int)ShippingStatus.PartiallyShipped)
+                                    {
+                                        <button type="submit" name="vendorshipped" id="vendorshipped" class="btn btn-primary">
+                                            @T("Admin.Orders.Fields.ShippingStatus.VendorMarkShipped")
+                                        </button>
+                                        <nop-action-confirmation asp-button-id="vendorshipped" />
+                                    }
+
+                                    @if (Model.ShippingStatusId == (int)ShippingStatus.Shipped ||
+                                         Model.ShippingStatusId == (int)ShippingStatus.PartiallyShipped)
+                                    {
+                                        <button type="submit" name="vendordelivered" id="vendordelivered" class="btn btn-success" style="margin-left: 3px;">
+                                            @T("Admin.Orders.Fields.ShippingStatus.VendorMarkDelivered")
+                                        </button>
+                                        <nop-action-confirmation asp-button-id="vendordelivered" />
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </div>
                 }

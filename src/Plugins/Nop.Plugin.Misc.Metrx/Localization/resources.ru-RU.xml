@@ -102,4 +102,10 @@
   <LocaleResource Name="Admin.Orders.Fields.VendorMarkAsPaid">
     <Value>Отметить как оплачен</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Orders.Fields.ShippingStatus.VendorMarkShipped">
+    <Value>Отметить как отправлен</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Orders.Fields.ShippingStatus.VendorMarkDelivered">
+    <Value>Отметить как доставлен</Value>
+  </LocaleResource>
 </Language>

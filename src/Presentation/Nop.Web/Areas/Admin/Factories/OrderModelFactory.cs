@@ -647,6 +647,8 @@ public partial class OrderModelFactory : IOrderModelFactory
         ArgumentNullException.ThrowIfNull(order);
 
         model.ShippingStatus = await _localizationService.GetLocalizedEnumAsync(order.ShippingStatus);
+        model.ShippingStatusId = (int)order.ShippingStatus;
+
         if (order.ShippingStatus == ShippingStatus.ShippingNotRequired)
             return;
 

@@ -840,6 +840,98 @@ public partial class OrderController : BaseAdminController
     }
 
     [HttpPost, ActionName("Edit")]
+    [FormValueRequired("vendorshipped")]
+    [CheckPermission(StandardPermission.Orders.ORDERS_VIEW)]
+    public virtual async Task<IActionResult> VendorMarkOrderAsShipped(int id)
+    {
+        var order = await _orderService.GetOrderByIdAsync(id);
+        if (order == null)
+            return RedirectToAction("List");
+
+        var currentVendor = await _workContext.GetCurrentVendorAsync();
+        if (currentVendor == null)
+            return RedirectToAction("Edit", new { id = order.Id });
+
+        if (!await HasAccessToOrderAsync(order.Id))
+            return RedirectToAction("List");
+
+        try
+        {
+            if (order.ShippingStatusId == (int)ShippingStatus.NotYetShipped ||
+                order.ShippingStatusId == (int)ShippingStatus.PartiallyShipped)
+            {
+                order.ShippingStatusId = (int)ShippingStatus.Shipped;
+                await _orderService.UpdateOrderAsync(order);
+
+                await _orderService.InsertOrderNoteAsync(new OrderNote
+                {
+                    OrderId = order.Id,
+                    Note = $"Shipping status has been set to '{ShippingStatus.Shipped}' by vendor '{currentVendor.Name}'",
+                    DisplayToCustomer = false,
+                    CreatedOnUtc = DateTime.UtcNow
+                });
+
+                await LogEditOrderAsync(order.Id);
+
+                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Orders.VendorShippingStatus.Shipped"));
+            }
+
+            return RedirectToAction("Edit", new { id = order.Id });
+        }
+        catch (Exception exc)
+        {
+            await _notificationService.ErrorNotificationAsync(exc);
+            return RedirectToAction("Edit", new { id = order.Id });
+        }
+    }
+
+    [HttpPost, ActionName("Edit")]
+    [FormValueRequired("vendordelivered")]
+    [CheckPermission(StandardPermission.Orders.ORDERS_VIEW)]
+    public virtual async Task<IActionResult> VendorMarkOrderAsDelivered(int id)
+    {
+        var order = await _orderService.GetOrderByIdAsync(id);
+        if (order == null)
+            return RedirectToAction("List");
+
+        var currentVendor = await _workContext.GetCurrentVendorAsync();
+        if (currentVendor == null)
+            return RedirectToAction("Edit", new { id = order.Id });
+
+        if (!await HasAccessToOrderAsync(order.Id))
+            return RedirectToAction("List");
+
+        try
+        {
+            if (order.ShippingStatusId == (int)ShippingStatus.Shipped ||
+                order.ShippingStatusId == (int)ShippingStatus.PartiallyShipped)
+            {
+                order.ShippingStatusId = (int)ShippingStatus.Delivered;
+                await _orderService.UpdateOrderAsync(order);
+
+                await _orderService.InsertOrderNoteAsync(new OrderNote
+                {
+                    OrderId = order.Id,
+                    Note = $"Shipping status has been set to '{ShippingStatus.Delivered}' by vendor '{currentVendor.Name}'",
+                    DisplayToCustomer = false,
+                    CreatedOnUtc = DateTime.UtcNow
+                });
+
+                await LogEditOrderAsync(order.Id);
+
+                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Orders.VendorShippingStatus.Delivered"));
+            }
+
+            return RedirectToAction("Edit", new { id = order.Id });
+        }
+        catch (Exception exc)
+        {
+            await _notificationService.ErrorNotificationAsync(exc);
+            return RedirectToAction("Edit", new { id = order.Id });
+        }
+    }
+
+    [HttpPost, ActionName("Edit")]
     [FormValueRequired("vendorcompleteorder")]
     [CheckPermission(StandardPermission.Orders.ORDERS_VIEW)]
     public virtual async Task<IActionResult> VendorCompleteOrder(int id)
