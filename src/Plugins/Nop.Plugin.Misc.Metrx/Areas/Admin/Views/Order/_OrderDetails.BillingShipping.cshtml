@@ -59,10 +59,10 @@
                     </div>
                 </div>
 
-        <div class="card-group mb-3">
             @if (Model.IsShippable)
             {
-                if (!Model.PickupInStore && Model.ShippingAddress != null)
+            <div class="card-group mb-3">
+                @if (!Model.PickupInStore && Model.ShippingAddress != null)
                 {
                     <div class="card card-default">
                         <div class="card-header clearfix">
@@ -186,9 +186,8 @@
                     </div>
                 }
 
-                if (Model.PickupInStore && Model.PickupAddress != null)
+                @if (Model.PickupInStore && Model.PickupAddress != null)
                 {
-
                     <div class="card mb-3">
                         <div class="card-header clearfix">
                             @T("Admin.Orders.Fields.PickupAddress")
@@ -298,17 +297,10 @@
                         </div>
                     </div>
                 }
+            </div>
             }
-            else
-            {
-                <div class="form-group row mx-auto">
-                    <div class="col-auto">
-                        @T("Admin.Orders.ShippingInfo.NotRequired")
-                    </div>
-                </div>
-            }
-        </div>
 
+    
     @if (Model.IsShippable)
     {
         if (canShipmentsView)
