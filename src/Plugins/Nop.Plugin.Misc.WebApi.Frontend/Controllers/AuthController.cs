@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Customers;
 using Nop.Plugin.Misc.WebApi.Frontend.Infrastructure;
@@ -63,6 +64,23 @@ public class AuthController : ControllerBase
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.Forbidden)]
     public async Task<IActionResult> RequestToken([FromBody] TokenRequest model)
     {
+        if (model == null)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Bad Request",
+                detail: "Request body is required");
+        }
+
+        // For refresh token requests, use the /token/refresh endpoint instead
+        if (!model.Guest && string.IsNullOrEmpty(model.Username) && string.IsNullOrEmpty(model.Password))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid Endpoint",
+                detail: "For refresh token, use POST /public-api/auth/token/refresh endpoint");
+        }
+
         Customer oldCustomer = await _authenticationService.GetAuthenticatedCustomerAsync();
         Customer newCustomer;
 
@@ -83,19 +101,28 @@ public class AuthController : ControllerBase
         {
             if (string.IsNullOrEmpty(model.Username))
             {
-                return BadRequest("Missing username");
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Validation Error",
+                    detail: "Username is required");
             }
 
             if (string.IsNullOrEmpty(model.Password))
             {
-                return BadRequest("Missing password");
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Validation Error",
+                    detail: "Password is required");
             }
 
             newCustomer = await LoginAsync(model.Username, model.Password, model.RememberMe);
 
             if (newCustomer is null)
             {
-                return StatusCode((int)HttpStatusCode.Forbidden, "Wrong username or password");
+                return Problem(
+                    statusCode: StatusCodes.Status403Forbidden,
+                    title: "Authentication Failed",
+                    detail: "Wrong username or password");
             }
         }
 
@@ -161,7 +188,10 @@ public class AuthController : ControllerBase
     {
         if (string.IsNullOrEmpty(model?.RefreshToken))
         {
-            return BadRequest("Refresh token is required");
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Validation Error",
+                detail: "Refresh token is required");
         }
 
         // Validate refresh token and get customer
@@ -169,7 +199,10 @@ public class AuthController : ControllerBase
 
         if (customer == null)
         {
-            return StatusCode((int)HttpStatusCode.Unauthorized, "Invalid or expired refresh token");
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Invalid Token",
+                detail: "Invalid or expired refresh token");
         }
 
         // Revoke old refresh token
