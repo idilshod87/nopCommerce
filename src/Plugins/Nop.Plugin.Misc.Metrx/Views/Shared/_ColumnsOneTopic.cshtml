@@ -1,0 +1,13 @@
+@using Nop.Web.Framework.Infrastructure
+
+@{
+    Layout = "_RootTopic";
+}
+
+@await RenderSectionAsync("Breadcrumb", false)
+
+<section class="center-1">
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.MainColumnBefore })
+    @RenderBody()
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.MainColumnAfter })
+</section>
