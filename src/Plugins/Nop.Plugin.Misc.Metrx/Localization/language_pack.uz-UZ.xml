@@ -11966,46 +11966,46 @@
     <Value>Доступна, когда магазин закрыт.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.AvailableEndDateTime">
-    <Value>Дата окончания доступности</Value>
+    <Value>Tugash sanasi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.AvailableEndDateTime.Hint">
-    <Value>Конец доступности темы (UTC).</Value>
+    <Value>Mavzuning muddati tugashi (UTC).</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.AvailableEndDateTime.GreaterThanOrEqualToStartDate">
-    <Value>Дата окончания должна быть больше или равна дате начала.</Value>
+    <Value>Tugash sanasi boshlanish sanasidan katta yoki teng bo'lishi kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.AvailableStartDateTime">
-    <Value>Дата начала доступности</Value>
+    <Value>Boshlanish sanasi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.AvailableStartDateTime.Hint">
-    <Value>Начало доступности раздела (UTC).</Value>
+    <Value>Bo'limning muddati boshlanishi (UTC).</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.Body">
-    <Value>Текст</Value>
+    <Value>Matn</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.Body.Hint">
-    <Value>Текст этого раздела</Value>
+    <Value>Bo'lim matni</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.DisplayOrder">
-    <Value>Порядок отображения</Value>
+    <Value>Ko'rsatish tartibi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.DisplayOrder.Hint">
-    <Value>Порядок отображения атрибута адреса. 1 — это первый пункт списка.</Value>
+    <Value>Manzil atributining ko'rsatish tartibi. 1 - bu ro'yxatdagi birinchi element.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.IncludeInSitemap">
-    <Value>Включить в карту сайта</Value>
+    <Value>Sayt xaritasiga qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.IncludeInSitemap.Hint">
-    <Value>Выберите, чтобы включить этот раздел в карту сайта.</Value>
+    <Value>Ushbu bo'limni sayt xaritasiga qo'shish uchun tanlang.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.IsPasswordProtected">
-    <Value>Защищён паролем</Value>
+    <Value>Parol bilan himoyalangan</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.IsPasswordProtected.Hint">
-    <Value>Выберите, если этот раздел сайта должен быть защищён паролем.</Value>
+    <Value>Sayt bo'limi parol bilan himoyalangan bo'lishi kerak bo'lsa, tanlang.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.LimitedToStores">
-    <Value>Только для избранных магазинов</Value>
+    <Value>Faqat tanlangan do'konlar uchun</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Topics.Fields.LimitedToStores.Hint">
     <Value>Определяет доступность данной темы для избранных магазинов. Если у вас есть несколько магазинов, выбрать один или несколько из списка. Если вы не используете эту опцию, просто оставьте это поле пустым.</Value>
