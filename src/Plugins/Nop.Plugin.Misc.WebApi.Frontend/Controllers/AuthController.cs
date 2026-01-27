@@ -72,15 +72,6 @@ public class AuthController : ControllerBase
                 detail: "Request body is required");
         }
 
-        // For refresh token requests, use the /token/refresh endpoint instead
-        if (!model.Guest && string.IsNullOrEmpty(model.Username) && string.IsNullOrEmpty(model.Password))
-        {
-            return Problem(
-                statusCode: StatusCodes.Status400BadRequest,
-                title: "Invalid Endpoint",
-                detail: "For refresh token, use POST /public-api/auth/token/refresh endpoint");
-        }
-
         Customer oldCustomer = await _authenticationService.GetAuthenticatedCustomerAsync();
         Customer newCustomer;
 
