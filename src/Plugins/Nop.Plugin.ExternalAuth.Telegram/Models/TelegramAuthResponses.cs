@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text.Json.Serialization;
 
 namespace Nop.Plugin.ExternalAuth.Telegram.Models;
@@ -54,6 +54,9 @@ public class TelegramJwtTokenDto
     [JsonPropertyName("accessToken")]
     public string AccessToken { get; init; } = string.Empty;
 
+    [JsonPropertyName("refreshToken")]
+    public string? RefreshToken { get; init; }
+
     [JsonPropertyName("tokenType")]
     public string TokenType { get; init; } = "Bearer";
 
@@ -62,6 +65,9 @@ public class TelegramJwtTokenDto
 
     [JsonPropertyName("expiresAtUtc")]
     public DateTime ExpiresAtUtc { get; init; }
+
+    [JsonPropertyName("expiresIn")]
+    public int ExpiresIn { get; init; }
 
     [JsonPropertyName("username")]
     public string? Username { get; init; }

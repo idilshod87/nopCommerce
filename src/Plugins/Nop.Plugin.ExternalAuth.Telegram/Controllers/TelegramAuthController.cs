@@ -12,6 +12,9 @@ using Nop.Plugin.ExternalAuth.Telegram.Models;
 using Nop.Plugin.ExternalAuth.Telegram.Services;
 using Nop.Plugin.ExternalAuth.Telegram.Domain.TelegramWebhook;
 using Nop.Services.Authentication;
+using Nop.Web.Framework.Infrastructure.Extensions;
+using Nop.Core;
+using Nop.Metrx.Core.Services;
 
 [Route("api/telegram-auth")]
 public class TelegramAuthController : BaseApiController
@@ -21,19 +24,25 @@ public class TelegramAuthController : BaseApiController
     private readonly TelegramGatewayConfiguration _config;
     private readonly ILogger<TelegramAuthController> _logger;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IWebHelper _webHelper;
+    private readonly IRefreshTokenService _refreshTokenService;
 
     public TelegramAuthController(
         ITelegramAuthService authService,
         ITelegramBotMessenger botMessenger,
         TelegramGatewayConfiguration config,
         ILogger<TelegramAuthController> logger,
-        IJwtTokenService jwtTokenService)
+        IJwtTokenService jwtTokenService,
+        IWebHelper webHelper,
+        IRefreshTokenService refreshTokenService)
     {
         _authService = authService;
         _botMessenger = botMessenger;
         _config = config;
         _logger = logger;
         _jwtTokenService = jwtTokenService;
+        _webHelper = webHelper;
+        _refreshTokenService = refreshTokenService;
     }
 
     [HttpPost("session")]
@@ -100,12 +109,18 @@ public class TelegramAuthController : BaseApiController
             // Generate nopCommerce JWT access token for the verified customer
             var jwt = _jwtTokenService.GenerateToken(customer);
 
+            // Generate refresh token
+            var ipAddress = _webHelper.GetCurrentIpAddress();
+            var refreshToken = await _refreshTokenService.GenerateRefreshTokenAsync(customer, ipAddress);
+
             var jwtPayload = new TelegramJwtTokenDto
             {
                 AccessToken = jwt.AccessToken,
+                RefreshToken = refreshToken.Token,
                 TokenType = "Bearer",
                 CreatedAtUtc = jwt.CreatedAtUtc,
                 ExpiresAtUtc = jwt.ExpiresAtUtc,
+                ExpiresIn = (int)(jwt.ExpiresAtUtc - jwt.CreatedAtUtc).TotalSeconds,
                 Username = jwt.Username,
                 CustomerId = jwt.CustomerId,
                 CustomerGuid = jwt.CustomerGuid

@@ -31,6 +31,7 @@ using Nop.Core.Domain.Customers;
 using Nop.Core.Infrastructure;
 using Nop.Services.Authentication;
 using Nop.Services.Customers;
+using Nop.Metrx.Core.Services;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Infrastructure;
@@ -257,6 +258,9 @@ public class FrontendApiStartup : INopStartup
     {
         // Register API catalog model factory
         services.AddScoped<Factories.IApiCatalogModelFactory, Factories.ApiCatalogModelFactory>();
+
+        // Register authentication services
+        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
         // JWT Bearer authentication is configured via JwtBearerAuthenticationRegistrar
         // which implements IExternalAuthenticationRegistrar and is called automatically
