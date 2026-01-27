@@ -31,7 +31,7 @@ public class JwtTokenService : IJwtTokenService
     public JwtTokenResult GenerateToken(Customer customer)
     {
         var currentTime = DateTimeOffset.Now;
-        var expirationTime = currentTime.AddDays(GetTokenExpiryInDays());
+        var expirationTime = currentTime.AddMinutes(GetTokenExpiryInDays());
 
         var claims = new List<Claim>
         {
