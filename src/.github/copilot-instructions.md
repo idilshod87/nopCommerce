@@ -31,6 +31,10 @@
 
 ## Project-Specific Conventions
 
+- **Native Solutions First**: **ALWAYS** explore native nopCommerce solutions before writing custom code. Check Admin Panel settings (Configuration → Settings, Configuration → Access Control List, etc.) for built-in functionality. Only implement custom code when native solutions are unavailable or insufficient. Examples:
+  - **Hiding menu items for vendors**: Use `Configuration → Access Control List (ACL)` to manage permissions instead of custom event consumers.
+  - **Role-based restrictions**: Configure permissions via admin panel rather than custom authorization code.
+  - **Settings and configurations**: Check existing settings pages before creating custom configuration.
 - **Plugin Registration**: Plugins must be copied to `Plugins/` and installed via Admin Panel → Configuration → Local Plugins.
 - **Plugin Dependencies**: Some plugins require others (e.g., `Nop.Plugin.Misc.TelegramNotifications` requires `Nop.Plugin.ExternalAuth.Telegram`).
 - **Plugin Build Actions**: All views (`.cshtml`) and `web.config` files in plugins should have `Build action` set to `Content` and `Copy to output directory` set to `Copy if newer`.
