@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
@@ -47,6 +49,7 @@ public enum OrderStatusGroup
 /// Public API for customer orders, aligned with NopStation Cart API routes.
 /// </summary>
 [ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [IgnoreAntiforgeryToken]
 [Produces("application/json")]
 [Route("public-api/order")]

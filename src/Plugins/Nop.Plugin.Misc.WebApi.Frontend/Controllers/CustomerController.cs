@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Customers;
@@ -19,6 +21,7 @@ namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
 /// Public API for customer account info and avatar, aligned with NopStation Cart API routes.
 /// </summary>
 [ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [IgnoreAntiforgeryToken]
 [Produces("application/json")]
 [Route("public-api/customer")]

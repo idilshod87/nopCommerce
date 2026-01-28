@@ -1,4 +1,6 @@
 ﻿using System.Text.Json;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
@@ -28,6 +30,7 @@ namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
 /// Routes are aligned with NopStation Cart API (Add to cart, attribute change, estimate shipping).
 /// </summary>
 [ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [IgnoreAntiforgeryToken]
 [Produces("application/json")]
 [Route("public-api/shoppingCart")]

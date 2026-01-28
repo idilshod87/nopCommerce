@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
@@ -24,6 +26,7 @@ namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
 /// Public API for return requests, aligned with NopStation Cart API routes.
 /// </summary>
 [ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [IgnoreAntiforgeryToken]
 [Produces("application/json")]
 [Route("public-api/returnrequest")]
