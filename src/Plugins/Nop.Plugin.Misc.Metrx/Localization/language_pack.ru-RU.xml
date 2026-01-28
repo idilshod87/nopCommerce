@@ -14038,6 +14038,9 @@
   <LocaleResource Name="Admin.Orders.Fields.VoidOffline">
     <Value>Аннулировать (оффлайн)</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Orders.VendorMarkedAsPaid">
+    <Value>Заказ отмечен как оплаченный</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Orders.Import.CustomersDontExist">
     <Value>Клиенты со следующими GUID не существуют: {0}</Value>
   </LocaleResource>
