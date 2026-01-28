@@ -185,14 +185,13 @@
 									  {
 										  IsMasterCheckBox = true,
 										  Render = new RenderCheckBox("checkbox_products"),
-											  ClassName =  NopColumnClassDefaults.CenterAll,
+										  ClassName =  NopColumnClassDefaults.CenterAll,
 										  Width = "50"
 									  },
 									  new ColumnProperty(nameof(ProductModel.PictureThumbnailUrl))
 									  {
 										  Title = T("Admin.Catalog.Products.Fields.PictureThumbnailUrl").Text,
-										  Width = "100",
-										  Render = new RenderPicture(width: 100)
+										  Render = new RenderPicture(width: 50)
 									  },
 									  new ColumnProperty(nameof(ProductModel.Name))
 									  {

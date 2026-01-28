@@ -18,7 +18,7 @@ namespace Nop.Plugin.Api.Infrastructure
 
         public static class Configurations
         {
-            public const int DefaultAccessTokenExpirationInDays = 2;
+            public const int DefaultAccessTokenExpirationInDays = 15;
 
             // time is in seconds (10 years = 315360000 seconds) and should not exceed 2038 year
             // https://stackoverflow.com/questions/43593074/jwt-validation-fails/43605820
