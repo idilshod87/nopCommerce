@@ -25,9 +25,10 @@ Plugins/Nop.Plugin.Misc.Metrx/
  │   ├── Shared/                     # Кастомные layout'ы
  │   │   ├── _ColumnsOneTopic.cshtml # Layout для статических страниц
  │   │   ├── _RootTopic.cshtml       # Корневой layout без меню
- │   │   ├── _ColumnsOneNoFooter.cshtml # Layout для Login/Register без footer
- │   │   ├── _RootNoFooter.cshtml    # Корневой layout без меню и footer
- │   │   └── _HeaderTopic.cshtml     # Header без поиска товаров
+ │   │   ├── _ColumnsOneAuth.cshtml  # Layout для Login/Register
+ │   │   ├── _RootAuth.cshtml        # Корневой layout для авторизации
+ │   │   ├── _HeaderTopic.cshtml     # Header без поиска товаров
+ │   │   └── _HeaderAuth.cshtml      # Минимальный header для Login/Register
  │   ├── Topic/
  │   │   └── TopicDetails.cshtml     # Переопределенный view для статических страниц
  │   ├── Customer/
@@ -70,9 +71,8 @@ Plugins/Nop.Plugin.Misc.Metrx/
 - **На всех страницах**: Убрано меню навигации (MainMenuViewComponent)
 - **На всех страницах**: Убран поиск товаров (SearchBoxViewComponent)
 - **На Login/Register**: Убран footer
-- **Сохранены**: логотип, селекторы языка/валюты, header links
-
-На страницах Topics footer остается, на страницах входа и регистрации - удален для более компактного представления.
+- **На Login/Register**: В header оставлены только логотип и переключатель языка (убраны селекторы валюты, налогов, корзина, ссылки личного кабинета)
+- **На Topics**: Сохранены селекторы языка/валюты/налогов, header links, footer
 
 Кастомизация применяется автоматически после установки плагина. Никаких дополнительных настроек не требуется.
 

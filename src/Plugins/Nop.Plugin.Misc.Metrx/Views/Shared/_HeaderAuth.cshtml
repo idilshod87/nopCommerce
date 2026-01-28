@@ -1,0 +1,38 @@
+@using Nop.Web.Framework.Infrastructure
+
+<header class="header">
+    <a class="skip" href="#main">@T("Header.SkipNavigation.Text")</a>
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderBefore })
+    <div class="header-upper">
+        <div class="header-links-wrapper">
+            @await Component.InvokeAsync(typeof(LanguageSelectorViewComponent))
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderSelectors })
+        </div>
+    </div>
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderMiddle })
+    <div class="header-lower">
+        <div class="header-logo">
+            @await Component.InvokeAsync(typeof(LogoViewComponent))
+        </div>
+    </div>
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderAfter })
+</header>
+
+<style>
+  .header-links-wrapper {
+    float: right;
+    padding: 0;
+  }
+
+  .header-links-wrapper > div {
+    width: auto;
+    margin: 0 12px 0 0;
+    line-height: 43px;
+  }
+
+  .header-links-wrapper select {
+    height: 25px;
+    padding: 4px;
+    font-size: 12px;
+  }
+</style>
