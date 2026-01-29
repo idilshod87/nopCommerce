@@ -28,6 +28,7 @@ public class ProductController : ControllerBase
     private readonly IOrderReportService _orderReportService;
     private readonly IStoreContext _storeContext;
     private readonly IShoppingCartModelFactory _shoppingCartModelFactory;
+    private readonly IShoppingCartService _shoppingCartService;
     private readonly IWorkContext _workContext;
     private readonly IProductReviewService _productReviewService;
     private readonly ICustomerService _customerService;
@@ -40,6 +41,7 @@ public class ProductController : ControllerBase
         IOrderReportService orderReportService,
         IStoreContext storeContext,
         IShoppingCartModelFactory shoppingCartModelFactory,
+        IShoppingCartService shoppingCartService,
         IWorkContext workContext,
         IProductReviewService productReviewService,
         ICustomerService customerService,
@@ -51,6 +53,7 @@ public class ProductController : ControllerBase
         _orderReportService = orderReportService;
         _storeContext = storeContext;
         _shoppingCartModelFactory = shoppingCartModelFactory;
+        _shoppingCartService = shoppingCartService;
         _workContext = workContext;
         _productReviewService = productReviewService;
         _customerService = customerService;
@@ -62,17 +65,34 @@ public class ProductController : ControllerBase
     /// GET /product/productdetails/{id}
     /// Returns basic product information for product details page (simplified DTO).
     /// </summary>
+    /// <param name="id">Product ID</param>
+    /// <param name="updatecartitemid">Shopping cart item ID to update (optional, for editing cart items)</param>
     [HttpGet("productdetails/{id:int}")]
     [ProducesResponseType(typeof(ApiResponse<ProductDetailsModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetProductDetails(int id)
+    public async Task<IActionResult> GetProductDetails(int id, [FromQuery] int updatecartitemid = 0)
     {
         var product = await _productService.GetProductByIdAsync(id);
         if (product == null || product.Deleted || !product.Published)
             return NotFound(new { Message = "Product not found" });
 
+        // Update existing shopping cart item?
+        ShoppingCartItem updatecartitem = null;
+        if (updatecartitemid > 0)
+        {
+            var store = await _storeContext.GetCurrentStoreAsync();
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            var cart = await _shoppingCartService.GetShoppingCartAsync(customer, storeId: store.Id);
+            updatecartitem = cart.FirstOrDefault(x => x.Id == updatecartitemid);
+
+            // Not found or different product? Ignore updatecartitemid
+            if (updatecartitem == null || product.Id != updatecartitem.ProductId)
+                updatecartitem = null;
+        }
+
         // Use standard nopCommerce ProductDetailsModel so JSON shape is rich and consistent
-        var model = await _productModelFactory.PrepareProductDetailsModelAsync(product);
+        // Pass updatecartitem to prepopulate selected attributes
+        var model = await _productModelFactory.PrepareProductDetailsModelAsync(product, updatecartitem, false);
 
         return Ok(new ApiResponse<ProductDetailsModel> { Data = model });
     }

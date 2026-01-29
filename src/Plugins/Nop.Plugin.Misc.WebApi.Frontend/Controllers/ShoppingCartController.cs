@@ -51,7 +51,8 @@ public class ShoppingCartController : ControllerBase
 
     #endregion
 
-    #region Fields
+    #nullable enable
+#region Fields
 
     private readonly IProductService _productService;
     private readonly IProductAttributeParser _productAttributeParser;
@@ -70,6 +71,7 @@ public class ShoppingCartController : ControllerBase
     private readonly IShippingService _shippingService;
     private readonly ICurrencyService _currencyService;
     private readonly IPaymentPluginManager _paymentPluginManager;
+    private readonly IPriceCalculationService _priceCalculationService;
     private readonly ShippingSettings _shippingSettings;
     private static readonly char[] _separator = [','];
 
@@ -93,6 +95,7 @@ public class ShoppingCartController : ControllerBase
         IShippingService shippingService,
         ICurrencyService currencyService,
         IPaymentPluginManager paymentPluginManager,
+        IPriceCalculationService priceCalculationService,
         ShippingSettings shippingSettings)
     {
         _productService = productService;
@@ -112,6 +115,7 @@ public class ShoppingCartController : ControllerBase
         _shippingService = shippingService;
         _currencyService = currencyService;
         _paymentPluginManager = paymentPluginManager;
+        _priceCalculationService = priceCalculationService;
         _shippingSettings = shippingSettings;
     }
 
@@ -475,9 +479,60 @@ public class ShoppingCartController : ControllerBase
         var model = new ShoppingCartModel();
         model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
 
+        // Создаём расширенную модель корзины с атрибутами
+        var cartDto = new ShoppingCartDto
+        {
+            OnePageCheckoutEnabled = model.OnePageCheckoutEnabled,
+            ShowSku = model.ShowSku,
+            ShowProductImages = model.ShowProductImages,
+            IsEditable = model.IsEditable,
+            IsReadyToCheckout = false,
+            CheckoutAttributes = model.CheckoutAttributes,
+            OrderReviewData = model.OrderReviewData,
+            DiscountBox = model.DiscountBox,
+            GiftCardBox = model.GiftCardBox,
+            CustomProperties = model.CustomProperties
+        };
+
+        // Конвертируем items с добавлением атрибутов
+        foreach (var item in model.Items)
+        {
+            var cartItem = cart.FirstOrDefault(c => c.Id == item.Id);
+            var attributes = cartItem != null ? await ParseCartItemAttributesAsync(cartItem) : new List<CartItemAttributeDto>();
+
+            var allowedQuantitiesStr = item.AllowedQuantities != null && item.AllowedQuantities.Any() 
+                ? string.Join(",", item.AllowedQuantities.Select(q => q.Value)) 
+                : string.Empty;
+
+            cartDto.Items.Add(new ShoppingCartItemDto
+            {
+                Id = item.Id,
+                Sku = item.Sku,
+                VendorId = item.VendorId,
+                VendorName = item.VendorName,
+                Picture = item.Picture,
+                ProductId = item.ProductId,
+                ProductName = item.ProductName,
+                ProductSeName = item.ProductSeName,
+                UnitPrice = item.UnitPrice,
+                UnitPriceValue = item.UnitPriceValue,
+                SubTotal = item.SubTotal,
+                SubTotalValue = item.SubTotalValue,
+                DiscountValue = item.DiscountValue,
+                Quantity = item.Quantity,
+                AllowedQuantities = allowedQuantitiesStr,
+                AttributeInfo = item.AttributeInfo,
+                AllowItemEditing = item.AllowItemEditing,
+                DisableRemoval = item.DisableRemoval,
+                Warnings = item.Warnings,
+                Attributes = attributes,
+                CustomProperties = item.CustomProperties
+            });
+        }
+
         var response = new ShoppingCartResponseDto
         {
-            Cart = model,
+            Cart = cartDto,
             Vendors = await PrepareVendorPaymentInfoAsync(model, cart)
         };
 
@@ -881,6 +936,98 @@ public class ShoppingCartController : ControllerBase
     }
 
     #region Private Methods
+
+    private async Task<List<CartItemAttributeDto>> ParseCartItemAttributesAsync(ShoppingCartItem cartItem)
+    {
+        var result = new List<CartItemAttributeDto>();
+        
+        if (string.IsNullOrEmpty(cartItem.AttributesXml))
+            return result;
+        
+        var product = await _productService.GetProductByIdAsync(cartItem.ProductId);
+        if (product == null)
+            return result;
+        
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+        
+        // Получить все маппинги атрибутов из XML
+        var attributeMappings = await _productAttributeParser
+            .ParseProductAttributeMappingsAsync(cartItem.AttributesXml);
+        
+        foreach (var mapping in attributeMappings)
+        {
+            // Получить ProductAttribute из ProductAttributeMapping
+            var productAttribute = await _productAttributeService.GetProductAttributeByIdAsync(mapping.ProductAttributeId);
+            if (productAttribute == null)
+                continue;
+            
+            var attributeName = await _localizationService
+                .GetLocalizedAsync(productAttribute, x => x.Name);
+            
+            var attributeDto = new CartItemAttributeDto
+            {
+                AttributeId = mapping.Id,
+                AttributeName = attributeName,
+                ControlType = mapping.AttributeControlType.ToString()
+            };
+            
+            // Для атрибутов со значениями (dropdown, radio, checkboxes, color/image squares)
+            if (mapping.ShouldHaveValues())
+            {
+                var attributeValues = await _productAttributeParser
+                    .ParseProductAttributeValuesAsync(cartItem.AttributesXml, mapping.Id);
+                
+                foreach (var value in attributeValues)
+                {
+                    attributeDto.SelectedValueIds.Add(value.Id);
+                    
+                    var valueName = await _localizationService
+                        .GetLocalizedAsync(value, x => x.Name);
+                    attributeDto.SelectedValues.Add(valueName);
+                    
+                    // Получить добавку к цене от этого значения
+                    var priceAdjustment = await _priceCalculationService
+                        .GetProductAttributeValuePriceAdjustmentAsync(
+                            product,
+                            value,
+                            customer,
+                            store);
+                    
+                    if (priceAdjustment != 0)
+                    {
+                        attributeDto.PriceAdjustmentValue += priceAdjustment;
+                    }
+                }
+            }
+            else
+            {
+                // Для текстовых атрибутов (textbox, multiline textbox)
+                var textValues = _productAttributeParser
+                    .ParseValues(cartItem.AttributesXml, mapping.Id);
+                
+                if (textValues.Any())
+                {
+                    attributeDto.TextValue = string.Join(", ", textValues);
+                    attributeDto.SelectedValues.AddRange(textValues);
+                }
+            }
+            
+            // Форматировать цену
+            if (attributeDto.PriceAdjustmentValue != 0)
+            {
+                var currency = await _workContext.GetWorkingCurrencyAsync();
+                var priceStr = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(
+                    attributeDto.PriceAdjustmentValue, 
+                    currency);
+                attributeDto.PriceAdjustment = $"{(attributeDto.PriceAdjustmentValue > 0 ? "+" : "")}{priceStr:N2} {currency.CurrencyCode}";
+            }
+            
+            result.Add(attributeDto);
+        }
+        
+        return result;
+    }
 
     private async Task<ProductAttributeChangeResultDto> PrepareProductAttributeChangeResultAsync(Product product, IFormCollection form)
     {

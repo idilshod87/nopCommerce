@@ -1,4 +1,5 @@
-﻿using Nop.Web.Models.ShoppingCart;
+﻿#nullable enable
+using Nop.Web.Models.ShoppingCart;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.DTOs;
 
@@ -97,8 +98,60 @@ public class CartSummaryDto
 /// </summary>
 public class ShoppingCartResponseDto
 {
-    public ShoppingCartModel Cart { get; set; } = new();
+    public ShoppingCartDto Cart { get; set; } = new();
     public IList<VendorPaymentInfoDto> Vendors { get; set; } = new List<VendorPaymentInfoDto>();
+}
+
+/// <summary>
+/// Extended shopping cart model with structured items
+/// </summary>
+public class ShoppingCartDto
+{
+    public bool OnePageCheckoutEnabled { get; set; }
+    public bool ShowSku { get; set; }
+    public bool ShowProductImages { get; set; }
+    public bool IsEditable { get; set; }
+    public bool IsReadyToCheckout { get; set; }
+    public IList<ShoppingCartItemDto> Items { get; set; } = new List<ShoppingCartItemDto>();
+    public IList<ShoppingCartModel.CheckoutAttributeModel> CheckoutAttributes { get; set; } = new List<ShoppingCartModel.CheckoutAttributeModel>();
+    public ShoppingCartModel.OrderReviewDataModel OrderReviewData { get; set; } = new();
+    public ShoppingCartModel.DiscountBoxModel DiscountBox { get; set; } = new();
+    public ShoppingCartModel.GiftCardBoxModel GiftCardBox { get; set; } = new();
+    public OrderTotalsModel OrderTotals { get; set; } = new();
+    public Dictionary<string, string> CustomProperties { get; set; } = new();
+}
+
+/// <summary>
+/// Extended shopping cart item with structured attributes
+/// </summary>
+public class ShoppingCartItemDto
+{
+    public int Id { get; set; }
+    public string Sku { get; set; } = string.Empty;
+    public int VendorId { get; set; }
+    public string VendorName { get; set; } = string.Empty;
+    public Nop.Web.Models.Media.PictureModel Picture { get; set; } = new();
+    public int ProductId { get; set; }
+    public string ProductName { get; set; } = string.Empty;
+    public string ProductSeName { get; set; } = string.Empty;
+    public string UnitPrice { get; set; } = string.Empty;
+    public decimal UnitPriceValue { get; set; }
+    public string SubTotal { get; set; } = string.Empty;
+    public decimal SubTotalValue { get; set; }
+    public decimal DiscountValue { get; set; }
+    public int Quantity { get; set; }
+    public string AllowedQuantities { get; set; } = string.Empty;
+    public string AttributeInfo { get; set; } = string.Empty;
+    public bool AllowItemEditing { get; set; }
+    public bool DisableRemoval { get; set; }
+    public IList<string> Warnings { get; set; } = new List<string>();
+    
+    /// <summary>
+    /// Structured product attributes with selected values
+    /// </summary>
+    public IList<CartItemAttributeDto> Attributes { get; set; } = new List<CartItemAttributeDto>();
+    
+    public Dictionary<string, string> CustomProperties { get; set; } = new();
 }
 
 /// <summary>
@@ -171,6 +224,52 @@ public class UpdateCartItemQuantityResponseDto
     public string Message { get; set; } = string.Empty;
     public CartSummaryDto? CartSummary { get; set; }
     public IList<string> Warnings { get; set; } = new List<string>();
+}
+
+/// <summary>
+/// Structured attribute information for cart items
+/// </summary>
+public class CartItemAttributeDto
+{
+    /// <summary>
+    /// Product attribute mapping ID
+    /// </summary>
+    public int AttributeId { get; set; }
+    
+    /// <summary>
+    /// Attribute name (e.g., "Размер", "Цвет")
+    /// </summary>
+    public string AttributeName { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Selected value IDs (for dropdown, radio, checkboxes, color/image squares)
+    /// </summary>
+    public List<int> SelectedValueIds { get; set; } = new();
+    
+    /// <summary>
+    /// Selected value names (e.g., "11", "Red")
+    /// </summary>
+    public List<string> SelectedValues { get; set; } = new();
+    
+    /// <summary>
+    /// Text input (for textbox, multiline textbox)
+    /// </summary>
+    public string? TextValue { get; set; }
+    
+    /// <summary>
+    /// Attribute control type (DropdownList, RadioList, Checkboxes, TextBox, etc.)
+    /// </summary>
+    public string ControlType { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Price adjustment for this attribute (formatted)
+    /// </summary>
+    public string PriceAdjustment { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Price adjustment value
+    /// </summary>
+    public decimal PriceAdjustmentValue { get; set; }
 }
 
 
