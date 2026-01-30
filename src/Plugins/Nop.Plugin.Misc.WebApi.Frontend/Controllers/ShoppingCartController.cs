@@ -19,8 +19,10 @@ using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Shipping;
 using Nop.Services.Payments;
+using Nop.Services.Tax;
 using Nop.Core.Domain.Shipping;
 using Nop.Web.Factories;
+using Nop.Web.Models.Catalog;
 using Nop.Web.Models.ShoppingCart;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.Controllers;
@@ -72,6 +74,9 @@ public class ShoppingCartController : ControllerBase
     private readonly ICurrencyService _currencyService;
     private readonly IPaymentPluginManager _paymentPluginManager;
     private readonly IPriceCalculationService _priceCalculationService;
+    private readonly IPriceFormatter _priceFormatter;
+    private readonly ITaxService _taxService;
+    private readonly IProductModelFactory _productModelFactory;
     private readonly ShippingSettings _shippingSettings;
     private static readonly char[] _separator = [','];
 
@@ -96,6 +101,9 @@ public class ShoppingCartController : ControllerBase
         ICurrencyService currencyService,
         IPaymentPluginManager paymentPluginManager,
         IPriceCalculationService priceCalculationService,
+        IPriceFormatter priceFormatter,
+        ITaxService taxService,
+        IProductModelFactory productModelFactory,
         ShippingSettings shippingSettings)
     {
         _productService = productService;
@@ -116,6 +124,9 @@ public class ShoppingCartController : ControllerBase
         _currencyService = currencyService;
         _paymentPluginManager = paymentPluginManager;
         _priceCalculationService = priceCalculationService;
+        _priceFormatter = priceFormatter;
+        _taxService = taxService;
+        _productModelFactory = productModelFactory;
         _shippingSettings = shippingSettings;
     }
 
@@ -1035,12 +1046,95 @@ public class ShoppingCartController : ControllerBase
         var attributesXml = await _productAttributeParser.ParseProductAttributesAsync(product, form, errors);
         var stockAvailability = await _productService.FormatStockMessageAsync(product, attributesXml);
 
+        var productPrice = await PrepareProductPriceForAttributeChangeAsync(product, form, attributesXml);
+
+        var price = productPrice?.Price ?? string.Empty;
+        var basepricepangv = productPrice?.BasePricePAngV ?? string.Empty;
+
         return new ProductAttributeChangeResultDto
         {
             ProductId = product.Id,
+            Price = price,
+            BasePricePangv = basepricepangv,
+            ProductPrice = productPrice,
             StockAvailability = stockAvailability,
             Errors = errors
         };
+    }
+
+    private async Task<ProductPriceModel> PrepareProductPriceForAttributeChangeAsync(Product product, IFormCollection form, string attributesXml)
+    {
+        var productDetails = await _productModelFactory.PrepareProductDetailsModelAsync(product);
+        var model = productDetails.ProductPrice ?? new ProductPriceModel { ProductId = product.Id };
+
+        if (model.HidePrices || model.CustomerEntersPrice || model.CallForPrice)
+            return model;
+
+        var currentCurrency = await _workContext.GetWorkingCurrencyAsync();
+
+        DateTime? rentalStartDate = null;
+        DateTime? rentalEndDate = null;
+        if (product.IsRental)
+            _productAttributeParser.ParseRentalDates(product, form, out rentalStartDate, out rentalEndDate);
+
+        var quantity = GetEnteredQuantity(form, product.Id);
+
+        var attributeValues = await _productAttributeParser.ParseProductAttributeValuesAsync(attributesXml);
+        var totalWeight = product.BasepriceAmount;
+        foreach (var attributeValue in attributeValues)
+        {
+            switch (attributeValue.AttributeValueType)
+            {
+                case AttributeValueType.Simple:
+                    totalWeight += attributeValue.WeightAdjustment;
+                    break;
+                case AttributeValueType.AssociatedToProduct:
+                    var associatedProduct = await _productService.GetProductByIdAsync(attributeValue.AssociatedProductId);
+                    if (associatedProduct != null)
+                        totalWeight += associatedProduct.BasepriceAmount * attributeValue.Quantity;
+                    break;
+            }
+        }
+
+        var currentStore = await _storeContext.GetCurrentStoreAsync();
+        var currentCustomer = await _workContext.GetCurrentCustomerAsync();
+
+        var (finalPrice, _, _) = await _shoppingCartService.GetUnitPriceAsync(product,
+            currentCustomer,
+            currentStore,
+            ShoppingCartType.ShoppingCart,
+            quantity,
+            attributesXml,
+            0,
+            rentalStartDate,
+            rentalEndDate,
+            true);
+
+        var (finalPriceWithDiscountBase, _) = await _taxService.GetProductPriceAsync(product, finalPrice);
+        var finalPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPriceWithDiscountBase, currentCurrency);
+
+        model.Price = await _priceFormatter.FormatPriceAsync(finalPriceWithDiscount);
+        model.PriceValue = finalPriceWithDiscount;
+
+        if (product.IsRental)
+        {
+            model.IsRental = true;
+            model.Price = await _priceFormatter.FormatRentalProductPeriodAsync(product, model.Price);
+            var priceStr = await _priceFormatter.FormatPriceAsync(finalPriceWithDiscount);
+            model.RentalPrice = await _priceFormatter.FormatRentalProductPeriodAsync(product, priceStr);
+            model.RentalPriceValue = finalPriceWithDiscount;
+        }
+
+        model.BasePricePAngV = await _priceFormatter.FormatBasePriceAsync(product, finalPriceWithDiscountBase, totalWeight);
+        model.BasePricePAngVValue = finalPriceWithDiscountBase;
+
+        return model;
+    }
+
+    private static int GetEnteredQuantity(IFormCollection form, int productId)
+    {
+        var quantityValue = form[$"addtocart_{productId}.EnteredQuantity"];
+        return int.TryParse(quantityValue, out var quantity) && quantity > 0 ? quantity : 1;
     }
 
     private static FormValuesRequest BuildFormValuesFromTypedRequest(int productId, ProductAttributeChangeTypedRequest request)

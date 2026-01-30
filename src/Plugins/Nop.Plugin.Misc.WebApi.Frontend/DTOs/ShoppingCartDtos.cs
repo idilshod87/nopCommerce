@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Nop.Web.Models.Catalog;
 using Nop.Web.Models.ShoppingCart;
 
 namespace Nop.Plugin.Misc.WebApi.Frontend.DTOs;
@@ -12,6 +13,9 @@ public class AddToCartResultDto
 public class ProductAttributeChangeResultDto
 {
     public int ProductId { get; set; }
+    public string Price { get; set; } = string.Empty;
+    public string BasePricePangv { get; set; } = string.Empty;
+    public ProductPriceModel? ProductPrice { get; set; }
     public string StockAvailability { get; set; } = string.Empty;
     public IList<string> Errors { get; set; } = new List<string>();
 }
