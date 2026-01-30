@@ -1052,13 +1052,9 @@ public class ShoppingCartController : ControllerBase
 
         var productPrice = await PrepareProductPriceForAttributeChangeAsync(product, attributesXml, quantity);
 
-        // Calculate subtotal
-        var currentCurrency = await _workContext.GetWorkingCurrencyAsync();
-        var currentStore = await _storeContext.GetCurrentStoreAsync();
-        var currentCustomer = await _workContext.GetCurrentCustomerAsync();
-        var (finalPrice, _, _, _) = await _priceCalculationService.GetFinalPriceAsync(product, currentCustomer, currentStore, quantity: quantity, includeDiscounts: true);
-        var finalPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPrice, currentCurrency);
-        var subtotalValue = finalPriceWithDiscount * quantity;
+        // Calculate subtotal using the price value that already includes attribute adjustments
+        var priceValue = productPrice.PriceValue ?? 0m;
+        var subtotalValue = priceValue * quantity;
         var subtotalFormatted = await _priceFormatter.FormatPriceAsync(subtotalValue);
 
         return new ProductAttributeChangeResultDto
@@ -1084,7 +1080,25 @@ public class ShoppingCartController : ControllerBase
         var currentStore = await _storeContext.GetCurrentStoreAsync();
         var currentCustomer = await _workContext.GetCurrentCustomerAsync();
 
-        // Calculate weight with attributes
+        // Use the ready-made GetUnitPriceAsync which already calculates price with attributes
+        var (unitPrice, _, _) = await _shoppingCartService.GetUnitPriceAsync(
+            product,
+            currentCustomer,
+            currentStore,
+            ShoppingCartType.ShoppingCart,
+            quantity,
+            attributesXml,
+            0,
+            null,
+            null,
+            includeDiscounts: true);
+
+        var finalPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(unitPrice, currentCurrency);
+
+        model.Price = await _priceFormatter.FormatPriceAsync(finalPriceWithDiscount);
+        model.PriceValue = finalPriceWithDiscount;
+
+        // Calculate weight for base price per unit
         var attributeValues = await _productAttributeParser.ParseProductAttributeValuesAsync(attributesXml);
         var totalWeight = product.BasepriceAmount;
         foreach (var attributeValue in attributeValues)
@@ -1102,14 +1116,6 @@ public class ShoppingCartController : ControllerBase
             }
         }
 
-        // Get final price with attributes and specified quantity (includes tier pricing, discounts, etc)
-        var (finalPrice, _, _, _) = await _priceCalculationService.GetFinalPriceAsync(product, currentCustomer, currentStore, quantity: quantity, includeDiscounts: true);
-
-        var finalPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPrice, currentCurrency);
-
-        model.Price = await _priceFormatter.FormatPriceAsync(finalPriceWithDiscount);
-        model.PriceValue = finalPriceWithDiscount;
-
         if (product.IsRental)
         {
             model.IsRental = true;
@@ -1119,8 +1125,10 @@ public class ShoppingCartController : ControllerBase
             model.RentalPriceValue = finalPriceWithDiscount;
         }
 
-        model.BasePricePAngV = await _priceFormatter.FormatBasePriceAsync(product, finalPrice, totalWeight);
-        model.BasePricePAngVValue = finalPrice;
+        // Get base price for formatting (without attributes, just base price)
+        var basePrice = (await _priceCalculationService.GetFinalPriceAsync(product, currentCustomer, currentStore, quantity: quantity, includeDiscounts: true)).finalPrice;
+        model.BasePricePAngV = await _priceFormatter.FormatBasePriceAsync(product, basePrice, totalWeight);
+        model.BasePricePAngVValue = basePrice;
 
         return model;
     }
