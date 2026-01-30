@@ -468,9 +468,13 @@ public class ShoppingCartController : ControllerBase
         if (product == null || product.Deleted || !product.Published)
             return NotFound(new { Message = "Product not found" });
 
+        var quantity = request.Quantity ?? 1;
+        if (quantity <= 0)
+            quantity = 1;
+
         var formValues = BuildFormValuesFromTypedRequest(productId, request);
         var form = BuildFormCollection(formValues);
-        var result = await PrepareProductAttributeChangeResultAsync(product, form);
+        var result = await PrepareProductAttributeChangeResultAsync(product, form, quantity);
 
         return Ok(new ApiResponse<ProductAttributeChangeResultDto> { Data = result });
     }
@@ -1040,29 +1044,24 @@ public class ShoppingCartController : ControllerBase
         return result;
     }
 
-    private async Task<ProductAttributeChangeResultDto> PrepareProductAttributeChangeResultAsync(Product product, IFormCollection form)
+    private async Task<ProductAttributeChangeResultDto> PrepareProductAttributeChangeResultAsync(Product product, IFormCollection form, int quantity = 1)
     {
         var errors = new List<string>();
         var attributesXml = await _productAttributeParser.ParseProductAttributesAsync(product, form, errors);
         var stockAvailability = await _productService.FormatStockMessageAsync(product, attributesXml);
 
-        var productPrice = await PrepareProductPriceForAttributeChangeAsync(product, form, attributesXml);
-
-        var price = productPrice?.Price ?? string.Empty;
-        var basepricepangv = productPrice?.BasePricePAngV ?? string.Empty;
+        var productPrice = await PrepareProductPriceForAttributeChangeAsync(product, attributesXml, quantity);
 
         return new ProductAttributeChangeResultDto
         {
             ProductId = product.Id,
-            Price = price,
-            BasePricePangv = basepricepangv,
             ProductPrice = productPrice,
             StockAvailability = stockAvailability,
             Errors = errors
         };
     }
 
-    private async Task<ProductPriceModel> PrepareProductPriceForAttributeChangeAsync(Product product, IFormCollection form, string attributesXml)
+    private async Task<ProductPriceModel> PrepareProductPriceForAttributeChangeAsync(Product product, string attributesXml, int quantity = 1)
     {
         var productDetails = await _productModelFactory.PrepareProductDetailsModelAsync(product);
         var model = productDetails.ProductPrice ?? new ProductPriceModel { ProductId = product.Id };
@@ -1071,14 +1070,14 @@ public class ShoppingCartController : ControllerBase
             return model;
 
         var currentCurrency = await _workContext.GetWorkingCurrencyAsync();
+        var currentStore = await _storeContext.GetCurrentStoreAsync();
+        var currentCustomer = await _workContext.GetCurrentCustomerAsync();
 
+        // Parse rental dates if needed
         DateTime? rentalStartDate = null;
         DateTime? rentalEndDate = null;
-        if (product.IsRental)
-            _productAttributeParser.ParseRentalDates(product, form, out rentalStartDate, out rentalEndDate);
 
-        var quantity = GetEnteredQuantity(form, product.Id);
-
+        // Calculate weight with attributes
         var attributeValues = await _productAttributeParser.ParseProductAttributeValuesAsync(attributesXml);
         var totalWeight = product.BasepriceAmount;
         foreach (var attributeValue in attributeValues)
@@ -1096,10 +1095,9 @@ public class ShoppingCartController : ControllerBase
             }
         }
 
-        var currentStore = await _storeContext.GetCurrentStoreAsync();
-        var currentCustomer = await _workContext.GetCurrentCustomerAsync();
-
-        var (finalPrice, _, _) = await _shoppingCartService.GetUnitPriceAsync(product,
+        // Get unit price with attributes and specified quantity
+        var (finalPrice, _, _) = await _shoppingCartService.GetUnitPriceAsync(
+            product,
             currentCustomer,
             currentStore,
             ShoppingCartType.ShoppingCart,
