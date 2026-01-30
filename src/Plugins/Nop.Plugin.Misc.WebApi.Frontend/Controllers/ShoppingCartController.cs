@@ -1052,10 +1052,21 @@ public class ShoppingCartController : ControllerBase
 
         var productPrice = await PrepareProductPriceForAttributeChangeAsync(product, attributesXml, quantity);
 
+        // Calculate subtotal
+        var currentCurrency = await _workContext.GetWorkingCurrencyAsync();
+        var currentStore = await _storeContext.GetCurrentStoreAsync();
+        var currentCustomer = await _workContext.GetCurrentCustomerAsync();
+        var (finalPrice, _, _, _) = await _priceCalculationService.GetFinalPriceAsync(product, currentCustomer, currentStore, quantity: quantity, includeDiscounts: true);
+        var finalPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPrice, currentCurrency);
+        var subtotalValue = finalPriceWithDiscount * quantity;
+        var subtotalFormatted = await _priceFormatter.FormatPriceAsync(subtotalValue);
+
         return new ProductAttributeChangeResultDto
         {
             ProductId = product.Id,
             ProductPrice = productPrice,
+            SubTotal = subtotalFormatted,
+            SubTotalValue = subtotalValue,
             StockAvailability = stockAvailability,
             Errors = errors
         };
@@ -1072,10 +1083,6 @@ public class ShoppingCartController : ControllerBase
         var currentCurrency = await _workContext.GetWorkingCurrencyAsync();
         var currentStore = await _storeContext.GetCurrentStoreAsync();
         var currentCustomer = await _workContext.GetCurrentCustomerAsync();
-
-        // Parse rental dates if needed
-        DateTime? rentalStartDate = null;
-        DateTime? rentalEndDate = null;
 
         // Calculate weight with attributes
         var attributeValues = await _productAttributeParser.ParseProductAttributeValuesAsync(attributesXml);
@@ -1095,21 +1102,10 @@ public class ShoppingCartController : ControllerBase
             }
         }
 
-        // Get unit price with attributes and specified quantity
-        var (finalPrice, _, _) = await _shoppingCartService.GetUnitPriceAsync(
-            product,
-            currentCustomer,
-            currentStore,
-            ShoppingCartType.ShoppingCart,
-            quantity,
-            attributesXml,
-            0,
-            rentalStartDate,
-            rentalEndDate,
-            true);
+        // Get final price with attributes and specified quantity (includes tier pricing, discounts, etc)
+        var (finalPrice, _, _, _) = await _priceCalculationService.GetFinalPriceAsync(product, currentCustomer, currentStore, quantity: quantity, includeDiscounts: true);
 
-        var (finalPriceWithDiscountBase, _) = await _taxService.GetProductPriceAsync(product, finalPrice);
-        var finalPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPriceWithDiscountBase, currentCurrency);
+        var finalPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPrice, currentCurrency);
 
         model.Price = await _priceFormatter.FormatPriceAsync(finalPriceWithDiscount);
         model.PriceValue = finalPriceWithDiscount;
@@ -1123,8 +1119,8 @@ public class ShoppingCartController : ControllerBase
             model.RentalPriceValue = finalPriceWithDiscount;
         }
 
-        model.BasePricePAngV = await _priceFormatter.FormatBasePriceAsync(product, finalPriceWithDiscountBase, totalWeight);
-        model.BasePricePAngVValue = finalPriceWithDiscountBase;
+        model.BasePricePAngV = await _priceFormatter.FormatBasePriceAsync(product, finalPrice, totalWeight);
+        model.BasePricePAngVValue = finalPrice;
 
         return model;
     }

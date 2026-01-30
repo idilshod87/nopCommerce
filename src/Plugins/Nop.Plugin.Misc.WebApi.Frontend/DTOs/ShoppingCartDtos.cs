@@ -14,6 +14,8 @@ public class ProductAttributeChangeResultDto
 {
     public int ProductId { get; set; }
     public ProductPriceModel? ProductPrice { get; set; }
+    public string? SubTotal { get; set; }
+    public decimal SubTotalValue { get; set; }
     public string StockAvailability { get; set; } = string.Empty;
     public IList<string> Errors { get; set; } = new List<string>();
 }
