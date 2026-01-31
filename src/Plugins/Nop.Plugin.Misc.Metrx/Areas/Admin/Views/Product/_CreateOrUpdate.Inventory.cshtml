@@ -64,7 +64,6 @@
             $('#pnlDisplayStockAvailability').hideElement();
             $('#pnlDisplayStockQuantity').hideElement();
             $('#pnlMinStockQuantity').hideElement();
-            $('#pnlLowStockActivity').hideElement();
             $('#pnlNotifyForQuantityBelow').hideElement();
             $('#pnlAllowBackInStockSubscriptions').hideElement();
             $('#pnlBackorders').hideElement();
@@ -92,7 +91,6 @@
             }
 
             $('#pnlMinStockQuantity').showElement();
-            $('#pnlLowStockActivity').showElement();
             $('#pnlNotifyForQuantityBelow').showElement();
             $('#pnlBackorders').showElement();
 
@@ -129,7 +127,6 @@
                 $('#pnlDisplayStockQuantity').hideElement();
             }
             $('#pnlMinStockQuantity').showElement();
-            $('#pnlLowStockActivity').showElement();
             $('#pnlNotifyForQuantityBelow').hideElement();
             $('#pnlAllowBackInStockSubscriptions').hideElement();
             $('#pnlBackorders').hideElement();
@@ -270,15 +267,6 @@
                 <span asp-validation-for="MinStockQuantity"></span>
             </div>
         </div>
-        <div class="form-group row @(Model.ProductEditorSettingsModel.LowStockActivity ? null : "advanced-setting")" id="pnlLowStockActivity">
-            <div class="col-md-3">
-                <nop-label asp-for="LowStockActivityId" />
-            </div>
-            <div class="col-md-9">
-                <nop-select asp-for="LowStockActivityId" asp-items="@(await ((LowStockActivity)Model.LowStockActivityId).ToSelectListAsync())" />
-                <span asp-validation-for="LowStockActivityId"></span>
-            </div>
-        </div>
         <div class="form-group row @(Model.ProductEditorSettingsModel.ProductAvailabilityRange ? null : "advanced-setting")" id="pnlProductAvailabilityRange">
             <div class="col-md-3">
                 <nop-label asp-for="ProductAvailabilityRangeId" />
@@ -304,15 +292,6 @@
             <div class="col-md-9">
                 <nop-editor asp-for="OrderMaximumQuantity" />
                 <span asp-validation-for="OrderMaximumQuantity"></span>
-            </div>
-        </div>
-        <div class="form-group row @(Model.ProductEditorSettingsModel.AllowedQuantities ? null : "advanced-setting")">
-            <div class="col-md-3">
-                <nop-label asp-for="AllowedQuantities" />
-            </div>
-            <div class="col-md-9">
-                <nop-editor asp-for="AllowedQuantities" />
-                <span asp-validation-for="AllowedQuantities"></span>
             </div>
         </div>
     </div>
