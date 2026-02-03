@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using Nop.Core;
 using Nop.Core.Domain.Orders;
+using Nop.Core.Domain.Shipping;
 using Nop.Data;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
@@ -76,6 +77,36 @@ public class TelegramNotificationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending Telegram notification for order {OrderId}", order.Id);
+        }
+    }
+
+    /// <summary>
+    /// Send shipment notification
+    /// </summary>
+    /// <param name="order">Order</param>
+    /// <param name="shipment">Shipment</param>
+    /// <param name="isDelivered">Is delivered</param>
+    public async Task SendShipmentNotificationAsync(Order order, Shipment shipment, bool isDelivered)
+    {
+        if (!_settings.Enabled || string.IsNullOrWhiteSpace(_settings.BotToken))
+            return;
+
+        try
+        {
+            var chatId = await GetCustomerTelegramChatIdAsync(order.CustomerId);
+            if (!chatId.HasValue)
+            {
+                _logger.LogWarning("Customer {CustomerId} does not have Telegram Chat ID. Skipping shipment notification for order {OrderId}",
+                    order.CustomerId, order.Id);
+                return;
+            }
+
+            var message = await BuildShipmentMessageAsync(order, shipment, isDelivered);
+            await SendTelegramMessageAsync(chatId.Value, message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending Telegram shipment notification for order {OrderId}", order.Id);
         }
     }
 
@@ -169,6 +200,46 @@ public class TelegramNotificationService
             OrderStatus.Cancelled => "Заказ отменен",
             _ => "Статус заказа изменен"
         };
+    }
+
+    /// <summary>
+    /// Build shipment message
+    /// </summary>
+    private async Task<string> BuildShipmentMessageAsync(Order order, Shipment shipment, bool isDelivered)
+    {
+        var sb = new StringBuilder();
+        
+        var icon = isDelivered ? "📦✅" : "🚚";
+        var title = isDelivered ? "Заказ доставлен" : "Заказ отправлен";
+        
+        sb.AppendLine($"{icon} <b>{title}</b>");
+        sb.AppendLine();
+        sb.AppendLine($"📋 <b>Номер заказа:</b> #{order.CustomOrderNumber}");
+        
+        if (!string.IsNullOrEmpty(shipment.TrackingNumber))
+        {
+            sb.AppendLine($"🔢 <b>Трек-номер:</b> {shipment.TrackingNumber}");
+        }
+
+        var formattedTotal = await _priceFormatter.FormatPriceAsync(order.OrderTotal, true, order.CustomerCurrencyCode, (await _workContext.GetWorkingLanguageAsync()).Id, false);
+        sb.AppendLine($"💰 <b>Сумма заказа:</b> {formattedTotal}");
+        
+        if (isDelivered && shipment.DeliveryDateUtc.HasValue)
+        {
+            sb.AppendLine($"📅 <b>Дата доставки:</b> {shipment.DeliveryDateUtc.Value:dd.MM.yyyy HH:mm}");
+        }
+        else if (!isDelivered && shipment.ShippedDateUtc.HasValue)
+        {
+            sb.AppendLine($"📅 <b>Дата отправки:</b> {shipment.ShippedDateUtc.Value:dd.MM.yyyy HH:mm}");
+        }
+        
+        sb.AppendLine();
+        var statusMessage = isDelivered 
+            ? "Ваш заказ был успешно доставлен!" 
+            : "Ваш заказ в пути. Ожидайте доставку!";
+        sb.AppendLine($"<i>{statusMessage}</i>");
+
+        return sb.ToString();
     }
 
     /// <summary>

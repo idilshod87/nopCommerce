@@ -1,9 +1,11 @@
-using Nop.Core;
+﻿using Nop.Core;
 using Nop.Core.Domain.Orders;
+using Nop.Core.Domain.Shipping;
 using Nop.Core.Events;
 using Nop.Plugin.Misc.TelegramNotifications.Services;
 using Nop.Services.Configuration;
 using Nop.Services.Events;
+using Nop.Services.Orders;
 
 namespace Nop.Plugin.Misc.TelegramNotifications.Infrastructure;
 
@@ -13,20 +15,25 @@ namespace Nop.Plugin.Misc.TelegramNotifications.Infrastructure;
 public class EventConsumer : 
     IConsumer<OrderPlacedEvent>,
     IConsumer<OrderStatusChangedEvent>,
-    IConsumer<OrderPaidEvent>
+    IConsumer<OrderPaidEvent>,
+    IConsumer<ShipmentSentEvent>,
+    IConsumer<ShipmentDeliveredEvent>
 {
     private readonly TelegramNotificationService _telegramNotificationService;
     private readonly ISettingService _settingService;
     private readonly IStoreContext _storeContext;
+    private readonly IOrderService _orderService;
 
     public EventConsumer(
         TelegramNotificationService telegramNotificationService,
         ISettingService settingService,
-        IStoreContext storeContext)
+        IStoreContext storeContext,
+        IOrderService orderService)
     {
         _telegramNotificationService = telegramNotificationService;
         _settingService = settingService;
         _storeContext = storeContext;
+        _orderService = orderService;
     }
 
     /// <summary>
@@ -82,6 +89,46 @@ public class EventConsumer :
         if (!settings.Enabled || !settings.NotifyOnOrderPaid)
             return;
 
+        // Don't send notifications if order is already completed
+        if (eventMessage.Order.OrderStatus == OrderStatus.Complete)
+            return;
+
         await _telegramNotificationService.SendOrderStatusNotificationAsync(eventMessage.Order);
+    }
+
+    /// <summary>
+    /// Handle shipment sent event
+    /// </summary>
+    public async Task HandleEventAsync(ShipmentSentEvent eventMessage)
+    {
+        var storeId = (await _storeContext.GetCurrentStoreAsync()).Id;
+        var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(storeId);
+
+        if (!settings.Enabled || !settings.NotifyOnShipmentSent)
+            return;
+
+        var order = await _orderService.GetOrderByIdAsync(eventMessage.Shipment.OrderId);
+        if (order == null || order.OrderStatus == OrderStatus.Complete)
+            return;
+
+        await _telegramNotificationService.SendShipmentNotificationAsync(order, eventMessage.Shipment, isDelivered: false);
+    }
+
+    /// <summary>
+    /// Handle shipment delivered event
+    /// </summary>
+    public async Task HandleEventAsync(ShipmentDeliveredEvent eventMessage)
+    {
+        var storeId = (await _storeContext.GetCurrentStoreAsync()).Id;
+        var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(storeId);
+
+        if (!settings.Enabled || !settings.NotifyOnShipmentDelivered)
+            return;
+
+        var order = await _orderService.GetOrderByIdAsync(eventMessage.Shipment.OrderId);
+        if (order == null || order.OrderStatus == OrderStatus.Complete)
+            return;
+
+        await _telegramNotificationService.SendShipmentNotificationAsync(order, eventMessage.Shipment, isDelivered: true);
     }
 }

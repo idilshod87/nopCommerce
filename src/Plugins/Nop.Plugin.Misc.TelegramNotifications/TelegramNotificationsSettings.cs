@@ -1,4 +1,4 @@
-using Nop.Core.Configuration;
+﻿using Nop.Core.Configuration;
 
 namespace Nop.Plugin.Misc.TelegramNotifications;
 
@@ -36,6 +36,16 @@ public class TelegramNotificationsSettings : ISettings
     /// Gets or sets a value indicating whether to send notifications when order is completed
     /// </summary>
     public bool NotifyOnOrderCompleted { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to send notifications when shipment is sent
+    /// </summary>
+    public bool NotifyOnShipmentSent { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to send notifications when shipment is delivered
+    /// </summary>
+    public bool NotifyOnShipmentDelivered { get; set; } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether the plugin is enabled
