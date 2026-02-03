@@ -21,7 +21,6 @@ public class EventConsumer :
 {
     private readonly TelegramNotificationService _telegramNotificationService;
     private readonly ISettingService _settingService;
-    private readonly IStoreContext _storeContext;
     private readonly IOrderService _orderService;
     private readonly ILogger<EventConsumer> _logger;
 
@@ -34,7 +33,6 @@ public class EventConsumer :
     {
         _telegramNotificationService = telegramNotificationService;
         _settingService = settingService;
-        _storeContext = storeContext;
         _orderService = orderService;
         _logger = logger;
     }
