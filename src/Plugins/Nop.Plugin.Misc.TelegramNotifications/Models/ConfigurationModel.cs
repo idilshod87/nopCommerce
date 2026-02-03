@@ -1,4 +1,4 @@
-using Nop.Web.Framework.Models;
+﻿using Nop.Web.Framework.Models;
 using Nop.Web.Framework.Mvc.ModelBinding;
 
 namespace Nop.Plugin.Misc.TelegramNotifications.Models;
@@ -28,4 +28,10 @@ public record ConfigurationModel : BaseNopModel
 
     [NopResourceDisplayName("Plugins.Misc.TelegramNotifications.Fields.NotifyOnOrderCompleted")]
     public bool NotifyOnOrderCompleted { get; set; }
+
+    [NopResourceDisplayName("Plugins.Misc.TelegramNotifications.Fields.NotifyOnShipmentSent")]
+    public bool NotifyOnShipmentSent { get; set; }
+
+    [NopResourceDisplayName("Plugins.Misc.TelegramNotifications.Fields.NotifyOnShipmentDelivered")]
+    public bool NotifyOnShipmentDelivered { get; set; }
 }

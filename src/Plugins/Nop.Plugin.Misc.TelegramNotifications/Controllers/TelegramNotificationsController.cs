@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Plugin.Misc.TelegramNotifications.Models;
 using Nop.Services.Configuration;
@@ -52,7 +52,9 @@ public class TelegramNotificationsController : BasePluginController
             NotifyOnOrderStatusChanged = settings.NotifyOnOrderStatusChanged,
             NotifyOnOrderPaid = settings.NotifyOnOrderPaid,
             NotifyOnOrderCancelled = settings.NotifyOnOrderCancelled,
-            NotifyOnOrderCompleted = settings.NotifyOnOrderCompleted
+            NotifyOnOrderCompleted = settings.NotifyOnOrderCompleted,
+            NotifyOnShipmentSent = settings.NotifyOnShipmentSent,
+            NotifyOnShipmentDelivered = settings.NotifyOnShipmentDelivered
         };
 
         return View("~/Plugins/Misc.TelegramNotifications/Views/Configure.cshtml", model);
@@ -77,6 +79,8 @@ public class TelegramNotificationsController : BasePluginController
         settings.NotifyOnOrderPaid = model.NotifyOnOrderPaid;
         settings.NotifyOnOrderCancelled = model.NotifyOnOrderCancelled;
         settings.NotifyOnOrderCompleted = model.NotifyOnOrderCompleted;
+        settings.NotifyOnShipmentSent = model.NotifyOnShipmentSent;
+        settings.NotifyOnShipmentDelivered = model.NotifyOnShipmentDelivered;
 
         await _settingService.SaveSettingAsync(settings, storeId);
 

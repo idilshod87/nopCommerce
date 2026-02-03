@@ -1,4 +1,4 @@
-using Nop.Core;
+﻿using Nop.Core;
 using Nop.Services.Localization;
 using Nop.Services.Plugins;
 
@@ -46,6 +46,8 @@ public class TelegramNotificationsPlugin : BasePlugin
             ["Plugins.Misc.TelegramNotifications.Fields.NotifyOnOrderPaid"] = "Notify on order paid",
             ["Plugins.Misc.TelegramNotifications.Fields.NotifyOnOrderCancelled"] = "Notify on order cancelled",
             ["Plugins.Misc.TelegramNotifications.Fields.NotifyOnOrderCompleted"] = "Notify on order completed",
+            ["Plugins.Misc.TelegramNotifications.Fields.NotifyOnShipmentSent"] = "Notify when shipment is sent",
+            ["Plugins.Misc.TelegramNotifications.Fields.NotifyOnShipmentDelivered"] = "Notify when shipment is delivered",
             ["Plugins.Misc.TelegramNotifications.NotificationSettings"] = "Notification Settings"
         });
 
