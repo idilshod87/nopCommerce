@@ -203,6 +203,63 @@ public class TelegramNotificationService
     }
 
     /// <summary>
+    /// Send order paid notification
+    /// </summary>
+    /// <param name="order">Order</param>
+    public async Task SendOrderPaidNotificationAsync(Order order)
+    {
+        if (!_settings.Enabled || string.IsNullOrWhiteSpace(_settings.BotToken))
+            return;
+
+        try
+        {
+            var chatId = await GetCustomerTelegramChatIdAsync(order.CustomerId);
+            if (!chatId.HasValue)
+            {
+                _logger.LogWarning("Customer {CustomerId} does not have Telegram Chat ID. Skipping paid notification for order {OrderId}",
+                    order.CustomerId, order.Id);
+                return;
+            }
+
+            var message = await BuildOrderPaidMessageAsync(order);
+            await SendTelegramMessageAsync(chatId.Value, message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending Telegram paid notification for order {OrderId}", order.Id);
+        }
+    }
+
+    /// <summary>
+    /// Build order paid message
+    /// </summary>
+    private async Task<string> BuildOrderPaidMessageAsync(Order order)
+    {
+        var sb = new StringBuilder();
+        
+        sb.AppendLine("💰 <b>Оплата получена!</b>");
+        sb.AppendLine();
+        sb.AppendLine($"📋 <b>Заказ:</b> #{order.CustomOrderNumber}");
+        
+        var formattedTotal = await _priceFormatter.FormatPriceAsync(order.OrderTotal, true, order.CustomerCurrencyCode, (await _workContext.GetWorkingLanguageAsync()).Id, false);
+        sb.AppendLine($"💵 <b>Сумма:</b> {formattedTotal}");
+        
+        var customer = await _customerService.GetCustomerByIdAsync(order.CustomerId);
+        if (customer != null)
+        {
+            var customerName = $"{customer.FirstName} {customer.LastName}".Trim();
+            if (string.IsNullOrEmpty(customerName))
+                customerName = customer.Email;
+            sb.AppendLine($"👤 <b>Клиент:</b> {customerName}");
+        }
+        
+        sb.AppendLine();
+        sb.AppendLine("✅ <i>Спасибо за оплату!</i>");
+
+        return sb.ToString();
+    }
+
+    /// <summary>
     /// Build shipment message
     /// </summary>
     private async Task<string> BuildShipmentMessageAsync(Order order, Shipment shipment, bool isDelivered)

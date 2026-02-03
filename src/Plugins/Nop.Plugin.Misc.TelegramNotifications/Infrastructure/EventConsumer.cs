@@ -91,7 +91,7 @@ public class EventConsumer :
         if (eventMessage.Order.OrderStatus == OrderStatus.Complete)
             return;
 
-        await _telegramNotificationService.SendOrderStatusNotificationAsync(eventMessage.Order);
+        await _telegramNotificationService.SendOrderPaidNotificationAsync(eventMessage.Order);
     }
 
     /// <summary>
