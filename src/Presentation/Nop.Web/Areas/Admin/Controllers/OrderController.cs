@@ -910,12 +910,15 @@ public partial class OrderController : BaseAdminController
                 order.ShippingStatusId == (int)ShippingStatus.PartiallyShipped ||
                 order.ShippingStatusId == (int)ShippingStatus.NotYetShipped)
             {
-                // Get or create shipment for this order
-                var shipment = await GetOrCreateShipmentForOrderAsync(order, currentVendor);
+                // Get shipment for delivery (shipped but not delivered, or create new)
+                var shipment = await GetShipmentForDeliveryAsync(order, currentVendor);
                 
-                // If not yet shipped, ship first
-                if (!shipment.ShippedDateUtc.HasValue)
+                // If not yet shipped, ship first (for pickup orders use ReadyForPickup)
+                if (!shipment.ShippedDateUtc.HasValue && !order.PickupInStore)
                     await _orderProcessingService.ShipAsync(shipment, notifyCustomer: false);
+                
+                if (!shipment.ReadyForPickupDateUtc.HasValue && order.PickupInStore)
+                    await _orderProcessingService.ReadyForPickupAsync(shipment, notifyCustomer: false);
                 
                 // Use standard Deliver method - this will trigger ShipmentDeliveredEvent
                 await _orderProcessingService.DeliverAsync(shipment, notifyCustomer: true);
@@ -943,18 +946,50 @@ public partial class OrderController : BaseAdminController
     }
 
     /// <summary>
+    /// Gets existing shipped (but not delivered) shipment or creates a new one for delivery
+    /// </summary>
+    protected virtual async Task<Shipment> GetShipmentForDeliveryAsync(Order order, Nop.Core.Domain.Vendors.Vendor vendor)
+    {
+        var shipments = await _shipmentService.GetShipmentsByOrderIdAsync(order.Id);
+        
+        // First, try to find a shipped but not delivered shipment
+        var shippedShipment = shipments.FirstOrDefault(s => 
+            (s.ShippedDateUtc.HasValue || s.ReadyForPickupDateUtc.HasValue) && !s.DeliveryDateUtc.HasValue);
+        
+        if (shippedShipment != null)
+            return shippedShipment;
+        
+        // If no shipped shipment, try to find not yet shipped
+        var notShippedShipment = shipments.FirstOrDefault(s => !s.ShippedDateUtc.HasValue && !s.ReadyForPickupDateUtc.HasValue);
+        
+        if (notShippedShipment != null)
+            return notShippedShipment;
+
+        // Create new shipment with all order items
+        return await CreateShipmentForVendorAsync(order, vendor);
+    }
+
+    /// <summary>
     /// Gets existing shipment or creates a new one with all order items for vendor
     /// </summary>
     protected virtual async Task<Shipment> GetOrCreateShipmentForOrderAsync(Order order, Nop.Core.Domain.Vendors.Vendor vendor)
     {
-        // Check if there's already a shipment for this order
+        // Check if there's already a shipment for this order (not yet shipped)
         var shipments = await _shipmentService.GetShipmentsByOrderIdAsync(order.Id);
-        var existingShipment = shipments.FirstOrDefault(s => !s.ShippedDateUtc.HasValue);
+        var existingShipment = shipments.FirstOrDefault(s => !s.ShippedDateUtc.HasValue && !s.ReadyForPickupDateUtc.HasValue);
         
         if (existingShipment != null)
             return existingShipment;
 
         // Create new shipment with all order items
+        return await CreateShipmentForVendorAsync(order, vendor);
+    }
+
+    /// <summary>
+    /// Creates a new shipment with all order items for vendor
+    /// </summary>
+    protected virtual async Task<Shipment> CreateShipmentForVendorAsync(Order order, Nop.Core.Domain.Vendors.Vendor vendor)
+    {
         var shipment = new Shipment
         {
             OrderId = order.Id,
