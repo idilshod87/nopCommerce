@@ -407,7 +407,7 @@
                             <div class="input-group-text align-items-start">
                                 <div class="font-weight-bold">@Model.PaymentStatus</div>
                             </div>
-                            @if (Model.CanVendorMarkAsPaid)
+                            @if (Model.CanVendorMarkAsPaid && !Model.CanVendorConfirmOrder)
                             {
                                 <div class="input-group-btn">
                                     <button type="submit" name="vendormarkaspaid" id="vendormarkaspaid" class="btn btn-primary">

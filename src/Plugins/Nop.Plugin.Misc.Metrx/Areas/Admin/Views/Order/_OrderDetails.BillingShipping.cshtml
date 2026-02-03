@@ -32,6 +32,8 @@
                                         <div class="input-group-text align-items-start">
                                             <div class="font-weight-bold">@Model.ShippingStatus</div>
                                         </div>
+                                        @if (!Model.CanVendorConfirmOrder)
+                                        {
                                         <div class="input-group-btn">
                                             @if (Model.ShippingStatusId == 0 ||
                                                 Model.ShippingStatusId == (int)ShippingStatus.NotYetShipped ||
@@ -52,6 +54,7 @@
                                                 <nop-action-confirmation asp-button-id="vendordelivered" />
                                             }
                                         </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
