@@ -17609,7 +17609,7 @@
     <Value>Корзина</Value>
   </LocaleResource>
   <LocaleResource Name="Checkout.Progress.Complete">
-    <Value>Завершение</Value>
+    <Value>Завершен</Value>
   </LocaleResource>
   <LocaleResource Name="Checkout.Progress.Confirm">
     <Value>Подтвердить</Value>
