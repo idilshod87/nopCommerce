@@ -101,14 +101,13 @@ public class EventConsumer :
     /// </summary>
     public async Task HandleEventAsync(ShipmentSentEvent eventMessage)
     {
-        var storeId = (await _storeContext.GetCurrentStoreAsync()).Id;
-        var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(storeId);
-
-        if (!settings.Enabled || !settings.NotifyOnShipmentSent)
+        var order = await _orderService.GetOrderByIdAsync(eventMessage.Shipment.OrderId);
+        if (order == null)
             return;
 
-        var order = await _orderService.GetOrderByIdAsync(eventMessage.Shipment.OrderId);
-        if (order == null || order.OrderStatus == OrderStatus.Complete)
+        var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(order.StoreId);
+
+        if (!settings.Enabled || !settings.NotifyOnShipmentSent)
             return;
 
         await _telegramNotificationService.SendShipmentNotificationAsync(order, eventMessage.Shipment, isDelivered: false);
@@ -119,14 +118,13 @@ public class EventConsumer :
     /// </summary>
     public async Task HandleEventAsync(ShipmentDeliveredEvent eventMessage)
     {
-        var storeId = (await _storeContext.GetCurrentStoreAsync()).Id;
-        var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(storeId);
-
-        if (!settings.Enabled || !settings.NotifyOnShipmentDelivered)
+        var order = await _orderService.GetOrderByIdAsync(eventMessage.Shipment.OrderId);
+        if (order == null)
             return;
 
-        var order = await _orderService.GetOrderByIdAsync(eventMessage.Shipment.OrderId);
-        if (order == null || order.OrderStatus == OrderStatus.Complete)
+        var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(order.StoreId);
+
+        if (!settings.Enabled || !settings.NotifyOnShipmentDelivered)
             return;
 
         await _telegramNotificationService.SendShipmentNotificationAsync(order, eventMessage.Shipment, isDelivered: true);
