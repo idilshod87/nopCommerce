@@ -860,13 +860,16 @@ public partial class OrderController : BaseAdminController
             if (order.ShippingStatusId == (int)ShippingStatus.NotYetShipped ||
                 order.ShippingStatusId == (int)ShippingStatus.PartiallyShipped)
             {
-                order.ShippingStatusId = (int)ShippingStatus.Shipped;
-                await _orderService.UpdateOrderAsync(order);
+                // Get or create shipment for this order
+                var shipment = await GetOrCreateShipmentForOrderAsync(order, currentVendor);
+                
+                // Use standard Ship method - this will trigger ShipmentSentEvent
+                await _orderProcessingService.ShipAsync(shipment, notifyCustomer: true);
 
                 await _orderService.InsertOrderNoteAsync(new OrderNote
                 {
                     OrderId = order.Id,
-                    Note = $"Shipping status has been set to '{ShippingStatus.Shipped}' by vendor '{currentVendor.Name}'",
+                    Note = $"Order shipped by vendor '{currentVendor.Name}'",
                     DisplayToCustomer = false,
                     CreatedOnUtc = DateTime.UtcNow
                 });
@@ -904,15 +907,23 @@ public partial class OrderController : BaseAdminController
         try
         {
             if (order.ShippingStatusId == (int)ShippingStatus.Shipped ||
-                order.ShippingStatusId == (int)ShippingStatus.PartiallyShipped)
+                order.ShippingStatusId == (int)ShippingStatus.PartiallyShipped ||
+                order.ShippingStatusId == (int)ShippingStatus.NotYetShipped)
             {
-                order.ShippingStatusId = (int)ShippingStatus.Delivered;
-                await _orderService.UpdateOrderAsync(order);
+                // Get or create shipment for this order
+                var shipment = await GetOrCreateShipmentForOrderAsync(order, currentVendor);
+                
+                // If not yet shipped, ship first
+                if (!shipment.ShippedDateUtc.HasValue)
+                    await _orderProcessingService.ShipAsync(shipment, notifyCustomer: false);
+                
+                // Use standard Deliver method - this will trigger ShipmentDeliveredEvent
+                await _orderProcessingService.DeliverAsync(shipment, notifyCustomer: true);
 
                 await _orderService.InsertOrderNoteAsync(new OrderNote
                 {
                     OrderId = order.Id,
-                    Note = $"Shipping status has been set to '{ShippingStatus.Delivered}' by vendor '{currentVendor.Name}'",
+                    Note = $"Order delivered by vendor '{currentVendor.Name}'",
                     DisplayToCustomer = false,
                     CreatedOnUtc = DateTime.UtcNow
                 });
@@ -929,6 +940,53 @@ public partial class OrderController : BaseAdminController
             await _notificationService.ErrorNotificationAsync(exc);
             return RedirectToAction("Edit", new { id = order.Id });
         }
+    }
+
+    /// <summary>
+    /// Gets existing shipment or creates a new one with all order items for vendor
+    /// </summary>
+    protected virtual async Task<Shipment> GetOrCreateShipmentForOrderAsync(Order order, Nop.Core.Domain.Vendors.Vendor vendor)
+    {
+        // Check if there's already a shipment for this order
+        var shipments = await _shipmentService.GetShipmentsByOrderIdAsync(order.Id);
+        var existingShipment = shipments.FirstOrDefault(s => !s.ShippedDateUtc.HasValue);
+        
+        if (existingShipment != null)
+            return existingShipment;
+
+        // Create new shipment with all order items
+        var shipment = new Shipment
+        {
+            OrderId = order.Id,
+            TrackingNumber = string.Empty,
+            TotalWeight = null,
+            ShippedDateUtc = null,
+            DeliveryDateUtc = null,
+            AdminComment = $"Created by vendor '{vendor.Name}'",
+            CreatedOnUtc = DateTime.UtcNow
+        };
+        await _shipmentService.InsertShipmentAsync(shipment);
+
+        // Add all order items to shipment
+        var orderItems = await _orderService.GetOrderItemsAsync(order.Id, vendorId: vendor.Id);
+        foreach (var orderItem in orderItems)
+        {
+            // Get quantity to ship (total ordered minus already shipped)
+            var qtyToShip = await _orderService.GetTotalNumberOfItemsCanBeAddedToShipmentAsync(orderItem);
+            if (qtyToShip <= 0)
+                continue;
+
+            var shipmentItem = new ShipmentItem
+            {
+                ShipmentId = shipment.Id,
+                OrderItemId = orderItem.Id,
+                Quantity = qtyToShip,
+                WarehouseId = 0
+            };
+            await _shipmentService.InsertShipmentItemAsync(shipmentItem);
+        }
+
+        return shipment;
     }
 
     [HttpPost, ActionName("Edit")]

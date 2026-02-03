@@ -1,7 +1,7 @@
-﻿using Nop.Core;
+﻿using Microsoft.Extensions.Logging;
+using Nop.Core;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Shipping;
-using Nop.Core.Events;
 using Nop.Plugin.Misc.TelegramNotifications.Services;
 using Nop.Services.Configuration;
 using Nop.Services.Events;
@@ -23,17 +23,20 @@ public class EventConsumer :
     private readonly ISettingService _settingService;
     private readonly IStoreContext _storeContext;
     private readonly IOrderService _orderService;
+    private readonly ILogger<EventConsumer> _logger;
 
     public EventConsumer(
         TelegramNotificationService telegramNotificationService,
         ISettingService settingService,
         IStoreContext storeContext,
-        IOrderService orderService)
+        IOrderService orderService,
+        ILogger<EventConsumer> logger)
     {
         _telegramNotificationService = telegramNotificationService;
         _settingService = settingService;
         _storeContext = storeContext;
         _orderService = orderService;
+        _logger = logger;
     }
 
     /// <summary>
@@ -41,8 +44,7 @@ public class EventConsumer :
     /// </summary>
     public async Task HandleEventAsync(OrderPlacedEvent eventMessage)
     {
-        var storeId = (await _storeContext.GetCurrentStoreAsync()).Id;
-        var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(storeId);
+        var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(eventMessage.Order.StoreId);
 
         if (!settings.Enabled || !settings.NotifyOnOrderPlaced)
             return;
@@ -55,8 +57,7 @@ public class EventConsumer :
     /// </summary>
     public async Task HandleEventAsync(OrderStatusChangedEvent eventMessage)
     {
-        var storeId = (await _storeContext.GetCurrentStoreAsync()).Id;
-        var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(storeId);
+        var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(eventMessage.Order.StoreId);
 
         if (!settings.Enabled)
             return;
@@ -83,8 +84,7 @@ public class EventConsumer :
     /// </summary>
     public async Task HandleEventAsync(OrderPaidEvent eventMessage)
     {
-        var storeId = (await _storeContext.GetCurrentStoreAsync()).Id;
-        var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(storeId);
+        var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(eventMessage.Order.StoreId);
 
         if (!settings.Enabled || !settings.NotifyOnOrderPaid)
             return;
@@ -101,11 +101,18 @@ public class EventConsumer :
     /// </summary>
     public async Task HandleEventAsync(ShipmentSentEvent eventMessage)
     {
+        _logger.LogInformation("ShipmentSentEvent received for shipment {ShipmentId}", eventMessage.Shipment.Id);
+        
         var order = await _orderService.GetOrderByIdAsync(eventMessage.Shipment.OrderId);
         if (order == null)
+        {
+            _logger.LogWarning("Order not found for shipment {ShipmentId}", eventMessage.Shipment.Id);
             return;
+        }
 
         var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(order.StoreId);
+        _logger.LogInformation("Settings loaded: Enabled={Enabled}, NotifyOnShipmentSent={NotifyOnShipmentSent}", 
+            settings.Enabled, settings.NotifyOnShipmentSent);
 
         if (!settings.Enabled || !settings.NotifyOnShipmentSent)
             return;
@@ -118,11 +125,18 @@ public class EventConsumer :
     /// </summary>
     public async Task HandleEventAsync(ShipmentDeliveredEvent eventMessage)
     {
+        _logger.LogInformation("ShipmentDeliveredEvent received for shipment {ShipmentId}", eventMessage.Shipment.Id);
+        
         var order = await _orderService.GetOrderByIdAsync(eventMessage.Shipment.OrderId);
         if (order == null)
+        {
+            _logger.LogWarning("Order not found for shipment {ShipmentId}", eventMessage.Shipment.Id);
             return;
+        }
 
         var settings = await _settingService.LoadSettingAsync<TelegramNotificationsSettings>(order.StoreId);
+        _logger.LogInformation("Settings loaded: Enabled={Enabled}, NotifyOnShipmentDelivered={NotifyOnShipmentDelivered}", 
+            settings.Enabled, settings.NotifyOnShipmentDelivered);
 
         if (!settings.Enabled || !settings.NotifyOnShipmentDelivered)
             return;
