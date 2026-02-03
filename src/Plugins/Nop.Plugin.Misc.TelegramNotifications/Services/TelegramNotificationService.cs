@@ -1,8 +1,10 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using Nop.Core;
 using Nop.Core.Domain.Orders;
 using Nop.Data;
+using Nop.Services.Catalog;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Localization;
@@ -21,6 +23,8 @@ public class TelegramNotificationService
     private readonly ILocalizationService _localizationService;
     private readonly ICustomerService _customerService;
     private readonly ICountryService _countryService;
+    private readonly IPriceFormatter _priceFormatter;
+    private readonly IWorkContext _workContext;
     private readonly IRepository<TelegramAuthSession> _telegramAuthSessionRepository;
 
     public TelegramNotificationService(
@@ -30,6 +34,8 @@ public class TelegramNotificationService
         ILocalizationService localizationService,
         ICustomerService customerService,
         ICountryService countryService,
+        IPriceFormatter priceFormatter,
+        IWorkContext workContext,
         IRepository<TelegramAuthSession> telegramAuthSessionRepository)
     {
         _httpClientFactory = httpClientFactory;
@@ -38,6 +44,8 @@ public class TelegramNotificationService
         _localizationService = localizationService;
         _customerService = customerService;
         _countryService = countryService;
+        _priceFormatter = priceFormatter;
+        _workContext = workContext;
         _telegramAuthSessionRepository = telegramAuthSessionRepository;
     }
 
@@ -117,7 +125,8 @@ public class TelegramNotificationService
             sb.AppendLine($"📊 <b>Статус:</b> {statusName}");
         }
 
-        sb.AppendLine($"💰 <b>Сумма заказа:</b> {order.OrderTotal:C}");
+        var formattedTotal = await _priceFormatter.FormatPriceAsync(order.OrderTotal, true, order.CustomerCurrencyCode, (await _workContext.GetWorkingLanguageAsync()).Id, false);
+        sb.AppendLine($"💰 <b>Сумма заказа:</b> {formattedTotal}");
         
         // Customer information
         var customer = await _customerService.GetCustomerByIdAsync(order.CustomerId);
