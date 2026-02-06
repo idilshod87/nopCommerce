@@ -113,6 +113,9 @@
   <LocaleResource Name="Order.NotFound">
     <Value>Заказ не найден</Value>
   </LocaleResource>
+  <LocaleResource Name="Order.OrderItemNotFound">
+    <Value>Товар заказа не найден</Value>
+  </LocaleResource>
   <LocaleResource Name="Order.AlreadyCancelled">
     <Value>Заказ уже отменен</Value>
   </LocaleResource>
@@ -130,5 +133,19 @@
   </LocaleResource>
   <LocaleResource Name="Shipment.NotFound">
     <Value>Отгрузка не найдена</Value>
+  </LocaleResource>
+  
+  <!-- Shopping Cart API messages -->
+  <LocaleResource Name="ShoppingCart.ProductAlreadyInCart">
+    <Value>Этот товар с такими же атрибутами уже находится в вашей корзине</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ProductAddedToCart">
+    <Value>Товар был добавлен в вашу корзину</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.AddToCartFailed">
+    <Value>Не удалось добавить товар в корзину</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ProductNotAddedToCart">
+    <Value>Товар не был добавлен в корзину</Value>
   </LocaleResource>
 </Language>

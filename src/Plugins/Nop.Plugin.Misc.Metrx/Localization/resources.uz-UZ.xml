@@ -113,6 +113,9 @@
   <LocaleResource Name="Order.NotFound">
     <Value>Buyurtma topilmadi</Value>
   </LocaleResource>
+  <LocaleResource Name="Order.OrderItemNotFound">
+    <Value>Buyurtma mahsuloti topilmadi</Value>
+  </LocaleResource>
   <LocaleResource Name="Order.AlreadyCancelled">
     <Value>Buyurtma allaqachon bekor qilingan</Value>
   </LocaleResource>
@@ -130,5 +133,19 @@
   </LocaleResource>
   <LocaleResource Name="Shipment.NotFound">
     <Value>Jo'natma topilmadi</Value>
+  </LocaleResource>
+  
+  <!-- Shopping Cart API messages -->
+  <LocaleResource Name="ShoppingCart.ProductAlreadyInCart">
+    <Value>Bu mahsulot xuddi shunday atributlar bilan savatingizda mavjud</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ProductAddedToCart">
+    <Value>Mahsulot savatingizga qo'shildi</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.AddToCartFailed">
+    <Value>Mahsulotni savatchaga qo'shib bo'lmadi</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ProductNotAddedToCart">
+    <Value>Mahsulot savatchaga qo'shilmadi</Value>
   </LocaleResource>
 </Language>

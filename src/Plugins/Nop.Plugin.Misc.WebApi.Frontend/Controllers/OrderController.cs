@@ -16,8 +16,8 @@ using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Shipping;
 using Nop.Services.Vendors;
+using System.Linq;
 using Nop.Web.Factories;
-using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Infrastructure;
 using Nop.Web.Models.Common;
 using Nop.Web.Models.Order;
@@ -68,6 +68,7 @@ public class OrderController : ControllerBase
     private readonly ILocalizationService _localizationService;
     private readonly ICurrencyService _currencyService;
     private readonly IPriceFormatter _priceFormatter;
+    private readonly IShoppingCartService _shoppingCartService;
     private readonly OrderSettings _orderSettings;
 
     public OrderController(
@@ -84,6 +85,7 @@ public class OrderController : ControllerBase
         ILocalizationService localizationService,
         ICurrencyService currencyService,
         IPriceFormatter priceFormatter,
+        IShoppingCartService shoppingCartService,
         OrderSettings orderSettings)
     {
         _workContext = workContext;
@@ -99,6 +101,7 @@ public class OrderController : ControllerBase
         _localizationService = localizationService;
         _currencyService = currencyService;
         _priceFormatter = priceFormatter;
+        _shoppingCartService = shoppingCartService;
         _orderSettings = orderSettings;
     }
 
@@ -394,6 +397,113 @@ public class OrderController : ControllerBase
         }
 
         return model;
+    }
+
+    /// <summary>
+    /// POST /order/reorder
+    /// Reorder an item from a previous order by adding it to the shopping cart.
+    /// </summary>
+    /// <param name="request">Reorder request containing orderId and orderItemId</param>
+    [HttpPost("reorder")]
+    [ProducesResponseType(typeof(ApiResponse<ReorderResult>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ReorderItem([FromBody] ReorderRequest request)
+    {
+        var customer = await GetCurrentRegisteredCustomerAsync();
+        if (customer == null)
+            return Unauthorized(new { Message = "Authentication required" });
+
+        var order = await _orderService.GetOrderByIdAsync(request.OrderId);
+        if (order == null)
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: await _localizationService.GetResourceAsync("Order.NotFound"),
+                detail: await _localizationService.GetResourceAsync("Order.NotFound"));
+
+        if (order.CustomerId != customer.Id)
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: await _localizationService.GetResourceAsync("Order.NotFound"),
+                detail: await _localizationService.GetResourceAsync("Order.NotFound"));
+
+        var orderItems = await _orderService.GetOrderItemsAsync(order.Id);
+        var orderItem = orderItems.FirstOrDefault(x => x.Id == request.OrderItemId);
+        
+        if (orderItem == null)
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: await _localizationService.GetResourceAsync("Order.OrderItemNotFound"),
+                detail: await _localizationService.GetResourceAsync("Order.OrderItemNotFound"));
+
+        var product = await _productService.GetProductByIdAsync(orderItem.ProductId);
+        if (product == null || product.Deleted)
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: await _localizationService.GetResourceAsync("Products.ProductNotFound"),
+                detail: await _localizationService.GetResourceAsync("Products.ProductNotFound"));
+
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+        var existingCartItem = cart.FirstOrDefault(sci =>
+            sci.ProductId == orderItem.ProductId &&
+            sci.AttributesXml == orderItem.AttributesXml);
+
+        if (existingCartItem != null)
+        {
+            return Ok(new ApiResponse<ReorderResult>
+            {
+                Data = new ReorderResult
+                {
+                    CartItemId = existingCartItem.Id,
+                    WasAlreadyInCart = true,
+                    Message = await _localizationService.GetResourceAsync("ShoppingCart.ProductAlreadyInCart") 
+                        ?? "This product with the same attributes is already in your cart"
+                }
+            });
+        }
+
+        var warnings = await _shoppingCartService.AddToCartAsync(
+            customer: customer,
+            product: product,
+            shoppingCartType: ShoppingCartType.ShoppingCart,
+            storeId: store.Id,
+            attributesXml: orderItem.AttributesXml,
+            quantity: orderItem.Quantity);
+
+        if (warnings.Any())
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: await _localizationService.GetResourceAsync("ShoppingCart.AddToCartFailed") ?? "Failed to add product to cart",
+                detail: string.Join(", ", warnings));
+        }
+
+        var updatedCart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+        var addedCartItem = updatedCart.FirstOrDefault(sci =>
+            sci.ProductId == orderItem.ProductId &&
+            sci.AttributesXml == orderItem.AttributesXml);
+
+        if (addedCartItem == null)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: await _localizationService.GetResourceAsync("ShoppingCart.AddToCartFailed") ?? "Failed to add product to cart",
+                detail: await _localizationService.GetResourceAsync("ShoppingCart.ProductNotAddedToCart") ?? "The product was not added to the cart");
+        }
+
+        return Ok(new ApiResponse<ReorderResult>
+        {
+            Data = new ReorderResult
+            {
+                CartItemId = addedCartItem.Id,
+                WasAlreadyInCart = false,
+                Message = await _localizationService.GetResourceAsync("ShoppingCart.ProductAddedToCart") 
+                    ?? "Product has been added to your cart"
+            }
+        });
     }
 
     /// <summary>
