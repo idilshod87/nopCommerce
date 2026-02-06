@@ -108,4 +108,27 @@
   <LocaleResource Name="Admin.Orders.Fields.ShippingStatus.VendorMarkDelivered">
     <Value>Отметить как доставлен</Value>
   </LocaleResource>
+  
+  <!-- Order API error messages -->
+  <LocaleResource Name="Order.NotFound">
+    <Value>Заказ не найден</Value>
+  </LocaleResource>
+  <LocaleResource Name="Order.AlreadyCancelled">
+    <Value>Заказ уже отменен</Value>
+  </LocaleResource>
+  <LocaleResource Name="Order.CannotCancelProcessing">
+    <Value>Невозможно отменить заказ, который находится в обработке</Value>
+  </LocaleResource>
+  <LocaleResource Name="Order.CannotCancelCompleted">
+    <Value>Невозможно отменить завершенный заказ</Value>
+  </LocaleResource>
+  <LocaleResource Name="Order.CancelledSuccessfully">
+    <Value>Заказ успешно отменен</Value>
+  </LocaleResource>
+  <LocaleResource Name="Order.CancelFailed">
+    <Value>Не удалось отменить заказ</Value>
+  </LocaleResource>
+  <LocaleResource Name="Shipment.NotFound">
+    <Value>Отгрузка не найдена</Value>
+  </LocaleResource>
 </Language>

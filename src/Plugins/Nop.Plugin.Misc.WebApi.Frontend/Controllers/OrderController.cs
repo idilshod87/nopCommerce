@@ -186,11 +186,17 @@ public class OrderController : ControllerBase
 
         var order = await _orderService.GetOrderByIdAsync(id);
         if (order == null)
-            return NotFound(new { Message = "Order not found" });
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: await _localizationService.GetResourceAsync("Order.NotFound"),
+                detail: await _localizationService.GetResourceAsync("Order.NotFound"));
 
         // Verify that the order belongs to the current customer
         if (order.CustomerId != customer.Id)
-            return NotFound(new { Message = "Order not found" });
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: await _localizationService.GetResourceAsync("Order.NotFound"),
+                detail: await _localizationService.GetResourceAsync("Order.NotFound"));
 
         var model = await _orderModelFactory.PrepareOrderDetailsModelAsync(order);
 
@@ -213,19 +219,90 @@ public class OrderController : ControllerBase
 
         var shipment = await _shipmentService.GetShipmentByIdAsync(id);
         if (shipment == null)
-            return NotFound(new { Message = "Shipment not found" });
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: await _localizationService.GetResourceAsync("Shipment.NotFound"),
+                detail: await _localizationService.GetResourceAsync("Shipment.NotFound"));
 
         var order = await _orderService.GetOrderByIdAsync(shipment.OrderId);
         if (order == null)
-            return NotFound(new { Message = "Order not found" });
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: await _localizationService.GetResourceAsync("Order.NotFound"),
+                detail: await _localizationService.GetResourceAsync("Order.NotFound"));
 
         // Verify that the order belongs to the current customer
         if (order.CustomerId != customer.Id)
-            return NotFound(new { Message = "Shipment not found" });
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: await _localizationService.GetResourceAsync("Shipment.NotFound"),
+                detail: await _localizationService.GetResourceAsync("Shipment.NotFound"));
 
         var model = await _orderModelFactory.PrepareShipmentDetailsModelAsync(shipment);
 
         return Ok(new ApiResponse<ShipmentDetailsModel> { Data = model });
+    }
+
+    /// <summary>
+    /// POST /order/cancel/{id}
+    /// Cancel an order.
+    /// </summary>
+    [HttpPost("cancel/{id:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CancelOrder(int id)
+    {
+        var customer = await GetCurrentRegisteredCustomerAsync();
+        if (customer == null)
+            return Unauthorized(new { Message = "Authentication required" });
+
+        var order = await _orderService.GetOrderByIdAsync(id);
+        if (order == null)
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: await _localizationService.GetResourceAsync("Order.NotFound"),
+                detail: await _localizationService.GetResourceAsync("Order.NotFound"));
+
+        // Verify that the order belongs to the current customer
+        if (order.CustomerId != customer.Id)
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: await _localizationService.GetResourceAsync("Order.NotFound"),
+                detail: await _localizationService.GetResourceAsync("Order.NotFound"));
+
+        // Check if order can be cancelled
+        if (order.OrderStatus == OrderStatus.Cancelled)
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: await _localizationService.GetResourceAsync("Order.AlreadyCancelled"),
+                detail: await _localizationService.GetResourceAsync("Order.AlreadyCancelled"));
+
+        if (order.OrderStatus == OrderStatus.Processing)
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: await _localizationService.GetResourceAsync("Order.CannotCancelProcessing"),
+                detail: await _localizationService.GetResourceAsync("Order.CannotCancelProcessing"));
+
+        if (order.OrderStatus == OrderStatus.Complete)
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: await _localizationService.GetResourceAsync("Order.CannotCancelCompleted"),
+                detail: await _localizationService.GetResourceAsync("Order.CannotCancelCompleted"));
+
+        try
+        {
+            await _orderProcessingService.CancelOrderAsync(order, true);
+            return Ok(new { Message = await _localizationService.GetResourceAsync("Order.CancelledSuccessfully") });
+        }
+        catch (Exception ex)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: await _localizationService.GetResourceAsync("Order.CancelFailed"),
+                detail: ex.Message);
+        }
     }
 
     /// <summary>

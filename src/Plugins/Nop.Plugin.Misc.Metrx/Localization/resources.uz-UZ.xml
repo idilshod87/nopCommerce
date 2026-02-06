@@ -108,4 +108,27 @@
   <LocaleResource Name="Admin.Orders.Fields.ShippingStatus.VendorMarkDelivered">
     <Value>Yetkazib berilgan deb belgilash</Value>
   </LocaleResource>
+  
+  <!-- Order API error messages -->
+  <LocaleResource Name="Order.NotFound">
+    <Value>Buyurtma topilmadi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Order.AlreadyCancelled">
+    <Value>Buyurtma allaqachon bekor qilingan</Value>
+  </LocaleResource>
+  <LocaleResource Name="Order.CannotCancelProcessing">
+    <Value>Jarayonda bo'lgan buyurtmani bekor qilib bo'lmaydi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Order.CannotCancelCompleted">
+    <Value>Tugallangan buyurtmani bekor qilib bo'lmaydi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Order.CancelledSuccessfully">
+    <Value>Buyurtma muvaffaqiyatli bekor qilindi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Order.CancelFailed">
+    <Value>Buyurtmani bekor qilib bo'lmadi</Value>
+  </LocaleResource>
+  <LocaleResource Name="Shipment.NotFound">
+    <Value>Jo'natma topilmadi</Value>
+  </LocaleResource>
 </Language>
