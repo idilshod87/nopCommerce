@@ -1258,8 +1258,8 @@ public class ShoppingCartController : ControllerBase
             vendorPaymentSelections.TryGetValue(vendorId, out var systemName);
 
             // If no payment method found for this vendor, try to get the first available one (for single vendor scenarios)
-            if (string.IsNullOrWhiteSpace(systemName) && vendorPaymentSelections.Any())
-                systemName = vendorPaymentSelections.First().Value;
+            //if (string.IsNullOrWhiteSpace(systemName) && vendorPaymentSelections.Any())
+            //    systemName = vendorPaymentSelections.First().Value;
 
             // Fallback to default selected payment method if available
             //if (string.IsNullOrWhiteSpace(systemName) && !string.IsNullOrWhiteSpace(defaultSelectedPaymentMethod))
