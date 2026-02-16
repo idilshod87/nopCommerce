@@ -1237,14 +1237,14 @@ public class ShoppingCartController : ControllerBase
             NopCustomerDefaults.SelectedPaymentMethodAttribute, store.Id);
 
         // If no vendor-specific selections saved, but default payment method exists, use it for all vendors
-        if (!vendorPaymentSelections.Any() && !string.IsNullOrWhiteSpace(defaultSelectedPaymentMethod))
-        {
-            // Apply default payment method to all vendor groups
-            foreach (var group in vendorGroups)
-            {
-                vendorPaymentSelections[group.Key] = defaultSelectedPaymentMethod;
-            }
-        }
+        //if (!vendorPaymentSelections.Any() && !string.IsNullOrWhiteSpace(defaultSelectedPaymentMethod))
+        //{
+        //    // Apply default payment method to all vendor groups
+        //    foreach (var group in vendorGroups)
+        //    {
+        //        vendorPaymentSelections[group.Key] = defaultSelectedPaymentMethod;
+        //    }
+        //}
 
         var result = new List<VendorPaymentInfoDto>();
         var activePaymentMethods = await (await _paymentPluginManager.LoadActivePluginsAsync(customer, store.Id))
@@ -1262,8 +1262,8 @@ public class ShoppingCartController : ControllerBase
                 systemName = vendorPaymentSelections.First().Value;
 
             // Fallback to default selected payment method if available
-            if (string.IsNullOrWhiteSpace(systemName) && !string.IsNullOrWhiteSpace(defaultSelectedPaymentMethod))
-                systemName = defaultSelectedPaymentMethod;
+            //if (string.IsNullOrWhiteSpace(systemName) && !string.IsNullOrWhiteSpace(defaultSelectedPaymentMethod))
+            //    systemName = defaultSelectedPaymentMethod;
 
             string? paymentMethodName = null;
             if (!string.IsNullOrWhiteSpace(systemName))
