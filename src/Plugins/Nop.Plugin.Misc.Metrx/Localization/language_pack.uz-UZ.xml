@@ -1798,934 +1798,934 @@
     <Value>Atribut muvaffaqiyatli o'chirildi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Description">
-    <Value>Атрибуты оформления заказа отображаются на странице оформления заказа (в корзине) и дают посетителям возможность получать дополнительные услуги перед завершением  покупки, например, Подарочная упаковка товара.</Value>
+    <Value>Buyurtmani rasmiylashtirish atributlari checkout sahifasida (savatchada) ko'rsatiladi va xaridni yakunlashdan oldin tashrif buyuruvchilarga qo'shimcha xizmatlarni tanlash imkonini beradi, masalan, sovg'a qadoqlash.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.EditAttributeDetails">
-    <Value>Изменение атрибута оформления заказа</Value>
+    <Value>Buyurtma rasmiylashtirish atributini tahrirlash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.AttributeControlType">
-    <Value>Тип элемента управления</Value>
+    <Value>Boshqaruv elementi turi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.AttributeControlType.Hint">
-    <Value>Выберите, как показывать значения атрибута.</Value>
+    <Value>Atribut qiymatlarini qanday ko'rsatishni tanlang.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.DefaultValue">
-    <Value>Значение по-умолчанию</Value>
+    <Value>Standart qiymat</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.DefaultValue.Hint">
-    <Value>Введите значение по-умолчанию для атрибута.</Value>
+    <Value>Atribut uchun standart qiymatni kiriting.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.DisplayOrder">
-    <Value>Порядок отображения</Value>
+    <Value>Ko'rsatish tartibi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.DisplayOrder.Hint">
-    <Value>Порядок отображения атрибута оформления заказа. 1 — это первый пункт списка.</Value>
+    <Value>Buyurtma rasmiylashtirish atributining ko'rsatish tartibi. 1 - ro'yxatdagi birinchi element.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.FileAllowedExtensions">
-    <Value>Допустимые расширения файлов</Value>
+    <Value>Ruxsat etilgan fayl kengaytmalari</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.FileAllowedExtensions.Hint">
-    <Value>Укажите допустимые расширения файлов, разделенные запятой. Оставьте пустым, если допустимы все расширения.</Value>
+    <Value>Vergul bilan ajratilgan ruxsat etilgan fayl kengaytmalarini ko'rsating. Barcha kengaytmalar ruxsat etilgan bo'lsa, bo'sh qoldiring.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.FileMaximumSize">
-    <Value>Максимльный размер файла (KB)</Value>
+    <Value>Maksimal fayl hajmi (KB)</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.FileMaximumSize.Hint">
-    <Value>Укажите максимльный размер файла в килобайтах. Оставьте пустым, если допустим любой размер .</Value>
+    <Value>Maksimal fayl hajmini kilobaytlarda ko'rsating. Istalgan hajm ruxsat etilgan bo'lsa, bo'sh qoldiring.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.IsRequired">
-    <Value>Обязателен</Value>
+    <Value>Majburiy</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.IsRequired.Hint">
-    <Value>Если атрибут выбран как обязательный, клиент обязан выбрать допустимое значение этого атрибута перед тем, как он сможет продолжить.</Value>
+    <Value>Agar atribut majburiy deb belgilansa, mijoz davom etishdan oldin ushbu atribut uchun ruxsat etilgan qiymatni tanlashi shart.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.IsTaxExempt">
-    <Value>Освобождён от налогов</Value>
+    <Value>Soliqdan ozod</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.IsTaxExempt.Hint">
-    <Value>Определяет освобожден ли атрибут от налогов (налог не будет применён к данному атрибуту при оформлении заказа).</Value>
+    <Value>Atribut soliqdan ozod qilinganini belgilaydi (buyurtma rasmiylashtirilganda ushbu atributga soliq qo'llanmaydi).</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.LimitedToStores">
-    <Value>Только для избранных магазинов</Value>
+    <Value>Faqat tanlangan do'konlar uchun</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.LimitedToStores.Hint">
-    <Value>Определяет, доступен ли атрибут только для избранных магазинов. Если у вас есть несколько магазинов, выбрать один или несколько из списка. Если вы не используете эту опцию, просто оставьте это поле пустым.</Value>
+    <Value>Atribut faqat tanlangan do'konlar uchun mavjudligini belgilaydi. Agar sizda bir nechta do'kon bo'lsa, ro'yxatdan bir yoki bir nechtasini tanlang. Agar bu opsiyani ishlatmasangiz, maydonni bo'sh qoldiring.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.MaxLength">
-    <Value>Максимальная длина</Value>
+    <Value>Maksimal uzunlik</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.MaxLength.Hint">
-    <Value>Укажите максимальную длину. Оставьте пустым, если любая длина допустима.</Value>
+    <Value>Maksimal uzunlikni ko'rsating. Istalgan uzunlik ruxsat etilgan bo'lsa, bo'sh qoldiring.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.MinLength">
-    <Value>Минимальная длина</Value>
+    <Value>Minimal uzunlik</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.MinLength.Hint">
-    <Value>Укажите минимальную  длину. Оставьте пустым, если любая длина допустима.</Value>
+    <Value>Minimal uzunlikni ko'rsating. Istalgan uzunlik ruxsat etilgan bo'lsa, bo'sh qoldiring.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.Name">
-    <Value>Название</Value>
+    <Value>Nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.Name.Hint">
-    <Value>Название атрибута оформления заказа.</Value>
+    <Value>Buyurtma rasmiylashtirish atributi nomi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.Name.Required">
-    <Value>Необходимо ввести название.</Value>
+    <Value>Nomini kiritish kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.ShippableProductRequired">
-    <Value>Обязательна доставка товара</Value>
+    <Value>Yetkazib beriladigan mahsulot talab qilinadi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.ShippableProductRequired.Hint">
-    <Value>Опция, определяющая, обязательно ли товар должен быть доставляемым, чтобы показывать этот атрибут.</Value>
+    <Value>Ushbu atribut ko'rsatilishi uchun mahsulot majburiy ravishda yetkazib beriladigan bo'lishi kerakligini belgilovchi parametr.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.TaxCategory">
-    <Value>Категория налога</Value>
+    <Value>Soliq toifasi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.TaxCategory.Hint">
-    <Value>Категория налога для этого атрибута (используется для расчета налогов). Вы можете управлять категориями налогов через меню Конфигурация &amp;gt ;Налоги &gt; Категории налогов</Value>
+    <Value>Ushbu atribut uchun soliq toifasi (soliqlarni hisoblashda ishlatiladi). Soliq toifalarini Konfiguratsiya &gt; Soliqlar &gt; Soliq toifalari menyusi orqali boshqarishingiz mumkin.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.TextPrompt">
-    <Value>Текстовая подсказка</Value>
+    <Value>Matnli ko'rsatma</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Fields.TextPrompt.Hint">
-    <Value>Введите текстовую подсказку.</Value>
+    <Value>Matnli ko'rsatmani kiriting.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Info">
-    <Value>Информация об атрибуте</Value>
+    <Value>Atribut haqida ma'lumot</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Updated">
-    <Value>Характеристика успешно обновлена.</Value>
+    <Value>Atribut muvaffaqiyatli yangilandi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values">
-    <Value>Значения атрибута</Value>
+    <Value>Atribut qiymatlari</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.AddNew">
-    <Value>Добавление нового значения для атрибута</Value>
+    <Value>Atribut uchun yangi qiymat qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.EditValueDetails">
-    <Value>Изменение значения атрибута</Value>
+    <Value>Atribut qiymatini tahrirlash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.ColorSquaresRgb">
-    <Value>Цвет в формате RGB</Value>
+    <Value>RGB formatidagi rang</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.ColorSquaresRgb.Hint">
-    <Value>Выберите цвет, кторый будет использоваться в атрибуте с цветными квадратами</Value>
+    <Value>Rangli kvadratlar atributida ishlatiladigan rangni tanlang.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.DisplayOrder">
-    <Value>Порядок отображения</Value>
+    <Value>Ko'rsatish tartibi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.DisplayOrder.Hint">
-    <Value>Порядок отображения атрибута адреса. 1 — это первый пункт в списке значений атрибута.</Value>
+    <Value>Atribut qiymatlarining ko'rsatish tartibi. 1 - ro'yxatdagi birinchi element.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.IsPreSelected">
-    <Value>Выбран по-умолчанию</Value>
+    <Value>Sukut bo'yicha tanlangan</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.IsPreSelected.Hint">
-    <Value>Определяет, выбрано ли по умолчанию для клиента это значение атрибута.</Value>
+    <Value>Ushbu atribut qiymati mijoz uchun sukut bo'yicha tanlanganini belgilaydi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.Name">
-    <Value>Название</Value>
+    <Value>Nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.Name.Hint">
-    <Value>Название значения атрибута оформления заказа.</Value>
+    <Value>Buyurtma rasmiylashtirish atributi qiymatining nomi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.Name.Required">
-    <Value>Необходимо ввести название.</Value>
+    <Value>Nomini kiritish kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.PriceAdjustment">
-    <Value>Изменение цены</Value>
+    <Value>Narxni o'zgartirish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.PriceAdjustment.Hint">
-    <Value>Изменение цены, применяемое, когда выбрано это значение атрибута (например '10' добавляет 10 рублей).</Value>
+    <Value>Ushbu atribut qiymati tanlanganda qo'llaniladigan narx o'zgarishi (masalan, '10' qiymati narxga 10 qo'shadi).</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.WeightAdjustment">
-    <Value>Изменение веса</Value>
+    <Value>Og'irlikni o'zgartirish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.WeightAdjustment.Hint">
-    <Value>Изменение веса, применяемое, когда выбрано это значение атрибута.</Value>
+    <Value>Ushbu atribut qiymati tanlanganda qo'llaniladigan og'irlik o'zgarishi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.SaveBeforeEdit">
-    <Value>Вы должны сохранить атрибут оформления заказа перед тем, как добавлять для него значения.</Value>
+    <Value>Unga qiymatlar qo'shishdan oldin buyurtma rasmiylashtirish atributini saqlashingiz kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes">
-    <Value>Свойства товаров</Value>
+    <Value>Mahsulot xususiyatlari</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.Added">
-    <Value>Новый атрибут адреса успешно добавлен.</Value>
+    <Value>Yangi mahsulot xususiyati muvaffaqiyatli qo'shildi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.AddNew">
-    <Value>Создание нового свойства</Value>
+    <Value>Yangi xususiyat yaratish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.BackToList">
-    <Value>вернуться к списку свойств товаров</Value>
+    <Value>mahsulot xususiyatlari ro'yxatiga qaytish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.Deleted">
-    <Value>Атрибут успешно удалён.</Value>
+    <Value>Atribut muvaffaqiyatli o'chirildi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.Description">
-    <Value>Свойства товара являются количественными или качественными характеристиками товара (к примеру, цвет). Вы можете создать свойство товара - к примеру, цвет (синий, зеленый, желтый, и т.д.), и применить это свойство к рубашке, которая доступна в нескольких цветах, при этом можно отрегулировать цену или вес для любого из существующих значений свойства. Вы можете добавить свойство товара, используя существующий список, или создать новое свойство, перейдя в Каталог > Свойства > Свойства товара. Пожалуйста, обратите внимание, что если вы хотите настраивать количество товара по свойствам товара (например, 5 зеленых рубашек и 3 синих), то убедитесь, что установили метод отслеживания запасов: отслеживать запасы по свойствам товара на странице создания/редактирования продукта.</Value>
+    <Value>Mahsulot xususiyatlari mahsulotning miqdoriy yoki sifat tavsiflaridir (masalan, rang). Siz mahsulot xususiyatini yaratishingiz mumkin, masalan rang (ko'k, yashil, sariq va hokazo), va bu xususiyatni bir nechta rangda mavjud bo'lgan ko'ylakka qo'llashingiz mumkin. Bunda mavjud xususiyat qiymatlarining istalgani uchun narx yoki vaznni sozlash mumkin. Siz mavjud ro'yxatdan foydalanib mahsulot xususiyatini qo'shishingiz yoki Katalog &gt; Xususiyatlar &gt; Mahsulot xususiyatlari bo'limiga o'tib yangi xususiyat yaratishingiz mumkin. E'tibor bering: agar mahsulot miqdorini mahsulot xususiyatlari bo'yicha boshqarmoqchi bo'lsangiz (masalan, 5 ta yashil va 3 ta ko'k ko'ylak), mahsulot yaratish/tahrirlash sahifasida zaxiralarni kuzatish usulini "mahsulot xususiyatlari bo'yicha zaxirani kuzatish" qilib o'rnatganingizga ishonch hosil qiling.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.EditAttributeDetails">
-    <Value>Изменение свойства</Value>
+    <Value>Xususiyatni tahrirlash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.Fields.Description">
-    <Value>Описание</Value>
+    <Value>Tavsif</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.Fields.Description.Hint">
-    <Value>Описание свойства товара.</Value>
+    <Value>Mahsulot xususiyatining tavsifi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.Fields.Name">
-    <Value>Название</Value>
+    <Value>Nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.Fields.Name.Hint">
-    <Value>Название свойства товара.</Value>
+    <Value>Mahsulot xususiyatining nomi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.Fields.Name.Required">
-    <Value>Необходимо ввести название.</Value>
+    <Value>Nomini kiritish kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.Info">
-    <Value>Информация</Value>
+    <Value>Ma'lumot</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues">
-    <Value>Предопределенные значения</Value>
+    <Value>Oldindan belgilangan qiymatlar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew">
-    <Value>Добавление нового значения</Value>
+    <Value>Yangi qiymat qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.EditValueDetails">
-    <Value>Редактировать</Value>
+    <Value>Tahrirlash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Cost">
-    <Value>Себестоимость</Value>
+    <Value>Tannarx</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Cost.Hint">
-    <Value>Себестоимость товара - это стоимость всех его различных компонентов, из которых он состоит. Это может быть как цена закупки, так и стоимость материалов и работ.</Value>
+    <Value>Mahsulot tannarxi - bu u tarkib topgan barcha turli komponentlar qiymatining yig'indisi. Bu xarid narxi ham, materiallar va ishlar qiymati ham bo'lishi mumkin.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.DisplayOrder">
-    <Value>Порядок отображения</Value>
+    <Value>Ko'rsatish tartibi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.DisplayOrder.Hint">
-    <Value>Порядок отображения атрибута адреса. 1 — это первый пункт в списке значений атрибута.</Value>
+    <Value>Atributning ko'rsatish tartibi. 1 - atribut qiymatlari ro'yxatidagi birinchi band.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.IsPreSelected">
-    <Value>Выбран по-умолчанию</Value>
+    <Value>Sukut bo'yicha tanlangan</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.IsPreSelected.Hint">
-    <Value>Определяет, выбрано ли по умолчанию для клиента это значение атрибута.</Value>
+    <Value>Ushbu atribut qiymati mijoz uchun sukut bo'yicha tanlanganini belgilaydi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Name">
-    <Value>Название</Value>
+    <Value>Nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Name.Hint">
-    <Value>Название значения свойства, например 'Голубой' для атрибута 'Цвет'.</Value>
+    <Value>Xususiyat qiymatining nomi, masalan, 'Rang' atributi uchun 'Havorang'.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Name.Required">
-    <Value>Необходимо ввести название.</Value>
+    <Value>Nomini kiritish kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.PriceAdjustment">
-    <Value>Изменение цены</Value>
+    <Value>Narxni o'zgartirish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.PriceAdjustment.Hint">
-    <Value>При выборе значения этого атрибута применяется корректировка цены. Например, ''10'', чтобы добавить 10 долларов. Или 10%, если ''Использовать процент'' отмечен галочкой.</Value>
+    <Value>Ushbu atribut qiymati tanlanganda narx tuzatishi qo'llaniladi. Masalan, 10 qo'shish uchun ''10''. Yoki ''Foizdan foydalanish'' belgilansa 10%.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.PriceAdjustmentUsePercentage">
-    <Value>Корректировка цен. Использовать процент</Value>
+    <Value>Narx tuzatishi. Foizdan foydalanish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.PriceAdjustmentUsePercentage.Hint">
-    <Value>Определяет, применять ли процент к товару. Если не включено, используется фиксированное значение.</Value>
+    <Value>Tovarga foiz qo'llanishini belgilaydi. Yoqilmagan bo'lsa, qat'iy qiymat ishlatiladi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.WeightAdjustment">
-    <Value>Изменение веса</Value>
+    <Value>Og'irlikni o'zgartirish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.WeightAdjustment.Hint">
-    <Value>Изменение веса, применяемое, когда выбрано это значение атрибута.</Value>
+    <Value>Ushbu atribut qiymati tanlanganda qo'llaniladigan og'irlik o'zgarishi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Hint">
-    <Value>Предопределенные значения полезны, когда вы не хотите создавать их каждый раз заново при добавлению к продукту.</Value>
+    <Value>Oldindan belgilangan qiymatlar ularni mahsulotga qo'shganda har safar qayta yaratishni istamasangiz foydali bo'ladi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.SaveBeforeEdit">
-    <Value>Вы должны сохранить атрибут перед тем, как добавлять для него значения.</Value>
+    <Value>Unga qiymatlar qo'shishdan oldin atributni saqlashingiz kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.Updated">
-    <Value>Атрибут успешно обновлен.</Value>
+    <Value>Atribut muvaffaqiyatli yangilandi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.UsedByProducts">
-    <Value>Используется продуктами</Value>
+    <Value>Mahsulotlarda ishlatiladi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.UsedByProducts.Hint">
-    <Value>Здесь вы можете посмотреть список продуктов, которые используют этот атрибут.</Value>
+    <Value>Bu yerda ushbu atributdan foydalanadigan mahsulotlar ro'yxatini ko'rishingiz mumkin.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.UsedByProducts.Product">
-    <Value>Товар</Value>
+    <Value>Mahsulot</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.UsedByProducts.Published">
-    <Value>Обубликован</Value>
+    <Value>Chop etilgan</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.List.SearchProductAttributeName">
-    <Value>Название атрибута продукта</Value>
+    <Value>Mahsulot atributi nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.ProductAttributes.List.SearchProductAttributeName.Hint">
-    <Value>Имя атрибута товара.</Value>
+    <Value>Mahsulot atributi nomi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes">
-    <Value>Характеристики товаров</Value>
+    <Value>Mahsulot xarakteristikalari</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.Description">
-    <Value>Характеристики товара - свойства продукта т.е., размер экрана, число USB-портов, которые отображаются на странице продукта. Характеристики могут использоваться для фильтрации товаров. В отличие от свойств товара, характеристики товара используются исключительно в информационных целях.</Value>
+    <Value>Mahsulot xarakteristikalari - bu mahsulot sahifasida ko'rsatiladigan xususiyatlar, masalan ekran o'lchami, USB portlar soni. Xarakteristikalar mahsulotlarni filtrlash uchun ishlatilishi mumkin. Mahsulot xususiyatlaridan farqli ravishda, xarakteristikalar faqat ma'lumot berish maqsadida ishlatiladi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.List.SearchName">
-    <Value>Название</Value>
+    <Value>Nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.List.SearchName.Hint">
-    <Value>Поиск по имени атрибута спецификации.</Value>
+    <Value>Xarakteristika atributi nomi bo'yicha qidirish.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Added">
-    <Value>Новый атрибут адреса успешно добавлен.</Value>
+    <Value>Yangi atribut muvaffaqiyatli qo'shildi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.AddNew">
-    <Value>Добавление новой характеристики</Value>
+    <Value>Yangi xarakteristika qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.BackToList">
-    <Value>вернуться к списку характеристик</Value>
+    <Value>xarakteristikalar ro'yxatiga qaytish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Buttons.AddNew">
-    <Value>Добавить атрибут</Value>
+    <Value>Atribut qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Buttons.DeleteSelected">
-    <Value>Удалить атрибуты (выбранные)</Value>
+    <Value>Atributlarni o'chirish (tanlanganlar)</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Deleted">
-    <Value>Атрибут успешно удалён.</Value>
+    <Value>Atribut muvaffaqiyatli o'chirildi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.EditAttributeDetails">
-    <Value>Изменение характеристики</Value>
+    <Value>Xarakteristikani tahrirlash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Fields.DisplayOrder">
-    <Value>Порядок отображения</Value>
+    <Value>Ko'rsatish tartibi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Fields.DisplayOrder.Hint">
-    <Value>Порядок отображения характеристики.</Value>
+    <Value>Xarakteristikaning ko'rsatish tartibi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Fields.Name">
-    <Value>Название</Value>
+    <Value>Nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Fields.Name.Hint">
-    <Value>Название характеристики.</Value>
+    <Value>Xarakteristikaning nomi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Fields.Name.Required">
-    <Value>Необходимо ввести название.</Value>
+    <Value>Nomini kiritish kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Fields.SpecificationAttributeGroup">
-    <Value>Группа</Value>
+    <Value>Guruh</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Fields.SpecificationAttributeGroup.Hint">
-    <Value>Группа характеристик товаров.</Value>
+    <Value>Mahsulot xarakteristikalari guruhi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Fields.SpecificationAttributeGroup.None">
-    <Value>Не задано</Value>
+    <Value>Belgilanmagan</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Info">
-    <Value>Информация об атрибуте</Value>
+    <Value>Atribut haqida ma'lumot</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options">
-    <Value>Опции</Value>
+    <Value>Opsiyalar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options.AddNew">
-    <Value>Добавление нового значения</Value>
+    <Value>Yangi qiymat qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options.EditOptionDetails">
-    <Value>Изменение значения</Value>
+    <Value>Qiymatni tahrirlash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options.Fields.ColorSquaresRgb">
-    <Value>Цвет в формате RGB</Value>
+    <Value>RGB formatidagi rang</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options.Fields.ColorSquaresRgb.Hint">
-    <Value>Выберите чтобы изображение с цветом товара использовалось вместо названия цвета.</Value>
+    <Value>Rang nomi o'rniga mahsulot rangini ko'rsatadigan rasm ishlatilishi uchun tanlang.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options.Fields.DisplayOrder">
-    <Value>Порядок отображения</Value>
+    <Value>Ko'rsatish tartibi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options.Fields.DisplayOrder.Hint">
-    <Value>Порядок отображения значения характеристики.</Value>
+    <Value>Xarakteristika qiymatining ko'rsatish tartibi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options.Fields.EnableColorSquaresRgb">
-    <Value>Укажите цвет</Value>
+    <Value>Rangni ko'rsating</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options.Fields.EnableColorSquaresRgb.Hint">
-    <Value>Выберите чтобы изображение с цветом товара использовалось вместо названия цвета.</Value>
+    <Value>Rang nomi o'rniga mahsulot rangini ko'rsatadigan rasm ishlatilishi uchun tanlang.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options.Fields.Name">
-    <Value>Название</Value>
+    <Value>Nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options.Fields.Name.Hint">
-    <Value>Название значения характеристики</Value>
+    <Value>Xarakteristika qiymatining nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options.Fields.Name.Required">
-    <Value>Необходимо ввести название.</Value>
+    <Value>Nomini kiritish kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options.Fields.NumberOfAssociatedProducts">
-    <Value>Количество связанных товаров</Value>
+    <Value>Bog'langan mahsulotlar soni</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Options.SaveBeforeEdit">
-    <Value>Вы должны сохранить характеристику перед тем, как добавлять варианты значений для неё.</Value>
+    <Value>Unga qiymat variantlarini qo'shishdan oldin xarakteristikani saqlashingiz kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Updated">
-    <Value>Атрибут успешно обновлен.</Value>
+    <Value>Atribut muvaffaqiyatli yangilandi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.UsedByProducts">
-    <Value>Используется продуктами</Value>
+    <Value>Mahsulotlarda ishlatiladi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.UsedByProducts.Product">
-    <Value>Товар</Value>
+    <Value>Mahsulot</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.UsedByProducts.Published">
-    <Value>Обубликован</Value>
+    <Value>Chop etilgan</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.Added">
-    <Value>Новая группа характеристик успешно добавлена.</Value>
+    <Value>Yangi xarakteristikalar guruhi muvaffaqiyatli qo'shildi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.AddNew">
-    <Value>Добавить новую группу характеристик</Value>
+    <Value>Yangi xarakteristikalar guruhini qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.BackToList">
-    <Value>вернуться к списку характеристик</Value>
+    <Value>xarakteristikalar ro'yxatiga qaytish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.Buttons.AddNew">
-    <Value>Добавить группу</Value>
+    <Value>Guruh qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.DefaultGroupName">
-    <Value>Группа по умолчанию (несгруппированные характеристики)</Value>
+    <Value>Sukut bo'yicha guruh (guruhlanmagan xarakteristikalar)</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.Deleted">
-    <Value>Группа характеристик товаров успешно удалена.</Value>
+    <Value>Mahsulot xarakteristikalari guruhi muvaffaqiyatli o'chirildi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.EditAttributeGroupDetails">
-    <Value>Изменение группы характеристик товаров</Value>
+    <Value>Mahsulot xarakteristikalari guruhini tahrirlash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.Fields.DisplayOrder">
-    <Value>Порядок отображения</Value>
+    <Value>Ko'rsatish tartibi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.Fields.DisplayOrder.Hint">
-    <Value>Порядок отображения группы характеристик.</Value>
+    <Value>Xarakteristikalar guruhining ko'rsatish tartibi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.Fields.Name">
-    <Value>Название</Value>
+    <Value>Nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.Fields.Name.Hint">
-    <Value>Название группы характеристик товаров.</Value>
+    <Value>Mahsulot xarakteristikalari guruhi nomi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.Fields.Name.Required">
-    <Value>Необходимо ввести название.</Value>
+    <Value>Nomini kiritish kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.Info">
-    <Value>Информация о группе характеристик</Value>
+    <Value>Xarakteristikalar guruhi haqida ma'lumot</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.Updated">
-    <Value>Группа характеристик товаров изменена успешно.</Value>
+    <Value>Mahsulot xarakteristikalari guruhi muvaffaqiyatli yangilandi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories">
-    <Value>Категории</Value>
+    <Value>Kategoriyalar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Added">
-    <Value>Новая категория успешно добавлена.</Value>
+    <Value>Yangi kategoriya muvaffaqiyatli qo'shildi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.AddNew">
-    <Value>Добавление новой категории</Value>
+    <Value>Yangi kategoriya qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.BackToList">
-    <Value>вернуться к списку категорий</Value>
+    <Value>kategoriyalar ro'yxatiga qaytish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Deleted">
-    <Value>Категория успешно удалена.</Value>
+    <Value>Kategoriya muvaffaqiyatli o'chirildi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Display">
-    <Value>Показать по</Value>
+    <Value>Ko'rsatish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.EditCategoryDetails">
-    <Value>Изменение данных категории</Value>
+    <Value>Kategoriya ma'lumotlarini tahrirlash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.AllowCustomersToSelectPageSize">
-    <Value>Разрешить посетителю выбрать размер страницы</Value>
+    <Value>Mijozga sahifa hajmini tanlashga ruxsat berish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.AllowCustomersToSelectPageSize.Hint">
-    <Value>Определяет, разрешено ли посетителю выбрать из списка, количество товаров отображаемых на одной странице</Value>
+    <Value>Ro'yxatdan bitta sahifada ko'rsatiladigan mahsulotlar sonini mijoz tanlashi mumkinligini belgilaydi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.CategoryTemplate">
-    <Value>Шаблон</Value>
+    <Value>Shablon</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.CategoryTemplate.Hint">
-    <Value>Выберите шаблон отображения категорий. Этот шаблон, определяет как будут отображаться категории (и товары входящие в них).</Value>
+    <Value>Kategoriyalarni ko'rsatish shablonini tanlang. Ushbu shablon kategoriyalar (va ularga kiruvchi mahsulotlar) qanday ko'rsatilishini belgilaydi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Deleted">
-    <Value>Удалено</Value>
+    <Value>O'chirilgan</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Description">
-    <Value>Описание</Value>
+    <Value>Tavsif</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Description.Hint">
-    <Value>Описание категории.</Value>
+    <Value>Kategoriya tavsifi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Discounts">
-    <Value>Скидки</Value>
+    <Value>Chegirmalar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Discounts.Hint">
-    <Value>Выберите скидки и примените к данной категории. Вы можете настраивать скидки в меню Продвижение > Скидки.</Value>
+    <Value>Chegirmalarni tanlang va ushbu kategoriyaga qo'llang. Chegirmalarni Marketing &gt; Chegirmalar menyusida sozlashingiz mumkin.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Discounts.NoDiscounts">
-    <Value>Нет доступных скидок. Создайте хотя бы одну скидку для возможности привязки.</Value>
+    <Value>Mavjud chegirmalar yo'q. Bog'lash imkoniyati uchun kamida bitta chegirma yarating.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.DisplayOrder">
-    <Value>Порядок отображения</Value>
+    <Value>Ko'rsatish tartibi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.DisplayOrder.Hint">
-    <Value>Порядок отображения категории. 1 — это первый пункт списка.</Value>
+    <Value>Kategoriyaning ko'rsatish tartibi. 1 - ro'yxatdagi birinchi band.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.LimitedToStores">
-    <Value>Только для избранных магазинов</Value>
+    <Value>Faqat tanlangan do'konlar uchun</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.LimitedToStores.Hint">
-    <Value>Определяет доступность данной категории для избранных магазинов. Если у вас есть несколько магазинов, выбрать один или несколько из списка. Если вы не используете эту опцию, просто оставьте это поле пустым.</Value>
+    <Value>Ushbu kategoriyaning tanlangan do'konlar uchun mavjudligini belgilaydi. Agar sizda bir nechta do'kon bo'lsa, ro'yxatdan bir yoki bir nechtasini tanlang. Agar bu opsiyadan foydalanmasangiz, maydonni bo'sh qoldiring.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.ManuallyPriceRange">
-    <Value>Введите диапазон цен вручную</Value>
+    <Value>Narx oralig'ini qo'lda kiriting</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.ManuallyPriceRange.Hint">
-    <Value>Выберите, чтобы вводить ценовой диапазон вручную, в противном случае включен автоматический расчет ценового диапазона (на основе цен доступных товаров). Установите диапазон цен вручную, если у вас есть сложные правила скидок.</Value>
+    <Value>Narx oralig'ini qo'lda kiritish uchun tanlang, aks holda narx oralig'i mavjud mahsulotlar narxiga asoslanib avtomatik hisoblanadi. Agar sizda murakkab chegirma qoidalari bo'lsa, narx oralig'ini qo'lda belgilang.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.MetaDescription">
-    <Value>Мета описание</Value>
+    <Value>Meta tavsif</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.MetaDescription.Hint">
-    <Value>Мета описание, которое будет добавлено в заголовок страницы категории.</Value>
+    <Value>Kategoriya sahifasi sarlavhasiga qo'shiladigan meta tavsif.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.MetaKeywords">
-    <Value>Мета ключевые слова</Value>
+    <Value>Meta kalit so'zlar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.MetaKeywords.Hint">
-    <Value>Мета ключевые слова, которые будут добавлены в заголовок страницы категории.</Value>
+    <Value>Kategoriya sahifasi sarlavhasiga qo'shiladigan meta kalit so'zlar.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.MetaTitle">
-    <Value>Мета заголовок</Value>
+    <Value>Meta sarlavha</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.MetaTitle.Hint">
-    <Value>Переопределяет заголовок страницы. По умолчанию это название категории.</Value>
+    <Value>Sahifa sarlavhasini almashtiradi. Sukut bo'yicha bu kategoriya nomi bo'ladi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Name">
-    <Value>Название</Value>
+    <Value>Nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Name.Hint">
-    <Value>Название категории.</Value>
+    <Value>Kategoriya nomi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Name.Required">
-    <Value>Необходимо ввести название.</Value>
+    <Value>Nomini kiritish kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PageSize">
-    <Value>Размер страницы</Value>
+    <Value>Sahifa hajmi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PageSize.Hint">
-    <Value>Устанавливает размер страницы для товаров в этой категории. Например '4' товара на страницу.</Value>
+    <Value>Ushbu kategoriyadagi mahsulotlar uchun sahifa hajmini belgilaydi. Masalan, bir sahifada '4' ta mahsulot.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PageSize.Positive">
-    <Value>Размер страницы должен иметь положительное значение.</Value>
+    <Value>Sahifa hajmi musbat qiymat bo'lishi kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PageSizeOptions">
-    <Value>Параметры размера страницы</Value>
+    <Value>Sahifa hajmi parametrlari</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PageSizeOptions.Hint">
-    <Value>Список значений размера страницы, разделённых запятыми,  (например: 10, 5, 15, 20). Первое значение, является значением по-умолчанию.</Value>
+    <Value>Vergul bilan ajratilgan sahifa hajmi qiymatlari ro'yxati (masalan: 10, 5, 15, 20). Birinchi qiymat sukut bo'yicha tanlanadi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PageSizeOptions.ShouldHaveUniqueItems">
-    <Value>Параметры размера страницы не должны иметь повторяющихся элементов.</Value>
+    <Value>Sahifa hajmi parametrlari takrorlanuvchi elementlarga ega bo'lmasligi kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Parent">
-    <Value>Родительская категория</Value>
+    <Value>Ota kategoriya</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Parent.Hint">
-    <Value>Выберите родительскую категорию для этой категории. Оставьте поле пустым, чтобы сделать эту категорию корневой.</Value>
+    <Value>Ushbu kategoriya uchun ota kategoriyani tanlang. Ushbu kategoriyani ildiz kategoriya qilish uchun maydonni bo'sh qoldiring.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Parent.None">
-    <Value>[Не задан]</Value>
+    <Value>[Belgilanmagan]</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Picture">
-    <Value>Изображение</Value>
+    <Value>Rasm</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Picture.Hint">
-    <Value>Изображение категории.</Value>
+    <Value>Kategoriya rasmi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PriceFrom">
-    <Value>Цена 'от'</Value>
+    <Value>Narx 'dan'</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PriceFrom.GreaterThanOrEqualZero">
-    <Value>Цена 'от' должна быть больше или равна '0'.</Value>
+    <Value>Narx 'dan' qiymati '0' dan katta yoki teng bo'lishi kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PriceFrom.Hint">
-    <Value>Введите начальную цену.</Value>
+    <Value>Boshlang'ich narxni kiriting.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PriceRangeFiltering">
-    <Value>Фильтрация ценового диапазона</Value>
+    <Value>Narx oralig'i bo'yicha filtrlash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PriceRangeFiltering.Hint">
-    <Value>Выберите, чтобы включить фильтрацию ценового диапазона.</Value>
+    <Value>Narx oralig'i bo'yicha filtrlashni yoqish uchun tanlang.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PriceTo">
-    <Value>Цена 'до'</Value>
+    <Value>Narx 'gacha'</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PriceTo.GreaterThanZeroOrPriceFrom">
-    <Value>Цена 'до' должна быть больше '{0}'.</Value>
+    <Value>Narx 'gacha' qiymati '{0}' dan katta bo'lishi kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.PriceTo.Hint">
-    <Value>Введите конечную цену.</Value>
+    <Value>Yakuniy narxni kiriting.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Published">
-    <Value>Обубликован</Value>
+    <Value>Chop etilgan</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Published.Hint">
-    <Value>Выберите для опубликования категории (становится видимой в магазине). Снимите выделение для отмены публикации (категория недоступна в магазине).</Value>
+    <Value>Kategoriyani chop etish (do'konda ko'rinadigan qilish) uchun tanlang. Chop etishni bekor qilish uchun belgini olib tashlang (kategoriya do'konda mavjud bo'lmaydi).</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.RestrictFromVendors">
-    <Value>Ограничение от поставщиков</Value>
+    <Value>Yetkazib beruvchilar uchun cheklash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.RestrictFromVendors.Hint">
-    <Value>Отметьте, чтобы ограничить продавцов в добавлении продуктов в эту категорию. Этот параметр полезен, если в вашем магазине включено несколько продавцов.</Value>
+    <Value>Yetkazib beruvchilarning ushbu kategoriyaga mahsulot qo'shishini cheklash uchun belgilang. Bu parametr do'koningizda bir nechta yetkazib beruvchi yoqilgan bo'lsa foydali.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.SeName">
-    <Value>Имя страницы для поисковых систем</Value>
+    <Value>Qidiruv tizimlari uchun sahifa nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.SeName.Hint">
-    <Value>Устанавливает имя страницы для поисковых систем, например, 'The Best Computers', чтобы URL страницы выглядел так: 'http://www.yourStore.com/the-best-computers'. Оставьте пустым, чтобы создать имя страницы автоматически, основываясь на названии категории.</Value>
+    <Value>Qidiruv tizimlari uchun sahifa nomini belgilaydi, masalan, 'The Best Computers', shunda URL quyidagicha ko'rinadi: 'http://www.yourStore.com/the-best-computers'. Kategoriya nomi asosida sahifa nomini avtomatik yaratish uchun bo'sh qoldiring.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.ShowOnHomepage">
-    <Value>Добавить в рекомендуемые (на главную)</Value>
+    <Value>Bosh sahifada tavsiya etilganlarga qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.ShowOnHomepage.Hint">
-    <Value>Выберите, если вы хотите отобразить категорию на главной странице в разделе "Рекомендуемые товары".</Value>
+    <Value>Kategoriyani bosh sahifada "Tavsiya etilgan mahsulotlar" bo'limida ko'rsatmoqchi bo'lsangiz tanlang.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Import.CategoriesArentImported">
-    <Value>Категории со следующими именами не импортированы - {0}</Value>
+    <Value>Quyidagi nomli kategoriyalar import qilinmadi - {0}</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Imported">
-    <Value>Импорт категории(ий) прошёл успешно.</Value>
+    <Value>Kategoriya(lar) importi muvaffaqiyatli yakunlandi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Info">
-    <Value>Данные категории</Value>
+    <Value>Kategoriya ma'lumotlari</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.List.ImportFromExcelTip">
-    <Value>Импортирование категорий производится по идентификаторам. Если идентификатор уже существует, то соответствующая категория будет обновлена. Вы не должны указывать ID (оставьте 0) для новых категорий.</Value>
+    <Value>Kategoriyalar identifikatorlar bo'yicha import qilinadi. Agar identifikator allaqachon mavjud bo'lsa, mos kategoriya yangilanadi. Yangi kategoriyalar uchun ID ko'rsatmaslik kerak (0 qoldiring).</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.List.SearchCategoryName">
-    <Value>Категория</Value>
+    <Value>Kategoriya</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.List.SearchCategoryName.Hint">
-    <Value>Название категории</Value>
+    <Value>Kategoriya nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.List.SearchPublished">
-    <Value>Обубликован</Value>
+    <Value>Chop etilgan</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.List.SearchPublished.All">
-    <Value>Все</Value>
+    <Value>Barchasi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.List.SearchPublished.Hint">
-    <Value>Поиск товаров по тому опубликованы они или нет</Value>
+    <Value>Mahsulotlarni chop etilgan yoki etilmaganiga ko'ra qidirish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.List.SearchPublished.PublishedOnly">
-    <Value>Опубликован</Value>
+    <Value>Faqat chop etilganlar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.List.SearchPublished.UnpublishedOnly">
-    <Value>Не опубликован</Value>
+    <Value>Faqat chop etilmaganlar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.List.SearchStore">
-    <Value>Магазин</Value>
+    <Value>Do'kon</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.List.SearchStore.Hint">
-    <Value>Поиск по выбранному магазину.</Value>
+    <Value>Tanlangan do'kon bo'yicha qidirish.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Mappings">
-    <Value>Соответствие</Value>
+    <Value>Mosliklar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Products">
-    <Value>Товары</Value>
+    <Value>Mahsulotlar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Products.AddNew">
-    <Value>Добавить товар</Value>
+    <Value>Mahsulot qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Products.Fields.DisplayOrder">
-    <Value>Порядок отображения</Value>
+    <Value>Ko'rsatish tartibi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Products.Fields.IsFeaturedProduct">
-    <Value>Рекомендуемый товар</Value>
+    <Value>Tavsiya etilgan mahsulot</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Products.Fields.Product">
-    <Value>Товар</Value>
+    <Value>Mahsulot</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Products.SaveBeforeEdit">
-    <Value>Вы должны сохранить категорию перед тем, как добавлять в неё товары.</Value>
+    <Value>Unga mahsulot qo'shishdan oldin kategoriyani saqlashingiz kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Updated">
-    <Value>Категория успешно обновлена.</Value>
+    <Value>Kategoriya muvaffaqiyatli yangilandi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValue.AddNew">
-    <Value>Добавить новое значение уровня фильтра</Value>
+    <Value>Yangi filtr darajasi qiymatini qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValue.BackToList">
-    <Value>назад к списку значений уровня фильтра</Value>
+    <Value>filtr darajasi qiymatlari ro'yxatiga qaytish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValue.EditFilterLevelValueDetails">
-    <Value>Редактировать информацию о значениях уровня фильтра</Value>
+    <Value>Filtr darajasi qiymati ma'lumotlarini tahrirlash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValue.Info">
-    <Value>Информация о значениях уровня фильтра</Value>
+    <Value>Filtr darajasi qiymatlari haqida ma'lumot</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValue.List.ImportFromExcelTip">
-    <Value>Импортированные значения уровня фильтра различаются по ID. Если идентификатор уже существует, то соответствующее значение фильтра будет обновлено. Вы не должны указывать ID ( оставить 0) для новых значений фильтра.</Value>
+    <Value>Filtr darajasi qiymatlari ID bo'yicha import qilinadi. Agar identifikator allaqachon mavjud bo'lsa, mos filtr qiymati yangilanadi. Yangi filtr qiymatlari uchun ID ko'rsatmaslik kerak (0 qoldiring).</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValue.Products">
-    <Value>Товары</Value>
+    <Value>Mahsulotlar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValue.Products.AddNew">
-    <Value>Добавить товар</Value>
+    <Value>Mahsulot qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValue.Products.Fields.Product">
-    <Value>Товар</Value>
+    <Value>Mahsulot</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValue.Products.SaveBeforeEdit">
-    <Value>Вы должны сохранить значение уровня фильтра, прежде чем сможете добавить товары для этой страницы.</Value>
+    <Value>Ushbu sahifaga mahsulot qo'shishdan oldin filtr darajasi qiymatini saqlashingiz kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValues">
-    <Value>Значения уровня фильтра (YMM)</Value>
+    <Value>Filtr darajasi qiymatlari (YMM)</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValues.Added">
-    <Value>Значение уровня фильтра было успешно добавлено.</Value>
+    <Value>Filtr darajasi qiymati muvaffaqiyatli qo'shildi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValues.Deleted">
-    <Value>Значение уровня фильтра успешно удалено.</Value>
+    <Value>Filtr darajasi qiymati muvaffaqiyatli o'chirildi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValues.Exist">
-    <Value>Значение уровня фильтра с таким значением уже существует.</Value>
+    <Value>Bunday qiymatga ega filtr darajasi qiymati allaqachon mavjud.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValues.Imported">
-    <Value>Значения уровня фильтра успешно импортированы.</Value>
+    <Value>Filtr darajasi qiymatlari muvaffaqiyatli import qilindi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.FilterLevelValues.Updated">
-    <Value>Значение уровня фильтра успешно обновлено.</Value>
+    <Value>Filtr darajasi qiymati muvaffaqiyatli yangilandi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers">
-    <Value>Производители</Value>
+    <Value>Ishlab chiqaruvchilar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Added">
-    <Value>Новый производитель успешно добавлен.</Value>
+    <Value>Yangi ishlab chiqaruvchi muvaffaqiyatli qo'shildi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.AddNew">
-    <Value>Добавление нового производителя</Value>
+    <Value>Yangi ishlab chiqaruvchi qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.BackToList">
-    <Value>вернуться к списку производителей</Value>
+    <Value>ishlab chiqaruvchilar ro'yxatiga qaytish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Deleted">
-    <Value>Производитель успешно удалён.</Value>
+    <Value>Ishlab chiqaruvchi muvaffaqiyatli o'chirildi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Display">
-    <Value>Показать по</Value>
+    <Value>Ko'rsatish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.EditManufacturerDetails">
-    <Value>Изменение данных производителя</Value>
+    <Value>Ishlab chiqaruvchi ma'lumotlarini tahrirlash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.AllowCustomersToSelectPageSize">
-    <Value>Разрешить посетителю выбрать размер страницы</Value>
+    <Value>Mijozga sahifa hajmini tanlashga ruxsat berish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.AllowCustomersToSelectPageSize.Hint">
-    <Value>Определяет, разрешено ли посетителю выбрать из списка, количество товаров отображаемых на одной странице</Value>
+    <Value>Ro'yxatdan bitta sahifada ko'rsatiladigan mahsulotlar sonini mijoz tanlashi mumkinligini belgilaydi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.Deleted">
-    <Value>Удалено</Value>
+    <Value>O'chirilgan</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.Description">
-    <Value>Описание</Value>
+    <Value>Tavsif</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.Description.Hint">
-    <Value>Описание производителя.</Value>
+    <Value>Ishlab chiqaruvchi tavsifi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.Discounts">
-    <Value>Скидки</Value>
+    <Value>Chegirmalar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.Discounts.Hint">
-    <Value>Выберите скидки и примените к данному производителю. Вы можете настраивать скидки в меню Продвижение > Скидки.</Value>
+    <Value>Chegirmalarni tanlang va ushbu ishlab chiqaruvchiga qo'llang. Chegirmalarni Marketing &gt; Chegirmalar menyusida sozlashingiz mumkin.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.Discounts.NoDiscounts">
-    <Value>Нет доступных скидок. Создайте хотя бы одну скидку для возможности привязки.</Value>
+    <Value>Mavjud chegirmalar yo'q. Bog'lash imkoniyati uchun kamida bitta chegirma yarating.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.DisplayOrder">
-    <Value>Порядок отображения</Value>
+    <Value>Ko'rsatish tartibi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.DisplayOrder.Hint">
-    <Value>Порядок отображения производителя. 1 — это первый пункт списка.</Value>
+    <Value>Ishlab chiqaruvchining ko'rsatish tartibi. 1 - ro'yxatdagi birinchi band.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.LimitedToStores">
-    <Value>Только для избранных магазинов</Value>
+    <Value>Faqat tanlangan do'konlar uchun</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.LimitedToStores.Hint">
-    <Value>Определяет доступность данного производителя для избранных магазинов. Если у вас есть несколько магазинов, выбрать один или несколько из списка. Если вы не используете эту опцию, просто оставьте это поле пустым.</Value>
+    <Value>Ushbu ishlab chiqaruvchining tanlangan do'konlar uchun mavjudligini belgilaydi. Agar sizda bir nechta do'kon bo'lsa, ro'yxatdan bir yoki bir nechtasini tanlang. Agar bu opsiyadan foydalanmasangiz, maydonni bo'sh qoldiring.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.ManuallyPriceRange">
-    <Value>Введите диапазон цен вручную</Value>
+    <Value>Narx oralig'ini qo'lda kiriting</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.ManuallyPriceRange.Hint">
-    <Value>Выберите, чтобы вводить ценовой диапазон вручную, в противном случае включен автоматический расчет ценового диапазона (на основе цен доступных товаров). Установите диапазон цен вручную, если у вас есть сложные правила скидок.</Value>
+    <Value>Narx oralig'ini qo'lda kiritish uchun tanlang, aks holda narx oralig'i mavjud mahsulotlar narxiga asoslanib avtomatik hisoblanadi. Agar sizda murakkab chegirma qoidalari bo'lsa, narx oralig'ini qo'lda belgilang.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.ManufacturerTemplate">
-    <Value>Шаблон</Value>
+    <Value>Shablon</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.ManufacturerTemplate.Hint">
-    <Value>Выберите шаблон отображения списка производителей. Этот шаблон, определяет как будет отображаться список производителей (и товары производимые ими).</Value>
+    <Value>Ishlab chiqaruvchilar ro'yxatini ko'rsatish shablonini tanlang. Ushbu shablon ishlab chiqaruvchilar ro'yxati (va ular ishlab chiqaradigan mahsulotlar) qanday ko'rsatilishini belgilaydi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.MetaDescription">
-    <Value>Мета описание</Value>
+    <Value>Meta tavsif</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.MetaDescription.Hint">
-    <Value>Мета описание, которое будет добавлено в заголовок страницы производителя.</Value>
+    <Value>Ishlab chiqaruvchi sahifasi sarlavhasiga qo'shiladigan meta tavsif.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.MetaKeywords">
-    <Value>Мета ключевые слова</Value>
+    <Value>Meta kalit so'zlar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.MetaKeywords.Hint">
-    <Value>Мета ключевые слова, которые будут добавлены в заголовок страницы производителя.</Value>
+    <Value>Ishlab chiqaruvchi sahifasi sarlavhasiga qo'shiladigan meta kalit so'zlar.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.MetaTitle">
-    <Value>Мета заголовок</Value>
+    <Value>Meta sarlavha</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.MetaTitle.Hint">
-    <Value>Переопределяет заголовок страницы. По умолчанию это название производителя.</Value>
+    <Value>Sahifa sarlavhasini almashtiradi. Sukut bo'yicha bu ishlab chiqaruvchi nomi bo'ladi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.Name">
-    <Value>Название</Value>
+    <Value>Nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.Name.Hint">
-    <Value>Название производителя.</Value>
+    <Value>Ishlab chiqaruvchi nomi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.Name.Required">
-    <Value>Необходимо ввести название.</Value>
+    <Value>Nomini kiritish kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PageSize">
-    <Value>Размер страницы</Value>
+    <Value>Sahifa hajmi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PageSize.Hint">
-    <Value>Устанавливает размер страницы для товаров этого производителя. Например '4' товара на страницу.</Value>
+    <Value>Ushbu ishlab chiqaruvchining mahsulotlari uchun sahifa hajmini belgilaydi. Masalan, bir sahifada '4' ta mahsulot.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PageSize.Positive">
-    <Value>Размер страницы должен иметь положительное значение.</Value>
+    <Value>Sahifa hajmi musbat qiymat bo'lishi kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PageSizeOptions">
-    <Value>Параметры размера страницы</Value>
+    <Value>Sahifa hajmi parametrlari</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PageSizeOptions.Hint">
-    <Value>Список значений размера страницы, разделённых запятыми,  (например: 10, 5, 15, 20). Первое значение, является значением по-умолчанию.</Value>
+    <Value>Vergul bilan ajratilgan sahifa hajmi qiymatlari ro'yxati (masalan: 10, 5, 15, 20). Birinchi qiymat sukut bo'yicha tanlanadi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PageSizeOptions.ShouldHaveUniqueItems">
-    <Value>Параметры размера страницы должны иметь уникальные элементы.</Value>
+    <Value>Sahifa hajmi parametrlari noyob elementlarga ega bo'lishi kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.Picture">
-    <Value>Изображение</Value>
+    <Value>Rasm</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.Picture.Hint">
-    <Value>Изображение призводителя.</Value>
+    <Value>Ishlab chiqaruvchi rasmi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PriceFrom">
-    <Value>Цена 'от'</Value>
+    <Value>Narx 'dan'</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PriceFrom.GreaterThanOrEqualZero">
-    <Value>Цена 'от' должна быть больше или равна '0'.</Value>
+    <Value>Narx 'dan' qiymati '0' dan katta yoki teng bo'lishi kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PriceFrom.Hint">
-    <Value>Введите начальную цену.</Value>
+    <Value>Boshlang'ich narxni kiriting.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PriceRangeFiltering">
-    <Value>Фильтрация ценового диапазона</Value>
+    <Value>Narx oralig'i bo'yicha filtrlash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PriceRangeFiltering.Hint">
-    <Value>Выберите, чтобы включить фильтрацию ценового диапазона.</Value>
+    <Value>Narx oralig'i bo'yicha filtrlashni yoqish uchun tanlang.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PriceTo">
-    <Value>Цена 'до'</Value>
+    <Value>Narx 'gacha'</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PriceTo.GreaterThanZeroOrPriceFrom">
-    <Value>Цена 'до' должна быть больше '{0}'.</Value>
+    <Value>Narx 'gacha' qiymati '{0}' dan katta bo'lishi kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.PriceTo.Hint">
-    <Value>Введите конечную цену.</Value>
+    <Value>Yakuniy narxni kiriting.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.Published">
-    <Value>Обубликован</Value>
+    <Value>Chop etilgan</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.Published.Hint">
-    <Value>выберите, чтобы опубликовать производителя (сделать его видимым в магазине). Снимите выделение, чтобы сделать его невидимым.</Value>
+    <Value>Ishlab chiqaruvchini chop etish (do'konda ko'rinadigan qilish) uchun tanlang. Ko'rinmas qilish uchun belgini olib tashlang.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.SeName">
-    <Value>Имя страницы для поисковых систем</Value>
+    <Value>Qidiruv tizimlari uchun sahifa nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Fields.SeName.Hint">
-    <Value>Устанавливает имя страницы для поисковых систем, например, 'The Best Manufacturer', чтобы URL страницы выглядел так:'http://www.yourStore.com/the-best-manufacturer'. Оставьте пустым, чтобы создать имя страницы автоматически, основываясь на названии производителя</Value>
+    <Value>Qidiruv tizimlari uchun sahifa nomini belgilaydi, masalan, 'The Best Manufacturer', shunda URL quyidagicha ko'rinadi: 'http://www.yourStore.com/the-best-manufacturer'. Ishlab chiqaruvchi nomi asosida sahifa nomini avtomatik yaratish uchun bo'sh qoldiring.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Imported">
-    <Value>Импорт производителя(ей) прошёл успешно.</Value>
+    <Value>Ishlab chiqaruvchi(lar) importi muvaffaqiyatli yakunlandi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Info">
-    <Value>Информация о производителе</Value>
+    <Value>Ishlab chiqaruvchi haqida ma'lumot</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.List.ImportFromExcelTip">
-    <Value>Импортирование производителей производится по идентификаторам. Если идентификатор уже существует, то соответствующий производитель будет обновлен. Вы не должны указывать ID (оставьте 0) для новых производителей.</Value>
+    <Value>Ishlab chiqaruvchilar identifikatorlar bo'yicha import qilinadi. Agar identifikator allaqachon mavjud bo'lsa, mos ishlab chiqaruvchi yangilanadi. Yangi ishlab chiqaruvchilar uchun ID ko'rsatmaslik kerak (0 qoldiring).</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.List.SearchManufacturerName">
-    <Value>Производитель</Value>
+    <Value>Ishlab chiqaruvchi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.List.SearchManufacturerName.Hint">
-    <Value>Название производителя</Value>
+    <Value>Ishlab chiqaruvchi nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.List.SearchPublished">
-    <Value>Обубликован</Value>
+    <Value>Chop etilgan</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.List.SearchPublished.All">
-    <Value>Все</Value>
+    <Value>Barchasi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.List.SearchPublished.Hint">
-    <Value>Поиск товаров по тому опубликованы они или нет</Value>
+    <Value>Mahsulotlarni chop etilgan yoki etilmaganiga ko'ra qidirish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.List.SearchPublished.PublishedOnly">
-    <Value>Опубликован</Value>
+    <Value>Faqat chop etilganlar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.List.SearchPublished.UnpublishedOnly">
-    <Value>Не опубликован</Value>
+    <Value>Faqat chop etilmaganlar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.List.SearchStore">
-    <Value>Магазин</Value>
+    <Value>Do'kon</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.List.SearchStore.Hint">
-    <Value>Поиск по выбранному магазину.</Value>
+    <Value>Tanlangan do'kon bo'yicha qidirish.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Mappings">
-    <Value>Соответствие</Value>
+    <Value>Mosliklar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Products">
-    <Value>Товары</Value>
+    <Value>Mahsulotlar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Products.AddNew">
-    <Value>Добавить товар</Value>
+    <Value>Mahsulot qo'shish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Products.Fields.DisplayOrder">
-    <Value>Порядок отображения</Value>
+    <Value>Ko'rsatish tartibi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Products.Fields.IsFeaturedProduct">
-    <Value>Рекомендуемый товар</Value>
+    <Value>Tavsiya etilgan mahsulot</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Products.Fields.Product">
-    <Value>Товар</Value>
+    <Value>Mahsulot</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Products.SaveBeforeEdit">
-    <Value>Вы должны сохранить производителя перед тем, как добавлять в него товары.</Value>
+    <Value>Unga mahsulot qo'shishdan oldin ishlab chiqaruvchini saqlashingiz kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Manufacturers.Updated">
-    <Value>Производитель успешно обновлен.</Value>
+    <Value>Ishlab chiqaruvchi muvaffaqiyatli yangilandi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.ProductReviews">
-    <Value>Отзывы о товарах</Value>
+    <Value>Mahsulot sharhlari</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.ProductReviews.ApproveSelected">
     <Value>Опубликовать выбранные</Value>
