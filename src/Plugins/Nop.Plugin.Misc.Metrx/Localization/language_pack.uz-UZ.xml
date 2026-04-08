@@ -11793,7 +11793,6 @@
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.News.NewsItems.Fields.StartDate.Hint">
     <Value>Yangilikning boshlanish sanasini kiriting yoki maydonni bo'sh qoldiring.</Value>
-  </LocaleResource></Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.News.NewsItems.Fields.Title">
     <Value>Sarlavha</Value>
@@ -14913,169 +14912,169 @@
     <Value>Kupon kodi bilan URL</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.DiscountUrl.Hint">
-    <Value>Образец ссылки, включающий скидочный код купона, чтобы клиенты не могли вводить код купона при оформлении заказа. Вы также можете использовать этот параметр запроса с любой другой ссылкой на ваш магазин, например, ссылку на определенный товар или категорию.</Value>
+    <Value>Mijozlar buyurtma berishda kupon kodini kiritmasliklari uchun chegirma kupon kodini o'z ichiga olgan havola namunasi. Shuningdek, ushbu so'rov parametrini do'koningizdagi boshqa havolalar bilan ham ishlatishingiz mumkin, masalan, ma'lum bir mahsulot yoki turkum havolasi bilan.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.EndDate">
-    <Value>Конечная дата</Value>
+    <Value>Tugash sanasi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.EndDate.Hint">
-    <Value>Дата окончания действия скидки в UTC.</Value>
+    <Value>Chegirmaning UTC bo'yicha tugash sanasi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.IsActive">
-    <Value>Активен</Value>
+    <Value>Faol</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.IsActive.Hint">
-    <Value>Указывает, активна ли скидка.</Value>
+    <Value>Chegirma faol yoki yo'qligini ko'rsatadi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.IsCumulative">
-    <Value>Можно применять вместе с другими скидками</Value>
+    <Value>Boshqa chegirmalar bilan birga qo'llash mumkin</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.IsCumulative.Hint">
-    <Value>Если этот флажок установлен, эта скидка может использоваться одновременно с другими. Обратите внимание, что эта функция работает только для скидок с одинаковым типом. Сейчас, скидки с различными типами уже накопительные.</Value>
+    <Value>Agar ushbu belgi yoqilgan bo'lsa, bu chegirma boshqalari bilan bir vaqtda ishlatilishi mumkin. E'tibor bering, bu funksiya faqat bir xil turdagi chegirmalar uchun ishlaydi. Hozirda turli turdagi chegirmalar allaqachon jamlanadi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.LimitationTimes">
-    <Value>Количество раз</Value>
+    <Value>Martalar soni</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.LimitationTimes.Hint">
-    <Value>Введите количество раз, которым ограничена скидка.</Value>
+    <Value>Chegirma necha marta bilan cheklanishini kiriting.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.LimitationTimes.Times">
-    <Value>Количество раз</Value>
+    <Value>Martalar soni</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.MaximumDiscountAmount">
-    <Value>Максимальное кол-во для скидки</Value>
+    <Value>Chegirma uchun maksimal miqdor</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.MaximumDiscountAmount.Hint">
-    <Value>Максимальное кол-во для скидки. Оставьте пустым, если хотите разрешить скидку для любого кол-во товара.</Value>
+    <Value>Chegirma uchun maksimal miqdor. Istalgan miqdordagi tovar uchun chegirmaga ruxsat bermoqchi bo'lsangiz, bo'sh qoldiring.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.MaximumDiscountedQuantity">
-    <Value>Максимальное количество со скидкой</Value>
+    <Value>Chegirma bilan maksimal miqdor</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.MaximumDiscountedQuantity.Hint">
-    <Value>Максимальное количество товара, которое продается со скидкой. Например, могут быть тва товара (одинаковые), но только один из них будет продаваться со скидкой.</Value>
+    <Value>Chegirma bilan sotiladigan mahsulotning maksimal miqdori. Masalan, ikkita bir xil mahsulot bo'lishi mumkin, lekin ulardan faqat bittasi chegirma bilan sotiladi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.Name">
-    <Value>Название</Value>
+    <Value>Nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.Name.Hint">
-    <Value>Название скидки.</Value>
+    <Value>Chegirma nomi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.Name.Required">
-    <Value>Необходимо ввести название.</Value>
+    <Value>Nomini kiritish kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.RequiresCouponCode">
-    <Value>Требуется код купона</Value>
+    <Value>Kupon kodi talab qilinadi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.RequiresCouponCode.Hint">
-    <Value>Если выбрано, клиент должен ввести правильный код купона, чтобы скидка применилась.</Value>
+    <Value>Agar tanlansa, mijoz chegirma qo'llanishi uchun to'g'ri kupon kodini kiritishi kerak.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.StartDate">
-    <Value>Дата начала</Value>
+    <Value>Boshlanish sanasi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.StartDate.Hint">
-    <Value>Дата начала действия скидки в UTC.</Value>
+    <Value>Chegirmaning UTC bo'yicha boshlanish sanasi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.TimesUsed">
-    <Value>Испольщовано раз</Value>
+    <Value>Foydalanilgan marta</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.UsePercentage">
-    <Value>Задать в процентах</Value>
+    <Value>Foizda belgilash</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.UsePercentage.Hint">
-    <Value>Определяет, нужно ли задавать скидку в процентах. Если не выбрано, скидывается указанная сумма.</Value>
+    <Value>Chegirmani foizda berish kerakligini belgilaydi. Tanlanmasa, ko'rsatilgan summa chegiriladi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.Vendor">
-    <Value>Поставщик</Value>
+    <Value>Yetkazib beruvchi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.Vendor.Hint">
-    <Value>Выберите поставщика, связанного с этой скидкой. Связанный поставщик сможет управлять этой скидкой.</Value>
+    <Value>Ushbu chegirma bilan bog'langan yetkazib beruvchini tanlang. Bog'langan yetkazib beruvchi bu chegirmani boshqarishi mumkin bo'ladi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Fields.Vendor.None">
-    <Value>Нет</Value>
+    <Value>Yo'q</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.History">
-    <Value>История использования</Value>
+    <Value>Foydalanish tarixi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.History.CreatedOn">
-    <Value>Использован</Value>
+    <Value>Foydalanilgan</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.History.CustomOrderNumber">
-    <Value>Заказ №</Value>
+    <Value>Buyurtma №</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.History.OrderTotal">
-    <Value>Сумма заказа</Value>
+    <Value>Buyurtma summasi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.IgnoreDiscounts.Warning">
-    <Value>Чтобы использовать эту функцию, вам необходимо отключить следующую настройку: Конфигурация > Настройки каталога > Игнорировать скидки (sitewide).</Value>
+    <Value>Bu funksiyadan foydalanish uchun quyidagi sozlamani o'chirishingiz kerak: Konfiguratsiya &gt; Katalog sozlamalari &gt; Chegirmalarni e'tiborsiz qoldirish (butun sayt bo'yicha).</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Info">
-    <Value>Данные скидки</Value>
+    <Value>Chegirma ma'lumotlari</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.IsActive">
-    <Value>Активен</Value>
+    <Value>Faol</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.IsActive.ActiveOnly">
-    <Value>Только активные</Value>
+    <Value>Faqat faol</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.IsActive.All">
-    <Value>Все</Value>
+    <Value>Barchasi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.IsActive.Hint">
-    <Value>Поиск по полю "Активен".</Value>
+    <Value>"Faol" maydoni bo'yicha qidirish.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.IsActive.InactiveOnly">
-    <Value>Только неактивные</Value>
+    <Value>Faqat nofaol</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.SearchDiscountCouponCode">
-    <Value>Код купона</Value>
+    <Value>Kupon kodi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.SearchDiscountCouponCode.Hint">
-    <Value>Поиск по коду купона.</Value>
+    <Value>Kupon kodi bo'yicha qidirish.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.SearchDiscountName">
-    <Value>Имя скидки</Value>
+    <Value>Chegirma nomi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.SearchDiscountName.Hint">
-    <Value>Имя скидки.</Value>
+    <Value>Chegirma nomi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.SearchDiscountType">
-    <Value>Тип скидки</Value>
+    <Value>Chegirma turi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.SearchDiscountType.Hint">
-    <Value>Поиск по типу скидки.</Value>
+    <Value>Chegirma turi bo'yicha qidirish.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.SearchEndDate">
-    <Value>Конечная дата</Value>
+    <Value>Tugash sanasi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.SearchEndDate.Hint">
-    <Value>Конечная дата.</Value>
+    <Value>Tugash sanasi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.SearchStartDate">
-    <Value>Дата начала</Value>
+    <Value>Boshlanish sanasi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.SearchStartDate.Hint">
-    <Value>Начальная дата.</Value>
+    <Value>Boshlanish sanasi.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.SearchVendor">
-    <Value>Поставщик</Value>
+    <Value>Yetkazib beruvchi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.List.SearchVendor.Hint">
-    <Value>Поиск по выбранному поставщику.</Value>
+    <Value>Tanlangan yetkazib beruvchi bo'yicha qidirish.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Requirements">
-    <Value>Требования</Value>
+    <Value>Talablar</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Requirements.AddNew">
-    <Value>Создание требования для скидки</Value>
+    <Value>Chegirma uchun talab yaratish</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Requirements.Alert.FailedGetDiscountRequirements">
-    <Value>Не удалось загрузить информацию о требованиях. Пожалуйста, обновите страницу.</Value>
+    <Value>Talablar haqidagi ma'lumotni yuklab bo'lmadi. Iltimos, sahifani yangilang.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Requirements.Alert.FailedToSave">
-    <Value>Ошибка при сохранении требования</Value>
+    <Value>Talabni saqlashda xatolik</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Requirements.DefaultRequirementGroup">
-    <Value>Группу требований по умолчанию</Value>
+    <Value>Standart talablar guruhi</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.Discounts.Requirements.Description">
     <Value><![CDATA[Установите требования к созданной скидке, если вы хотите ограничить ее определенными категориями пользователей в зависимости от роли клиента, потраченной суммы и т. Д. Вы можете использовать один тип требования или группировать несколько типов и применять их одновременно. <br> Группа требований Полезная функция для создания шаблонов требований скидки. Вы можете создать группу требований только один раз и затем использовать ее каждый раз, когда вы хотите, чтобы это ограничение применялось. При необходимости вы можете включить одну группу требований в другую.</br>]]></Value>
